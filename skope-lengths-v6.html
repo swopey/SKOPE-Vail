@@ -1,0 +1,629 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SKOPE · Run lengths from OpenStreetMap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#2E3442;--card:#3A4152;--line:#4A5266;--ink:#EDEFF5;--mut:#98A0B4;--acc:#E9A57F;--ok:#7FBF9A;--warn:#E8C57E}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+header{position:sticky;top:0;z-index:5;background:#262B37;border-bottom:1px solid var(--line);padding:13px 16px 11px}
+.wm{font-family:Montserrat,sans-serif;font-weight:800;letter-spacing:.26em;text-indent:.26em;font-size:13px}
+.sub{color:var(--mut);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-top:5px}
+.bar{display:flex;gap:8px;align-items:center;margin-top:11px;flex-wrap:wrap}
+button.go{background:var(--acc);border:0;color:#2A2018;font-weight:700;border-radius:9px;padding:9px 16px;font:inherit;font-size:13px;cursor:pointer}
+button.go[disabled]{opacity:.5;cursor:default}
+.pill{border:1px solid var(--line);background:transparent;color:var(--mut);border-radius:999px;padding:6px 12px;font:inherit;font-size:12px;cursor:pointer}
+.pill.on{background:var(--acc);border-color:var(--acc);color:#2A2018;font-weight:700}
+.note{color:var(--mut);font-size:11.5px;margin-top:9px;line-height:1.5}
+main{padding:14px 16px 90px;max-width:900px;margin:0 auto}
+.stat{display:flex;gap:18px;flex-wrap:wrap;background:var(--card);border-radius:13px;padding:13px 15px;margin-bottom:12px}
+.stat div{min-width:96px}
+.stat b{display:block;font-family:Montserrat,sans-serif;font-size:20px;font-weight:700}
+.stat span{color:var(--mut);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:13px;overflow:hidden}
+th{text-align:left;color:var(--mut);font-size:10px;letter-spacing:.13em;text-transform:uppercase;padding:10px 12px;border-bottom:1px solid var(--line)}
+td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px;vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tag{font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:4px;background:#2A3040}
+.tag.exact{color:var(--ok)}.tag.loose{color:var(--warn)}.tag.none{color:#E58A7A}
+.log{background:#222732;border:1px solid var(--line);border-radius:11px;padding:11px 13px;color:var(--mut);
+ font:12px/1.6 ui-monospace,monospace;white-space:pre-wrap;margin-bottom:12px}
+footer{position:fixed;left:0;right:0;bottom:0;background:#262B37;border-top:1px solid var(--line);padding:10px 16px;display:flex;gap:9px;align-items:center}
+footer span{color:var(--mut);font-size:12px}
+footer button{margin-left:auto;background:var(--acc);border:0;color:#2A2018;font-weight:700;border-radius:9px;padding:9px 15px;font:inherit;font-size:13px;cursor:pointer}
+dialog{border:0;border-radius:14px;background:var(--card);color:var(--ink);max-width:640px;width:92%;padding:16px}
+dialog textarea{width:100%;height:280px;background:#222732;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:10px;font:12px/1.4 ui-monospace,monospace}
+
+.tag.position{color:#8FB4D8}.tag.chained{color:#B9A6E0}.tag.alias{color:var(--acc)}
+.tag.summed{color:var(--mut)}.tag.manual{color:#E8C57E}
+.why{color:var(--warn);font-size:12px;margin:2px 0 9px}
+.fam{background:var(--card);border-radius:13px;padding:13px 15px;margin-bottom:12px}
+.fam h4{font:800 13px Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;margin:0 0 3px}
+select,input.pc{background:#222732;color:var(--ink);border:1px solid var(--line);border-radius:7px;
+ padding:5px 7px;font:inherit;font-size:12.5px}
+.mini{color:var(--mut);font-size:11px}
+.act{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:8px;
+ padding:5px 10px;font:inherit;font-size:12px;cursor:pointer;margin-right:6px}
+.act.on{background:var(--acc);border-color:var(--acc);color:#2A2018;font-weight:700}
+</style></head><body>
+<header>
+  <div class="wm">SKOPE</div>
+  <div class="sub">Run lengths from OpenStreetMap · Vail</div>
+  <div class="bar">
+    <button class="go" id="go">Fetch Vail geometry</button>
+    <button class="pill on" data-f="matched">Matched</button>
+    <button class="pill" data-f="families">Split runs <b id="nfam"></b></button>
+    <button class="pill" data-f="suggest">Suggestions <b id="nsug"></b></button>
+    <button class="pill" data-f="missing">Unmatched</button>
+    <button class="pill" data-f="extra">In OSM only</button>
+    <button class="pill" data-f="skipped">Not on OSM by choice</button>
+  </div>
+  <div class="note">Queries the public Overpass API for every <b>piste:type=downhill</b> way around Vail and adds up
+  its coordinates. Lengths are <b>plan distance</b>, so a steep run measures a few percent short of the real
+  slope distance. Nothing is sent anywhere. Your aliases and your not-on-OSM calls are kept in this browser only.<br><b>A run you split by difficulty is split the same way in OSM</b>, because a way can only carry one <b>piste:difficulty</b> — so segments are measured one by one, never given the whole run’s length.</div>
+</header>
+<main>
+  <div class="log" id="log">Ready. Press fetch — it takes 10 to 30 seconds.</div>
+  <div id="stat"></div>
+  <div id="out"></div>
+</main>
+<footer><span id="n"></span><button id="exp">Export lengths</button></footer>
+<dialog id="dlg"><b>Run lengths</b><p style="color:var(--mut);font-size:12px">Paste this into the index.</p>
+<textarea id="ta" readonly></textarea>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button id="cp" style="background:var(--acc);border:0;color:#2A2018;font-weight:700;border-radius:9px;padding:9px 15px;cursor:pointer">Copy</button>
+<button id="cl" style="background:transparent;border:1px solid var(--line);color:var(--mut);border-radius:9px;padding:9px 15px;cursor:pointer">Close</button></div></dialog>
+<script>
+/* SKOPE run-length matcher, core logic. No DOM in here so it can be tested offline. */
+
+const POSV = ['top','upper','mid','middle','lower','bottom'];      // vertical, orderable
+const POSC = ['west','east','north','south','front','back'];        // side, exact match only
+const POS = POSV.concat(POSC);
+const POSRANK = {top:0, upper:1, mid:2, middle:2, lower:3, bottom:4};
+
+// his difficulty codes -> the OSM piste:difficulty values that can satisfy them
+const DIFFOK = {
+  easiest:    ['easy','novice'],
+  more:       ['intermediate'],
+  most:       ['advanced'],
+  extreme:    ['expert','freeride'],
+  park:       ['easy','novice','intermediate','advanced','expert','freeride',''],
+  road_green: ['easy','novice'],
+  road_blue:  ['intermediate'],
+  road_black: ['advanced']
+};
+
+function tidy(s){
+  return String(s).toLowerCase()
+    .replace(/\u2192|->/g,' to ')
+    .replace(/&/g,' and ')
+    .replace(/\bn\.\s*/g,'north ').replace(/\bs\.\s*/g,'south ')
+    .replace(/\be\.\s*/g,'east ').replace(/\bw\.\s*/g,'west ')
+    .replace(/[^a-z0-9 ]/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+// "tea cup" and "teacup" must collide; so must "look ma" vs "lookma"
+function tight(s){ return tidy(s).replace(/ /g,''); }
+
+/* Split a name into its base and its position word.
+   "Riva Ridge (top)"  -> {base:'riva ridge', pos:'top'}
+   "Riva Ridge Top"    -> {base:'riva ridge', pos:'top'}
+   "Silk Road (21 to base of 22)" -> {base:'silk road', pos:null, qual:'21 to base of 22'}  */
+function parts(name){
+  const m = String(name).match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+  if(m){
+    const inner = tidy(m[2]);
+    if(POS.indexOf(inner) >= 0)
+      return {base: tidy(m[1]), pos: inner, vert: POSV.indexOf(inner) >= 0, qual: null};
+    return {base: tidy(m[1]), pos: null, qual: inner};
+  }
+  const t = tidy(name).split(' ');
+  if(t.length > 1 && POS.indexOf(t[t.length-1]) >= 0)
+    return {base: t.slice(0,-1).join(' '), pos: t[t.length-1],
+            vert: POSV.indexOf(t[t.length-1]) >= 0, qual: null};
+  return {base: tidy(name), pos: null, vert: false, qual: null};
+}
+
+function metres(g){
+  let m = 0;
+  for(let i=1;i<g.length;i++){
+    const a=g[i-1], b=g[i], R=6371000, r=Math.PI/180;
+    const dLat=(b.lat-a.lat)*r, dLon=(b.lon-a.lon)*r, la=(a.lat+b.lat)/2*r;
+    const x=dLon*Math.cos(la);
+    m += R*Math.sqrt(dLat*dLat + x*x);
+  }
+  return m;
+}
+
+const key = p => p.lat.toFixed(5)+','+p.lon.toFixed(5);
+
+/* Order a set of ways into a single path by shared endpoints.
+   Returns {ways, flow} where flow is +1 if walking the chain in this order also
+   walks every way the way it was DRAWN, -1 if it walks every one against the
+   drawing, and 0 if the drawing is inconsistent. OSM draws a piste downhill, so
+   flow=+1 means this order runs top to bottom. Null if the ways are not one chain. */
+function chain(ways){
+  if(ways.length === 1) return {ways: ways.slice(), flow: 1};
+  const ends = {};
+  ways.forEach((w,i) => {
+    [key(w.geometry[0]), key(w.geometry[w.geometry.length-1])].forEach(k => {
+      (ends[k] = ends[k] || []).push(i);
+    });
+  });
+  for(const k in ends) if(ends[k].length > 2) return null;      // a fork, not a chain
+  const tips = Object.keys(ends).filter(k => ends[k].length === 1);
+  if(tips.length !== 2) return null;                             // a loop or two pieces
+  const out = [], seen = new Set();
+  let node = tips[0], fwd = 0, bwd = 0;
+  while(out.length < ways.length){
+    const nx = (ends[node]||[]).filter(i => !seen.has(i));
+    if(!nx.length) return null;
+    const i = nx[0], w = ways[i];
+    seen.add(i); out.push(w);
+    const a = key(w.geometry[0]), b = key(w.geometry[w.geometry.length-1]);
+    if(a === node) fwd++; else bwd++;
+    node = (a === node) ? b : a;
+  }
+  const flow = bwd === 0 ? 1 : (fwd === 0 ? -1 : 0);
+  return {ways: out, flow};
+}
+
+/* Collapse consecutive ways that carry the same difficulty into one piece.
+   OSM often splits a run more finely than the rating changes. */
+function collapse(ordered){
+  const out = [];
+  for(const w of ordered){
+    const last = out[out.length-1];
+    if(last && (last.diff||'') === (w.diff||'')) { last.ways.push(w); last.m += w.m; }
+    else out.push({diff: w.diff||'', m: w.m, ways: [w]});
+  }
+  return out;
+}
+
+const fits = (mine, osm) => (DIFFOK[mine]||[]).indexOf(osm||'') >= 0;
+
+function score(mineDiffs, pieces){
+  if(mineDiffs.length !== pieces.length) return -1;
+  let s = 0;
+  for(let i=0;i<mineDiffs.length;i++) if(fits(mineDiffs[i], pieces[i].diff)) s++;
+  return s;
+}
+
+/* ------------------------------------------------------------------ */
+
+function analyse(elements, MINE, aliases, noOsm, manual, shares){
+  aliases = aliases || {}; noOsm = noOsm || {}; manual = manual || {}; shares = shares || {};
+
+  const ways = (elements||[])
+    .filter(e => e.type==='way' && e.geometry && e.tags && (e.tags.name||e.tags['piste:name']))
+    .map(e => ({
+      id: e.id,
+      name: (e.tags.name || e.tags['piste:name']).trim(),
+      diff: e.tags['piste:difficulty'] || '',
+      geometry: e.geometry,
+      m: metres(e.geometry)
+    }));
+
+  // index OSM ways by exact tidy name and by base
+  const byName = {}, byBase = {};
+  ways.forEach(w => {
+    const p = parts(w.name);
+    w.p = p;
+    (byName[tight(w.name)] = byName[tight(w.name)] || []).push(w);
+    (byBase[tight(p.base)] = byBase[tight(p.base)] || []).push(w);
+  });
+
+  // group HIS runs into families by base
+  const fam = {};
+  Object.keys(MINE).forEach(n => {
+    const p = parts(n);
+    (fam[tight(p.base)] = fam[tight(p.base)] || []).push({mine: n, ...p, d: MINE[n]});
+  });
+
+  const rows = [], families = [], groups = [], missing = [], skipped = [];
+  const manualBy = {};                       // your run -> the ways you gave it
+  Object.keys(manual).forEach(id => {
+    const mine = manual[id];
+    (manualBy[mine] = manualBy[mine] || []).push(+id);
+  });
+  const usedWays = new Set();
+  const take = (list, mine, method, note) => {
+    list.forEach(w => usedWays.add(w.id));
+    const m = list.reduce((a,w)=>a+w.m, 0);
+    rows.push({mine, osm: list.map(w=>w.name).filter((v,i,a)=>a.indexOf(v)===i).join(' + '),
+               m, ways: list.length, method, note: note||'', diff: list[0].diff||''});
+  };
+
+  Object.keys(fam).forEach(base => {
+    const segs = fam[base].slice().sort((a,b) => (POSRANK[a.pos]??9) - (POSRANK[b.pos]??9));
+
+    // 1. anything you ruled out, assigned by hand, or aliased — in that order
+    const rest = [];
+    segs.forEach(s => {
+      if(noOsm[s.mine]){ skipped.push(s.mine); return; }
+      const ids = manualBy[s.mine];
+      if(ids && ids.length){
+        const ws = ways.filter(w => ids.indexOf(w.id) >= 0);
+        if(ws.length){ take(ws, s.mine, 'manual',
+          'you assigned ' + ws.map(w => w.name).filter((v,i,a)=>a.indexOf(v)===i).join(' + ')); return; }
+      }
+      const al = aliases[s.mine];
+      if(al){
+        const list = Array.isArray(al) ? al : [al];
+        let hit = [];
+        list.forEach(nm => { hit = hit.concat(byName[tight(nm)] || byBase[tight(nm)] || []); });
+        if(hit.length){ take(hit, s.mine, 'alias', 'you linked this to ' + list.join(' + ')); return; }
+      }
+      rest.push(s);
+    });
+    if(!rest.length) return;
+
+    const strict = byBase[base] || [];
+    // the review card also offers near relatives: OSM names that START with this run's
+    // name, like "Riva Ridge - Tourist Trap" under Riva Ridge
+    const near = ways.filter(w => strict.indexOf(w) < 0 &&
+                 tight(w.p.base).indexOf(base) === 0 && tight(w.p.base) !== base);
+    const all = strict.concat(near);
+    const pool = strict.filter(w => !manual[w.id]);
+    if(!pool.length){
+      if(all.length) groups.push({base, segs, pool: all, why: 'every way here is assigned', done: true});
+      else rest.forEach(s => missing.push(s.mine));
+      return;
+    }
+    if(segs.length > 1) groups.push({base, segs, pool: all, why: '', done: false});
+
+    // 2. you split the whole run by percentage
+    const sh = shares[base];
+    if(sh && rest.every(s => typeof sh[s.mine] === 'number')){
+      const total = pool.reduce((a,w) => a + w.m, 0);
+      rest.forEach(s => rows.push({mine: s.mine, osm: pool[0].name, m: total * sh[s.mine] / 100,
+        ways: pool.length, method: 'apportioned',
+        note: 'you gave this segment ' + sh[s.mine] + '% of the run', diff: ''}));
+      pool.forEach(w => usedWays.add(w.id));
+      return;
+    }
+
+    // 4. single segment, no split: every way of that name is one run
+    if(rest.length === 1 && !rest[0].pos && !rest[0].qual){
+      take(pool, rest[0].mine, pool.length > 1 ? 'summed' : 'exact');
+      return;
+    }
+
+    // 5. position words on both sides. Exact word first, then by order down the hill,
+    //    so your top/mid/bottom meets OSM's Upper/Middle/Lower.
+    const posWays = pool.filter(w => w.p.pos);
+    if(rest.every(s => s.pos) && posWays.length === pool.length){
+      const exact = {}; let allExact = true;
+      rest.forEach(s => {
+        const hit = pool.filter(w => w.p.pos === s.pos);
+        if(hit.length) exact[s.mine] = hit; else allExact = false;
+      });
+      if(allExact){
+        rest.forEach(s => take(exact[s.mine], s.mine, 'position', 'OSM names its own segments'));
+        return;
+      }
+      const mineV = rest.every(s => s.vert), osmV = pool.every(w => w.p.vert);
+      if(mineV && osmV && pool.length === rest.length){
+        const down = pool.slice().sort((a,b) => POSRANK[a.p.pos] - POSRANK[b.p.pos]);
+        rest.forEach((s, i) => take([down[i]], s.mine, 'position',
+          'your ' + s.pos + ' is OSM\u2019s ' + down[i].p.pos));
+        return;
+      }
+    }
+
+    // 6. chain the ways and lay his segments along them
+    const ch = chain(pool);
+    if(ch){
+      const mineDiffs = rest.map(s => s.d);
+      const down = ch.flow >= 0 ? ch.ways : ch.ways.slice().reverse();   // top to bottom
+      const cands = [collapse(down), collapse(down.slice().reverse())];
+      const scored = cands.map(c => ({c, s: score(mineDiffs, c)}));
+
+      if(ch.flow !== 0 && scored[0].s === mineDiffs.length){
+        cands[0].forEach((piece, i) => take(piece.ways, rest[i].mine, 'chained',
+          'drawn downhill in OSM, difficulty agrees'));
+        return;
+      }
+      const best = scored.slice().sort((a,b) => b.s - a.s)[0];
+      const tie  = scored[0].s === scored[1].s && scored[0].s >= 0;
+      if(ch.flow === 0 && best.s === mineDiffs.length && !tie){
+        best.c.forEach((piece, i) => take(piece.ways, rest[i].mine, 'chained',
+          'ordered by difficulty; OSM drawing direction is inconsistent'));
+        return;
+      }
+      families.push({base, segs: rest, pool, ordered: down, flow: ch.flow, taken: [],
+        why: scored[0].s < 0
+          ? 'OSM rates this run as ' + collapse(down).length + ' piece' + (collapse(down).length===1?'':'s') + ', you split it into ' + rest.length
+          : (ch.flow !== 0
+              ? 'drawn direction says one thing and difficulty says another'
+              : (tie ? 'both directions fit equally and OSM drew these ways inconsistently \u2014 say which end is the top'
+                     : 'difficulty only matches ' + best.s + ' of ' + mineDiffs.length))});
+      return;
+    }
+    families.push({base, segs: rest, pool, ordered: null, flow: 0, taken: [],
+      why: 'these ' + pool.length + ' ways do not join into one path'});
+  });
+
+  // NOTHING MAY VANISH. Every run must end up somewhere.
+  const seen = new Set(rows.map(r => r.mine).concat(missing, skipped));
+  families.forEach(f => f.segs.forEach(s => seen.add(s.mine)));
+  const lost = Object.keys(MINE).filter(n => !seen.has(n));
+  lost.forEach(n => missing.push(n));
+
+  const extra = ways.filter(w => !usedWays.has(w.id));
+  const extraByName = {};
+  extra.forEach(w => {
+    (extraByName[w.name] = extraByName[w.name] || {name: w.name, m: 0, ways: 0, diff: w.diff});
+    extraByName[w.name].m += w.m; extraByName[w.name].ways++;
+  });
+
+  groups.forEach(g => { const f = families.find(x => x.base === g.base); if(f) g.why = f.why; });
+  return {rows, families, groups, missing, skipped, lost,
+          extra: Object.values(extraByName).sort((a,b) => b.m - a.m),
+          totalWays: ways.length};
+}
+
+/* fuzzy suggestions between his unmatched names and the OSM leftovers */
+function bigrams(s){ const o=[]; for(let i=0;i<s.length-1;i++) o.push(s.slice(i,i+2)); return o; }
+function dice(a,b){
+  const A=bigrams(tight(a)), B=bigrams(tight(b));
+  if(!A.length||!B.length) return a===b?1:0;
+  const pool=B.slice(); let hit=0;
+  A.forEach(g=>{ const i=pool.indexOf(g); if(i>=0){hit++; pool.splice(i,1);} });
+  return 2*hit/(A.length+B.length);
+}
+function suggest(missing, extra, n){
+  return missing.map(mine => ({
+    mine,
+    picks: extra.map(e => ({osm: e.name, m: e.m, s: dice(mine, e.name)}))
+                .filter(p => p.s > 0.42)
+                .sort((a,b) => b.s - a.s)
+                .slice(0, n || 3)
+  })).filter(x => x.picks.length);
+}
+
+
+const MINE = {"38": "most", "Northwoods": "more", "Prima (top)": "extreme", "Prima (bottom)": "more", "Prima Cornice": "extreme", "Pronto": "extreme", "Highline": "extreme", "Blue Ox": "most", "Log Chute": "most", "Roger's Run": "most", "Hairbag Alley": "most", "Flap Jack": "easiest", "Klickity Klack": "most", "Northface Catwalk (top)": "road_green", "Northface Catwalk (bottom)": "road_blue", "Riva Ridge (top)": "most", "Riva Ridge (mid)": "more", "Riva Ridge (bottom)": "more", "Riva Glade": "most", "Trans Montane": "easiest", "Gitalong Road": "road_green", "Choker Cut Off": "road_blue", "Skid Road (bottom)": "road_green", "Skid Road (top)": "road_blue", "Brisk Walk": "road_green", "Compromise": "road_blue", "Cappuccino": "more", "Swingsville": "easiest", "Christmas": "more", "Gandy Dancer": "most", "Whistle Pig": "more", "Slifer Express": "more", "Powerline Glade": "most", "Ramshorn": "more", "Windows Road": "road_black", "Top of 8 Traverse": "road_green", "Mid-Vail Express": "more", "Chair 4 Cliffs": "extreme", "Chair 11 Line": "most", "Chair 2 Line": "most", "Top of 4 Ridge": "easiest", "Bearclaw Glade": "easiest", "Buckskin Glade": "more", "Chaos Canyon": "more", "Wild Woods": "easiest", "The Roost": "easiest", "Hideout": "more", "Sherwood Forest": "easiest", "Thunder Cat Cave": "easiest", "Magic Forest": "easiest", "Porcupine Alley": "easiest", "Coyote's Escape & Den": "easiest", "Timberline Catwalk": "road_green", "Northstar (top)": "most", "Northstar (bottom)": "more", "N. Rim": "most", "First Step": "most", "Snag Park": "more", "Sourdough": "easiest", "Boomer": "easiest", "Tin Pants": "easiest", "Whiskey Jack": "more", "The Skipper": "most", "S. Look Ma": "most", "Look Ma": "most", "Challenge": "most", "Hunky Dory": "more", "Kangaroo Cornice": "most", "The Meadows": "easiest", "Overeasy": "easiest", "Avanti (top)": "more", "Avanti (mid)": "most", "Avanti (bottom)": "more", "Eagle's Nest Ridge": "easiest", "Pika": "easiest", "Cookshack": "most", "Pickeroon (top)": "more", "Pickeroon (bottom)": "most", "Berries (top)": "more", "Berries (mid)": "easiest", "Berries (bottom)": "most", "Lodgepole": "more", "Columbine": "more", "Ledges (top)": "more", "Ledges (mid)": "easiest", "Ledges (bottom)": "most", "Practice Parkway": "easiest", "Cub's Way": "easiest", "Born Free (top)": "more", "Born Free (upper)": "easiest", "Born Free (lower)": "more", "Born Free (bottom)": "easiest", "Bwana (top)": "more", "Bwana (bottom)": "most", "Simba (top)": "more", "Simba (mid)": "most", "Simba (bottom)": "more", "Minnie Ha Ha": "easiest", "Minnie's Mile": "most", "Pride": "more", "Safari (top)": "most", "Safari (mid)": "more", "Safari (bottom)": "most", "Sun Up Bowl (top of 14/24)": "most", "Sun Up Bowl (top of 4/5/11)": "most", "Sun Down Bowl (top of 4/5/11)": "most", "Chair 5 Line": "extreme", "Top of 10 Access Road": "road_green", "Post Road": "road_green", "Cheetah": "more", "Bwana Loop": "easiest", "Cascade Way": "more", "Vail Village Catwalk": "road_green", "Lionshead Catwalk": "road_green", "Lower Lion's Way": "easiest", "Upper Lion's Way": "easiest", "Spruce Face": "more", "Ben's Face": "more", "Cold Feet": "easiest", "Tourist Trap": "most", "Giant Steps": "most", "Lindsey's": "extreme", "Mill Creek Road": "road_green", "Mudslide": "extreme", "Riva Catwalk": "road_blue", "Windisch Way": "easiest", "Frontside Chutes": "extreme", "Head First": "most", "Pepi's Face": "most", "Gopher Hill": "easiest", "Whippersnapper": "more", "Pony Express": "more", "GS Alley": "most", "Fall Line": "most", "Jake's Ride": "park", "Golden Peak Race": "most", "Ruder's Run": "more", "Coyote Crossing": "easiest", "Old 9 Line": "most", "Bear Tree": "more", "The Preserve (top)": "more", "The Preserve (bottom)": "most", "Lost Boy": "easiest", "Deuce's Wild": "most", "The Woods": "more", "Ouzo": "most", "Ouzo Glade": "most", "Faro": "most", "Baccarat": "more", "Showboat": "more", "Dealer's Choice": "more", "Club Walk": "easiest", "Game Trail": "easiest", "Wild Card": "most", "Ptarmigan Ridge": "road_black", "Ricky's Ridge": "most", "Morning Side Ridge": "most", "Widge's": "most", "Seldom": "most", "Never": "most", "O.S.": "most", "Forever": "most", "WFO": "most", "Wow": "most", "Windows": "most", "Straight Shot": "most", "Sun Down Catwalk": "road_black", "Campbell's": "most", "Cow's Face": "most", "Chicken Yard": "most", "Apres Vous": "most", "Milt's Face": "most", "The Slot": "more", "Headwall": "most", "Headwall Ridge": "road_black", "Yonder Gully": "most", "Yonder": "most", "Over Yonder": "most", "Red Zinger": "more", "Morning Thunder": "most", "Emperor's Choice": "most", "Sun Up Catwalk": "road_blue", "Sleepytime Road": "road_blue", "Tea Cup Glades": "most", "Marmot Valley": "most", "Jade Glade": "most", "Genghis Khan": "most", "Sweet N Sour": "most", "Dragon's Teeth": "most", "Poppyfields": "more", "Poppyfields West": "more", "Poppyfields East": "more", "Gillett's Dream": "more", "Shangri-La": "most", "Shangri-La Glade": "most", "China Spur": "road_blue", "Gorky Park": "most", "Red Square": "most", "Rasputin's Revenge": "most", "Bolshoi Ballroom": "most", "Orient Express": "most", "Silk Road (21 → base of 22)": "road_blue", "Silk Road (top of 22 → bottom)": "road_blue", "Inner Mongolia Bowl": "most", "Outer Mongolia Bowl": "most", "Wapiti": "easiest", "Resolution": "most", "Hornsilver": "most", "Grand Review": "more", "The Star": "more", "Cloud 9": "more", "Big Rock Park": "more", "Skree Field": "most", "Steep & Deep": "extreme", "Lover's Leap": "most", "Iron Mask": "most", "Little Ollie": "most", "Heavy Metal": "most", "Champagne Glade": "most", "In The Wuides": "more", "CJ's Glade": "most", "Kelly's Toll Road": "road_blue", "Encore": "most", "The Divide": "most", "Cady's Cafe": "extreme", "The Pump House": "extreme", "Lodgepole Gulch": "more", "Black Forest Racing": "more", "Zot": "most", "S. Rim": "most", "The Divide Ridge": "most", "Golden Peak Terrain Park": "park", "Avanti Park": "park", "12 to 1 Connector": "road_green", "China Bowl to Two Elk": "road_blue", "Grand Junction Catwalk": "road_green", "21 to 36/37 Connector": "road_blue", "29 Ski Back": "easiest", "25 Ski Back": "easiest", "28 Ski Back": "easiest", "35 Ski Back": "easiest", "18 Ski Back": "easiest", "9 Ski Back": "road_blue", "22 Ski Back": "most", "Chair 10 Line": "most"};
+const Q=`[out:json][timeout:90];
+(way["piste:type"="downhill"](39.55,-106.46,39.67,-106.23);
+ way["piste:type"="connection"](39.55,-106.46,39.67,-106.23););
+out geom;`;
+const EP=['https://overpass-api.de/api/interpreter',
+          'https://overpass.kumi.systems/api/interpreter',
+          'https://overpass.private.coffee/api/interpreter',
+          'https://maps.mail.ru/osm/tools/overpass/api/interpreter'];
+const CACHE='skope-lengths-osm-v1';
+const LS='skope-lengths-bridge-v1';
+let RESULT=null, RAW=null, filter='matched';
+const SEED={aliases:{"The Meadows": "Meadows", "Minnie's Mile": "Minnie's - Lower", "Lower Lion's Way": "Lionsway - Lower", "Upper Lion's Way": "Lionsway - Upper", "Tourist Trap": "Riva Ridge - Tourist Trap", "Genghis Khan": "Genghis Kahn", "Silk Road (21 → base of 22)": "Silk Road - West", "Silk Road (top of 22 → bottom)": "Silk Road - East", "CJ's Glade": "CJ's Glades", "GS Alley": "Slalom Alley"},noOsm:{"Chair 11 Line": 1, "Chair 2 Line": 1, "Bearclaw Glade": 1, "Sherwood Forest": 1, "Magic Forest": 1, "Coyote's Escape & Den": 1, "Chair 5 Line": 1, "Chair 10 Line": 1},manual:{},shares:{}};
+let SAVE=JSON.parse(localStorage.getItem(LS)||'null')||SEED;
+['aliases','noOsm','manual','shares'].forEach(k=>SAVE[k]=SAVE[k]||{});
+(function(){                                  // manual was {base:{way:run}}, now it is {way:run}
+  const flat={}; let old=false;
+  Object.keys(SAVE.manual).forEach(k=>{
+    const v=SAVE.manual[k];
+    if(v && typeof v==='object'){ old=true; Object.keys(v).forEach(w=>flat[w]=v[w]); }
+    else flat[k]=v;
+  });
+  if(old){ SAVE.manual=flat; save(); }
+})();
+Object.keys(SEED.aliases).forEach(k=>{if(!(k in SAVE.aliases))SAVE.aliases[k]=SEED.aliases[k];});
+Object.keys(SEED.noOsm).forEach(k=>{if(!(k in SAVE.noOsm))SAVE.noOsm[k]=1;});
+const save=()=>localStorage.setItem(LS,JSON.stringify(SAVE));
+const log=t=>{document.getElementById('log').textContent=t;};
+const mi=m=>(m/1609.344).toFixed(2);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function slim(els){
+  return els.filter(e=>e.geometry&&e.geometry.length>1&&e.tags&&(e.tags.name||e.tags['piste:name']))
+    .map(e=>({type:'way',id:e.id,geometry:[e.geometry[0],e.geometry[e.geometry.length-1]],
+      tags:{name:e.tags.name||e.tags['piste:name'],'piste:difficulty':e.tags['piste:difficulty']||'',
+            'skope:m':String(metres(e.geometry))}}));
+}
+function cacheIt(els){
+  try{ const c=slim(els);
+    localStorage.setItem(CACHE,JSON.stringify({when:Date.now(),els:c}));
+  }catch(e){ console.warn('cache failed',e.message); }
+}
+function loadCache(quiet){
+  try{
+    const c=JSON.parse(localStorage.getItem(CACHE)||'null');
+    if(!c||!c.els||!c.els.length) return false;
+    RAW=c.els; run();
+    const mins=Math.round((Date.now()-c.when)/60000);
+    log(document.getElementById('log').textContent+
+        '  ·  from the copy saved '+(mins<60?mins+' min':Math.round(mins/60)+' hr')+' ago.');
+    return true;
+  }catch(e){ return false; }
+}
+async function fetchOSM(){
+  const btn=document.getElementById('go'); btn.disabled=true;
+  const tried=[];
+  for(const ep of EP){
+    const host=ep.split('/')[2];
+    for(const how of ['POST','GET']){
+      try{
+        log('Asking '+host+' by '+how+' …');
+        const r=how==='POST'
+          ? await fetch(ep,{method:'POST',body:'data='+encodeURIComponent(Q),
+              headers:{'Content-Type':'application/x-www-form-urlencoded'}})
+          : await fetch(ep+'?data='+encodeURIComponent(Q));
+        if(!r.ok){
+          const body=(await r.text()).replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,160);
+          throw new Error('HTTP '+r.status+(body?' — '+body:''));
+        }
+        const j=await r.json();
+        RAW=(j.elements||[]);
+        if(!RAW.length) throw new Error('the server answered but sent no ways');
+        cacheIt(RAW); run(); btn.disabled=false; return;
+      }catch(e){ tried.push(host+' '+how+': '+e.message); }
+    }
+  }
+  btn.disabled=false;
+  const had=loadCache(true);
+  log('No mirror answered.\n'+tried.join('\n')+
+      (had?'\n\nWorking from the last saved copy instead, so you can keep matching.'
+          :'\n\nOverpass rate-limits hard after a few pulls. Wait two minutes and press again.'));
+}
+
+function run(){
+  RESULT=analyse(RAW,MINE,SAVE.aliases,SAVE.noOsm,SAVE.manual,SAVE.shares);
+  RESULT.suggest=suggest(RESULT.missing,RESULT.extra,3);
+  if(RESULT.lost.length) console.warn('LOST',RESULT.lost);
+  log('Got '+RESULT.totalWays+' named piste ways. '+RESULT.rows.length+' of your '+
+      Object.keys(MINE).length+' runs measured.');
+  render();
+}
+
+function render(){
+  if(!RESULT) return;
+  const R=RESULT, tot=Object.keys(MINE).length;
+  const openG=R.groups.filter(g=>g.pool.length&&g.segs.some(s=>!R.rows.find(x=>x.mine===s.mine)));
+  document.getElementById('nfam').textContent=openG.length?' '+openG.length:'';
+  document.getElementById('nsug').textContent=R.suggest.length?' '+R.suggest.length:'';
+  document.getElementById('stat').innerHTML='<div class="stat">'+
+    '<div><b>'+R.rows.length+'</b><span>of your '+tot+' measured</span></div>'+
+    '<div><b>'+openG.length+'</b><span>split runs still open</span></div>'+
+    '<div><b>'+R.missing.length+'</b><span>still unmatched</span></div>'+
+    '<div><b>'+R.skipped.length+'</b><span>not on OSM by choice</span></div>'+
+    '<div><b>'+Object.keys(SAVE.aliases).length+'</b><span>hand-linked</span></div>'+
+    '<div><b>'+mi(R.rows.reduce((a,r)=>a+r.m,0))+'</b><span>miles measured</span></div></div>';
+  let h='';
+  if(filter==='matched'){
+    h='<table><tr><th>Your run</th><th>OSM</th><th>How</th><th class="num">Miles</th><th class="num">Ways</th></tr>'+
+      R.rows.slice().sort((a,b)=>b.m-a.m).map(r=>'<tr><td>'+esc(r.mine)+'</td><td>'+esc(r.osm)+
+      '<div class="mini">'+esc(r.note||'')+'</div></td><td><span class="tag '+r.method+'">'+r.method+
+      '</span></td><td class="num">'+mi(r.m)+'</td><td class="num">'+r.ways+'</td></tr>').join('')+'</table>';
+  }else if(filter==='families'){
+    const ALL=Object.keys(MINE);
+    const G=R.groups.filter(g=>g.pool.length);
+    h=G.length?G.map((g,gi)=>{
+      const sh=SAVE.shares[g.base]||{}, even=Math.round(100/g.segs.length);
+      const done=g.segs.filter(s=>R.rows.find(x=>x.mine===s.mine));
+      const own=g.segs.map(s=>s.mine);
+      const opt=(n,cur)=>'<option value="'+esc(n)+'"'+(cur===n?' selected':'')+'>'+esc(n)+'</option>';
+      const segOpts=cur=>'<option value="">— unassigned</option>'+
+        '<optgroup label="This run">'+own.map(n=>opt(n,cur)).join('')+'</optgroup>'+
+        '<optgroup label="Any of your runs">'+
+          ALL.filter(n=>own.indexOf(n)<0).map(n=>opt(n,cur)).join('')+'</optgroup>';
+      return '<div class="fam"><h4>'+esc(g.segs[0].mine.replace(/\s*\(.*$/,''))+'</h4>'+
+      '<div class="why">'+esc(g.why|| (done.length===g.segs.length?'all placed':''))+'</div>'+
+      '<table><tr><th>OSM way</th><th>Rating</th><th class="num">Miles</th><th>Belongs to</th></tr>'+
+      g.pool.map(w=>'<tr><td>'+esc(w.name)+'</td><td class="mini">'+esc(w.diff||'unrated')+
+        '</td><td class="num">'+mi(w.m)+'</td><td><select data-way="'+w.id+'">'+
+        segOpts(SAVE.manual[w.id]||'')+'</select></td></tr>').join('')+'</table>'+
+      '<div class="mini" style="margin:9px 0 5px">Your segments · '+
+        g.segs.map(s=>{const r0=R.rows.find(x=>x.mine===s.mine);
+          return esc(s.mine)+' <span style="opacity:.6">('+esc(s.d)+')</span> '+
+            (r0?'<b>'+mi(r0.m)+' mi</b> <span style="opacity:.6">'+r0.method+'</span>':'<b style="color:var(--warn)">open</b>');
+        }).join(' · ')+'</div>'+
+      '<div class="mini" style="margin:9px 0 5px">Or split the whole run by percentage — '+
+        mi(g.pool.reduce((a,w)=>a+w.m,0))+' mi in total'+'</div>'+
+      g.segs.map(s=>'<span style="display:inline-block;margin:0 10px 6px 0">'+
+        '<input class="pc" style="width:56px" type="number" min="0" max="100" '+
+        'data-sfam="'+gi+'" data-seg="'+esc(s.mine)+'" value="'+(sh[s.mine]??'')+'" placeholder="'+even+'">'+
+        ' <span class="mini">% '+esc(s.mine)+'</span></span>').join('')+
+      '<div><button class="act" data-split="'+gi+'">Use these percentages</button>'+
+      '<button class="act" data-clear="'+gi+'">Clear this run</button></div></div>';
+    }).join(''):'<table><tr><th>No split runs to review.</th></tr></table>';
+  }else if(filter==='suggest'){
+    h=R.suggest.length?R.suggest.map(s=>'<div class="fam"><h4>'+esc(s.mine)+'</h4>'+
+      s.picks.map(p=>'<button class="act" data-al="'+esc(s.mine)+'" data-osm="'+esc(p.osm)+'">'+
+        esc(p.osm)+' \u00b7 '+mi(p.m)+' mi</button>').join('')+
+      '<button class="act" data-no="'+esc(s.mine)+'">Not on OSM</button></div>').join('')
+      :'<table><tr><th>No candidates left.</th></tr></table>';
+  }else if(filter==='missing'){
+    const opts=R.extra.map(e=>'<option value="'+esc(e.name)+'">'+esc(e.name)+' · '+mi(e.m)+' mi</option>').join('');
+    h='<table><tr><th>Your run</th><th>Linked to</th><th></th></tr>'+
+      R.missing.map(n=>{
+        const al=SAVE.aliases[n], list=al?(Array.isArray(al)?al:[al]):[];
+        return '<tr><td>'+esc(n)+'</td><td>'+
+        list.map(x=>'<button class="act on" data-rm="'+esc(n)+'" data-one="'+esc(x)+'">'+esc(x)+' ×</button>').join('')+
+        '<select data-link="'+esc(n)+'"><option value="">Link an OSM run…</option>'+opts+'</select>'+
+        '</td><td><button class="act" data-no="'+esc(n)+'">Not on OSM</button></td></tr>';
+      }).join('')+'</table>';
+  }else if(filter==='skipped'){
+    h='<table><tr><th>Marked as not on OSM</th><th></th></tr>'+
+      R.skipped.map(n=>'<tr><td>'+esc(n)+'</td><td><button class="act" data-un="'+esc(n)+
+      '">Undo</button></td></tr>').join('')+'</table>';
+  }else{
+    const mopts=R.missing.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
+    h='<table><tr><th>Named in OSM, not claimed by any of your runs</th><th>Rating</th>'+
+      '<th class="num">Miles</th><th>Belongs to</th></tr>'+
+      R.extra.map(r=>'<tr><td>'+esc(r.name)+'</td><td class="mini">'+esc(r.diff||'unrated')+
+      '</td><td class="num">'+mi(r.m)+'</td><td><select data-osmlink="'+esc(r.name)+
+      '"><option value="">One of your runs…</option>'+mopts+'</select></td></tr>').join('')+'</table>';
+  }
+  document.getElementById('out').innerHTML=h;
+  document.getElementById('n').textContent=R.rows.length+' of '+tot+' measured';
+  wire();
+}
+
+function wire(){
+  document.querySelectorAll('select[data-way]').forEach(sel=>sel.onchange=()=>{
+    if(sel.value) SAVE.manual[sel.dataset.way]=sel.value;
+    else delete SAVE.manual[sel.dataset.way];
+    save(); run();
+  });
+  document.querySelectorAll('[data-split]').forEach(b=>b.onclick=()=>{
+    const f=RESULT.groups.filter(g=>g.pool.length)[+b.dataset.split], o={};
+    let tot=0;
+    document.querySelectorAll('[data-sfam="'+b.dataset.split+'"]').forEach(inp=>{
+      const v=inp.value===''?Math.round(100/f.segs.length):+inp.value;
+      o[inp.dataset.seg]=v; tot+=v;
+    });
+    if(Math.abs(tot-100)>1.5){ alert('Those add up to '+tot+'%, not 100.'); return; }
+    SAVE.shares[f.base]=o; save(); run();
+  });
+  document.querySelectorAll('[data-clear]').forEach(b=>b.onclick=()=>{
+    const f=RESULT.groups.filter(g=>g.pool.length)[+b.dataset.clear];
+    delete SAVE.shares[f.base];
+    f.pool.forEach(w=>delete SAVE.manual[w.id]);
+    save(); run(); });
+  const link=(mine,osm)=>{
+    const cur=SAVE.aliases[mine];
+    const list=cur?(Array.isArray(cur)?cur.slice():[cur]):[];
+    if(list.indexOf(osm)<0) list.push(osm);
+    SAVE.aliases[mine]=list.length>1?list:list[0];
+    delete SAVE.noOsm[mine]; save(); run();
+  };
+  document.querySelectorAll('[data-al]').forEach(b=>b.onclick=()=>link(b.dataset.al,b.dataset.osm));
+  document.querySelectorAll('select[data-link]').forEach(sel=>sel.onchange=()=>{
+    if(sel.value) link(sel.dataset.link, sel.value); });
+  document.querySelectorAll('select[data-osmlink]').forEach(sel=>sel.onchange=()=>{
+    if(sel.value) link(sel.value, sel.dataset.osmlink); });
+  document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{
+    const mine=b.dataset.rm, one=b.dataset.one, cur=SAVE.aliases[mine];
+    const list=(Array.isArray(cur)?cur:[cur]).filter(x=>x!==one);
+    if(list.length) SAVE.aliases[mine]=list.length>1?list:list[0]; else delete SAVE.aliases[mine];
+    save(); run(); });
+  document.querySelectorAll('[data-no]').forEach(b=>b.onclick=()=>{
+    SAVE.noOsm[b.dataset.no]=1; save(); run(); });
+  document.querySelectorAll('[data-un]').forEach(b=>b.onclick=()=>{
+    delete SAVE.noOsm[b.dataset.un]; save(); run(); });
+}
+
+document.querySelectorAll('.pill').forEach(p=>p.onclick=()=>{
+  document.querySelectorAll('.pill').forEach(x=>x.classList.remove('on'));
+  p.classList.add('on'); filter=p.dataset.f; render();});
+document.getElementById('go').onclick=fetchOSM;
+if(!loadCache()) log('Ready. Press fetch — it takes 10 to 30 seconds.');
+document.getElementById('exp').onclick=()=>{
+  if(!RESULT){alert('Fetch first.');return;}
+  const out={v:2,source:'OpenStreetMap via Overpass, ODbL',when:new Date().toISOString(),
+    note:'plan distance in miles, not slope distance. A split run is measured per segment.',
+    len_mi:{},method:{},needs_you:RESULT.families.map(f=>f.segs.map(s=>s.mine)),
+    unmatched:RESULT.missing,not_on_osm:RESULT.skipped,
+    shares:SAVE.shares,accounted:RESULT.rows.length+RESULT.missing.length+RESULT.skipped.length+
+      RESULT.families.reduce((a,f)=>a+f.segs.length,0),of:Object.keys(MINE).length,
+    aliases:SAVE.aliases,osm_only:RESULT.extra.map(r=>r.name)};
+  RESULT.rows.forEach(r=>{ out.len_mi[r.mine]=+mi(r.m); out.method[r.mine]=r.method; });
+  document.getElementById('ta').value=JSON.stringify(out,null,1);
+  document.getElementById('dlg').showModal();
+};
+document.getElementById('cp').onclick=()=>{const t=document.getElementById('ta');t.select();document.execCommand('copy');};
+document.getElementById('cl').onclick=()=>document.getElementById('dlg').close();
+
+</script></body></html>
