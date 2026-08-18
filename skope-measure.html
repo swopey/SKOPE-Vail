@@ -1,0 +1,222 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<title>SKOPE · Measure · v1</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#2E3442;--card:#3A4152;--line:#4A5266;--ink:#EDEFF5;--mut:#98A0B4;--acc:#E9A57F}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+ font:14px/1.45 ui-sans-serif,system-ui,-apple-system,sans-serif}
+#wrap{display:flex;flex-direction:column;height:100%}
+header{background:#262B37;border-bottom:1px solid var(--line);padding:10px 13px}
+.wm{font-family:Montserrat,sans-serif;font-weight:800;letter-spacing:.24em;font-size:12px}
+.sub{color:var(--mut);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
+.row{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+button{font:inherit;font-size:12.5px;cursor:pointer;border-radius:8px;padding:8px 12px;
+ border:1px solid var(--line);background:transparent;color:var(--ink)}
+button.on,button.primary{background:var(--acc);border-color:var(--acc);color:#2A2018;font-weight:700}
+#map{flex:1;min-height:200px;background:#222}
+#read{background:#262B37;border-top:1px solid var(--line);padding:11px 13px}
+.big{font-family:Montserrat,sans-serif;font-size:26px;font-weight:800;letter-spacing:.01em}
+.mut{color:var(--mut);font-size:11.5px}
+#msg{padding:8px 13px;color:var(--mut);font:12px/1.5 ui-monospace,monospace;white-space:pre-wrap;
+ background:#222732;border-bottom:1px solid var(--line)}
+select{background:#222732;color:var(--ink);border:1px solid var(--line);border-radius:7px;
+ padding:6px 8px;font:inherit;font-size:12.5px;max-width:64vw}
+</style></head><body><div id="wrap">
+<header>
+  <div class="wm">SKOPE</div>
+  <div class="sub">Measure · Vail · <b>v1</b></div>
+  <div class="row">
+    <button class="primary" id="bLoad">Load Vail lines</button>
+    <button class="on" id="mLine">Along a line</button>
+    <button id="mFree">Free points</button>
+    <button id="bUndo">Undo</button>
+    <button id="bClear">Clear</button>
+  </div>
+  <div class="row"><select id="pick"><option value="">— pick a line by name —</option></select></div>
+</header>
+<div id="msg">Press Load. Then tap a lift line or run to select it, and tap twice along it.</div>
+<div id="map"></div>
+<div id="read"><div class="big" id="out">—</div><div class="mut" id="sub">nothing measured yet</div></div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+function say(t){ var m=document.getElementById('msg'); if(m) m.textContent=t; }
+window.onerror=function(m,s,l){ say('Error: '+m+' (line '+l+')'); };
+
+/* distance along a polyline between two projected points */
+function m(a,b){const R=6371000,r=Math.PI/180;
+  const dLat=(b.lat-a.lat)*r,dLon=(b.lng-a.lng)*r,la=(a.lat+b.lat)/2*r;
+  const x=dLon*Math.cos(la); return R*Math.sqrt(dLat*dLat+x*x);}
+function proj(p,a,b){                       // nearest point on segment a-b, in local metres
+  const k=Math.cos(a.lat*Math.PI/180);
+  const ax=0,ay=0,bx=(b.lng-a.lng)*k,by=(b.lat-a.lat),px=(p.lng-a.lng)*k,py=(p.lat-a.lat);
+  const d2=bx*bx+by*by; let t=d2?((px*bx+py*by)/d2):0; t=Math.max(0,Math.min(1,t));
+  return {t,lat:a.lat+by*t,lng:a.lng+(bx*t)/k};
+}
+function snap(pt,line){                     // -> {i,t,dist along line, latlng, off}
+  let best=null,acc=0;
+  for(let i=0;i<line.length-1;i++){
+    const a=line[i],b=line[i+1],q=proj(pt,a,b);
+    const off=m(pt,q), along=acc+m(a,q);
+    if(!best||off<best.off) best={i,t:q.t,along,latlng:q,off};
+    acc+=m(a,b);
+  }
+  return best;
+}
+function lineLength(line){let s=0;for(let i=1;i<line.length;i++)s+=m(line[i-1],line[i]);return s;}
+function between(p1,p2,line){const a=snap(p1,line),b=snap(p2,line);return Math.abs(b.along-a.along);}
+
+
+var MI=1609.344, FT=3.28084;
+var Q='[out:json][timeout:90];\n('+
+      'way["piste:type"="downhill"](39.55,-106.46,39.67,-106.23);\n'+
+      ' way["piste:type"="connection"](39.55,-106.46,39.67,-106.23);\n'+
+      ' way["aerialway"](39.55,-106.46,39.67,-106.23););\nout geom;';
+var EP=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter',
+        'https://overpass.private.coffee/api/interpreter'];
+var CK='skope-measure-lines-v1';
+var map,layer,LINES=[],SEL=null,MODE='line',PTS=[],marks=[],rubber=null,hi=null;
+
+if(typeof L==='undefined'){
+  say('Leaflet did not load. Check the connection and reload \u2014 the map needs it.');
+}else{
+  map=L.map('map',{zoomControl:true}).setView([39.606,-106.355],13);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {maxZoom:19,attribution:'\u00a9 OpenStreetMap'}).addTo(map);
+  layer=L.layerGroup().addTo(map);
+  map.on('click',function(e){ onTap(e.latlng); });
+}
+
+function store(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } }
+function read(k){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):null; }
+                  catch(e){ try{localStorage.removeItem(k);}catch(_){} return null; } }
+
+function draw(){
+  layer.clearLayers();
+  LINES.forEach(function(ln,i){
+    var col = ln.kind==='lift' ? '#E9A57F' : '#7FA8D8';
+    var p=L.polyline(ln.pts,{color:col,weight:ln.kind==='lift'?3:2,opacity:.75});
+    p.on('click',function(e){ L.DomEvent.stop(e); select(i); onTap(e.latlng); });
+    p.addTo(layer);
+  });
+}
+function select(i){
+  SEL=i; PTS=[]; clearMarks();
+  if(hi){ layer.removeLayer(hi); hi=null; }
+  hi=L.polyline(LINES[i].pts,{color:'#FFFFFF',weight:5,opacity:.9}).addTo(layer);
+  document.getElementById('pick').value=String(i);
+  var len=lineLength(LINES[i].pts);
+  say('Selected: '+LINES[i].name+'  \u00b7  whole line '+(len/MI).toFixed(2)+' mi ('+
+      Math.round(len*FT)+' ft)\nNow tap two points along it.');
+}
+function clearMarks(){ marks.forEach(function(m){ layer.removeLayer(m); }); marks=[];
+  if(rubber){ layer.removeLayer(rubber); rubber=null; } }
+
+function onTap(ll){
+  if(MODE==='line'){
+    if(SEL===null){ say('Tap a line first, or pick one by name.'); return; }
+    var s=snap(ll,LINES[SEL].pts);
+    PTS.push(s);
+    marks.push(L.circleMarker(s.latlng,{radius:6,color:'#fff',fillColor:'#E9A57F',fillOpacity:1}).addTo(layer));
+    if(PTS.length===2) showAlong();
+    else say('First point set '+Math.round(s.off)+' m off the line. Tap the second.');
+  }else{
+    PTS.push({latlng:ll});
+    marks.push(L.circleMarker(ll,{radius:6,color:'#fff',fillColor:'#7FA8D8',fillOpacity:1}).addTo(layer));
+    showFree();
+  }
+}
+function showAlong(){
+  var a=PTS[0],b=PTS[1], d=Math.abs(b.along-a.along);
+  var lo=Math.min(a.along,b.along), hi2=Math.max(a.along,b.along), seg=[], acc=0, pts=LINES[SEL].pts;
+  for(var i=0;i<pts.length;i++){
+    if(i>0) acc+=m(pts[i-1],pts[i]);
+    if(acc>=lo&&acc<=hi2) seg.push(pts[i]);
+  }
+  seg.unshift(a.along<b.along?a.latlng:b.latlng); seg.push(a.along<b.along?b.latlng:a.latlng);
+  if(rubber) layer.removeLayer(rubber);
+  rubber=L.polyline(seg,{color:'#E9A57F',weight:6,opacity:.95}).addTo(layer);
+  out(d, 'along '+LINES[SEL].name);
+}
+function showFree(){
+  var d=0; for(var i=1;i<PTS.length;i++) d+=m(PTS[i-1].latlng,PTS[i].latlng);
+  if(rubber) layer.removeLayer(rubber);
+  rubber=L.polyline(PTS.map(function(p){return p.latlng;}),
+    {color:'#7FA8D8',weight:5,opacity:.95,dashArray:'8 6'}).addTo(layer);
+  out(d, PTS.length+' points, straight between each');
+}
+function out(d,note){
+  document.getElementById('out').textContent=(d/MI).toFixed(2)+' mi  \u00b7  '+Math.round(d*FT)+' ft';
+  document.getElementById('sub').textContent=note+'  \u00b7  '+Math.round(d)+' m';
+}
+
+function ingest(els,where){
+  els=(els&&els.elements)?els.elements:els;
+  LINES=(els||[]).filter(function(e){ return e.type==='way'&&e.geometry&&e.geometry.length>1; })
+    .map(function(e){
+      var t=e.tags||{};
+      return {name:(t.name||t['piste:name']||(t.aerialway?'(unnamed lift)':'(unnamed run)')),
+              kind:t.aerialway?'lift':'run',
+              pts:e.geometry.map(function(g){ return {lat:g.lat,lng:g.lon}; })};
+    });
+  LINES.sort(function(a,b){ return a.kind===b.kind ? a.name.localeCompare(b.name)
+                                                   : (a.kind==='lift'?-1:1); });
+  var sel=document.getElementById('pick');
+  sel.innerHTML='<option value="">\u2014 pick a line by name \u2014</option>'+
+    LINES.map(function(l,i){ return '<option value="'+i+'">'+(l.kind==='lift'?'\u25b2 ':'')+
+      l.name.replace(/</g,'')+'</option>'; }).join('');
+  draw();
+  say('Loaded '+LINES.length+' lines ('+LINES.filter(function(l){return l.kind==='lift';}).length+
+      ' lifts). Source: '+where+'\nTap a line, or pick it by name, then tap two points along it.');
+}
+function loadLines(){
+  var cached=read(CK);
+  if(cached&&cached.length){ ingest(cached,'saved copy'); }
+  var i=0, tried=[];
+  function go(){
+    if(i>=EP.length){ say('No Overpass mirror answered.\n'+tried.join('\n')+
+      (LINES.length?'\nStill using the saved copy.':'')); return; }
+    var ep=EP[i++], host=ep.split('/')[2];
+    say('Asking '+host+'\u2026');
+    var done=false, t=setTimeout(function(){ if(!done){done=true;tried.push(host+': timed out');go();} },20000);
+    fetch(ep,{method:'POST',body:'data='+encodeURIComponent(Q),
+      headers:{'Content-Type':'application/x-www-form-urlencoded'}})
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(j){ if(done)return; done=true; clearTimeout(t);
+        ingest(j,host);
+        store(CK,(j.elements||[]).filter(function(e){return e.geometry&&e.geometry.length>1;})
+          .map(function(e){ return {type:'way',tags:{name:(e.tags||{}).name||(e.tags||{})['piste:name'],
+            aerialway:(e.tags||{}).aerialway},geometry:e.geometry}; }));
+      })
+      .catch(function(e){ if(done)return; done=true; clearTimeout(t);
+        tried.push(host+': '+e.message); go(); });
+  }
+  go();
+}
+
+document.getElementById('bLoad').addEventListener('click',loadLines);
+document.getElementById('mLine').addEventListener('click',function(){
+  MODE='line'; this.className='on'; document.getElementById('mFree').className='';
+  PTS=[]; clearMarks(); say('Along a line. Tap a line to select it, then tap two points on it.'); });
+document.getElementById('mFree').addEventListener('click',function(){
+  MODE='free'; this.className='on'; document.getElementById('mLine').className='';
+  PTS=[]; clearMarks(); SEL=null; if(hi){layer.removeLayer(hi);hi=null;}
+  say('Free points. Tap any number of points; it adds up the straight legs between them.'); });
+document.getElementById('bUndo').addEventListener('click',function(){
+  PTS.pop(); var mk=marks.pop(); if(mk) layer.removeLayer(mk);
+  if(rubber){ layer.removeLayer(rubber); rubber=null; }
+  if(MODE==='free'&&PTS.length>1) showFree();
+  else if(MODE==='line'&&PTS.length===2) showAlong();
+  else { document.getElementById('out').textContent='\u2014';
+         document.getElementById('sub').textContent='nothing measured yet'; } });
+document.getElementById('bClear').addEventListener('click',function(){
+  PTS=[]; clearMarks(); document.getElementById('out').textContent='\u2014';
+  document.getElementById('sub').textContent='nothing measured yet'; });
+document.getElementById('pick').addEventListener('change',function(){
+  if(this.value===''){ return; }
+  var i=+this.value; select(i);
+  if(map) map.fitBounds(L.polyline(LINES[i].pts).getBounds(),{padding:[30,30]}); });
+</script></body></html>
