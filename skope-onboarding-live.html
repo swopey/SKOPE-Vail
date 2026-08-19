@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SKOPE · Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--fieldTop:#E1DEEF;--field:#E4E1F1;--fieldLow:#E9E7F6;--bloom:#E6D7D7;
+ --ink:#2D2A45;--mut:#7B7793;--line:rgba(45,42,69,.11);--surf:#FFFFFF;
+ --acc:#C06A34;--sel:#CE8B71;--inv:#2D2A45;--invInk:#EDEBF6;
+ --e:#529A64;--m:#5B8FC7;--b:#23262E;--x:#9AA0AF}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;color:var(--ink);
+ background:radial-gradient(58% 22% at 86% 6%,var(--bloom) 0%,rgba(230,215,215,0) 72%),
+ linear-gradient(178deg,var(--fieldTop) 0%,var(--field) 46%,var(--fieldLow) 100%);
+ font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+#app{max-width:430px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;
+ padding:calc(env(safe-area-inset-top) + 22px) 20px calc(env(safe-area-inset-bottom) + 20px)}
+.ptitle{font-family:Montserrat,sans-serif;font-weight:800;font-size:21px;letter-spacing:.045em;
+ text-transform:uppercase;white-space:nowrap;line-height:1;margin-bottom:16px}
+.prog{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:18px;min-height:16px}
+.rail{display:flex;gap:4px;width:172px}
+.seg{height:3px;flex:1;border-radius:2px;background:rgba(45,42,69,.14)}
+.seg.on{background:var(--acc)}
+.back{position:absolute;left:0;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:4px;
+ color:var(--mut);font-family:Montserrat,sans-serif;font-weight:800;font-size:10px;letter-spacing:.14em;
+ text-transform:uppercase;cursor:pointer}
+.back i{font-style:normal;font-size:13px;line-height:1;position:relative;top:-.5px}
+.eyebrow{font-family:Montserrat,sans-serif;font-weight:800;font-size:10px;letter-spacing:.15em;padding-left:.15em;
+ text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+h1{font-family:Montserrat,sans-serif;font-weight:800;font-size:17.5px;letter-spacing:.055em;line-height:1.1;
+ text-transform:uppercase;margin:0}
+.sub{color:#5D5977;font-size:13px;font-weight:500;line-height:1.5;margin:8px 0 0}
+.pm{display:inline-block;margin-top:6px;font-family:Montserrat,sans-serif;font-weight:800;font-size:8px;
+ letter-spacing:.11em;text-transform:uppercase;color:var(--mut);border:1px solid rgba(123,119,147,.30);
+ border-radius:6px;padding:3px 6px 2px}
+.flow{flex:1;margin-top:14px;padding-bottom:8px}
+.slab{font-family:Montserrat,sans-serif;font-weight:800;font-size:10px;letter-spacing:.13em;padding-left:.13em;
+ text-transform:uppercase;color:var(--mut);margin:16px 0 8px;display:flex;align-items:baseline;gap:8px}
+.slab .g{flex:1}
+.foot{margin-top:auto;padding-top:14px}
+.btn{display:block;width:100%;text-align:center;border:0;border-radius:14px;padding:15px 0;background:var(--inv);
+ color:var(--invInk);font-family:Montserrat,sans-serif;font-weight:800;font-size:11.5px;letter-spacing:.14em;
+ padding-left:.14em;text-transform:uppercase;cursor:pointer}
+.btn[disabled]{opacity:.35}
+.btn.ghost{background:transparent;color:var(--mut);border:1px solid rgba(45,42,69,.20);margin-top:9px}
+.fld{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:9px 13px;margin-bottom:8px}
+.fld .k{font-family:Montserrat,sans-serif;font-weight:800;font-size:8.5px;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--mut)}
+.fld input{width:100%;border:0;background:transparent;outline:none;color:var(--ink);margin-top:2px;
+ font-family:Montserrat,sans-serif;font-weight:800;font-size:13px;letter-spacing:.07em;text-transform:uppercase}
+.rows{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.rw{display:flex;align-items:center;width:100%;background:var(--surf);border:1px solid var(--line);
+ border-radius:13px;padding:13px 14px;font-family:Montserrat,sans-serif;font-weight:800;font-size:9.5px;
+ letter-spacing:.05em;line-height:1.3;text-transform:uppercase;cursor:pointer}
+.rw.on{background:var(--sel);border-color:var(--sel);color:var(--invInk)}
+.rw .g{flex:1}
+.rw .lifts2{display:block;font-family:ui-sans-serif,system-ui,sans-serif;font-weight:500;letter-spacing:0;
+ text-transform:none;font-size:11px;color:var(--mut);margin-top:3px}
+.rw.on .lifts2{color:#F3E4DC}
+.half{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+.third{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:8px}
+.third .rw{justify-content:center;padding:13px 8px}
+.tier{background:var(--surf);border:1px solid var(--line);border-radius:14px;margin-bottom:8px;overflow:hidden}
+.tier .hd{display:flex;align-items:center;gap:9px;padding:11px 13px}
+.em{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+ font-size:10px;flex:0 0 20px}
+.em.e{background:rgba(82,154,100,.16);color:var(--e)}.em.m{background:rgba(91,143,199,.16);color:var(--m)}
+.em.b{background:rgba(35,38,46,.12);color:var(--b)}.em.x{background:rgba(154,160,175,.22);color:#6E7482;font-size:8px}
+.tier .nm{font-family:Montserrat,sans-serif;font-weight:800;font-size:12px;letter-spacing:.09em;
+ text-transform:uppercase;flex:1}
+.tier .nm.e{color:var(--e)}.tier .nm.m{color:var(--m)}.tier .nm.b{color:var(--b)}.tier .nm.x{color:#7C8290}
+.tier .body{padding:0 13px 11px}
+.pk{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-top:1px solid var(--line);
+ font-size:13px;font-weight:600;line-height:1.35;cursor:pointer}
+.box{width:20px;height:20px;flex:0 0 20px;border-radius:6px;border:1.5px solid rgba(45,42,69,.28)}
+.box.on{background:var(--sel);border-color:var(--sel)}
+.box.on:after{content:"\2713";color:var(--invInk);font-size:11px;display:block;text-align:center;line-height:17px}
+.branch{display:flex;align-items:center;gap:12px;width:100%;background:rgba(206,139,113,.10);
+ border:1.5px dashed rgba(206,139,113,.75);border-radius:14px;padding:13px 14px;margin-bottom:12px;cursor:pointer}
+.branch .g{flex:1}
+.branch .k{font-family:Montserrat,sans-serif;font-weight:800;font-size:8.5px;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--acc)}
+.branch .t{font-family:Montserrat,sans-serif;font-weight:800;font-size:11px;letter-spacing:.05em;
+ text-transform:uppercase;margin-top:3px}
+.ramp .track{display:flex;background:var(--surf);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:8px}
+.ramp .stop{flex:1;padding:11px 2px;text-align:center;font-family:Montserrat,sans-serif;font-weight:800;
+ font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);border-right:1px solid var(--line);cursor:pointer}
+.ramp .stop:last-child{border-right:0}
+.ramp .stop.on{background:var(--sel);color:var(--invInk)}
+.ends{display:flex;justify-content:space-between;margin-top:6px;font-size:11.5px;color:var(--mut)}
+.stmt{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:12px 12px 11px;margin-bottom:8px}
+.stmt .tag{font-family:Montserrat,sans-serif;font-weight:800;font-size:8.5px;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--acc);margin-bottom:5px}
+.stmt .txt{font-size:13.5px;font-weight:600;line-height:1.35}
+.scale{display:flex;gap:5px;margin-top:9px}
+.scale div{flex:1;height:40px;display:flex;align-items:center;justify-content:center;text-align:center;
+ border:1px solid var(--line);border-radius:12px;background:#FAF9FD;font-family:Montserrat,sans-serif;
+ font-weight:800;font-size:7.5px;letter-spacing:.05em;line-height:1.25;text-transform:uppercase;color:var(--mut);cursor:pointer}
+.scale div.on{background:var(--sel);color:var(--invInk);border-color:var(--sel)}
+.tm{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:12px 14px 13px;margin-bottom:8px}
+.tm .hd{display:flex;justify-content:space-between;align-items:baseline}
+.tm .k{font-family:Montserrat,sans-serif;font-weight:800;font-size:9.5px;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--mut)}
+.tm .v{font-family:Montserrat,sans-serif;font-weight:800;font-size:14px}
+input[type=range]{-webkit-appearance:none;width:100%;height:28px;margin:9px 0 0;background:transparent}
+input[type=range]::-webkit-slider-runnable-track{height:28px;border-radius:14px;background:#F1EFF8}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:14px;
+ background:var(--sel);border:0}
+input[type=range]::-moz-range-track{height:28px;border-radius:14px;background:#F1EFF8}
+input[type=range]::-moz-range-thumb{width:28px;height:28px;border:0;border-radius:14px;background:var(--sel)}
+.grp{font-family:Montserrat,sans-serif;font-weight:800;font-size:9.5px;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--mut);margin:20px 0 9px}
+.path{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:11px 12px 10px;
+ margin-bottom:12px;cursor:pointer}
+.path.on{background:var(--sel);border-color:var(--sel);color:var(--invInk)}
+.path .tl{font-family:Montserrat,sans-serif;font-weight:800;font-size:8.5px;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--mut);margin-bottom:5px}
+.path.on .tl,.path.on .mi{color:#F6EAE3}
+.path .hd{display:flex;align-items:baseline;justify-content:space-between}
+.path .nm{font-family:Montserrat,sans-serif;font-weight:800;font-size:11px;letter-spacing:.09em;text-transform:uppercase}
+.path .mi{font-family:Montserrat,sans-serif;font-weight:800;font-size:9.5px;letter-spacing:.08em;color:var(--mut)}
+.steps{margin-top:8px;display:flex;flex-direction:column}
+.chip{display:flex;align-items:center;gap:6px;width:100%;border-radius:9px;padding:6px 9px;
+ border:2px solid rgba(255,255,255,.62);font-family:Montserrat,sans-serif;font-weight:800;font-size:10px;
+ letter-spacing:.07em;text-transform:uppercase;color:#F7F8FB;line-height:1.1;white-space:nowrap;overflow:hidden}
+.chip .sym{font-size:8.5px}
+.chip .road{font-size:7.5px;letter-spacing:.1em;opacity:.8;margin-left:auto;padding-left:8px}
+.chip.e{background:var(--e)}.chip.m{background:var(--m)}.chip.b{background:var(--b)}
+.chip.x{background:#C6C9D2;color:#1D2029;border-color:rgba(0,0,0,.42)}
+.chip.rg{background:var(--e);border-style:dashed}.chip.rb{background:var(--m);border-style:dashed}
+.chip.rk{background:var(--b);border-style:dashed}
+.arw{height:13px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--mut)}
+.path.on .arw{color:#F3E0D6}
+.day{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;
+ margin-bottom:11px;cursor:pointer}
+.day.on{background:var(--sel);border-color:var(--sel);color:var(--invInk)}
+.day .nm{font-family:Montserrat,sans-serif;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.day .stats{display:flex;gap:16px;margin-top:11px}
+.day .st .n{font-family:Montserrat,sans-serif;font-weight:800;font-size:16px}
+.day .st .l{font-family:Montserrat,sans-serif;font-weight:700;font-size:8.5px;letter-spacing:.12em;
+ text-transform:uppercase;color:var(--mut);margin-top:2px}
+.day.on .st .l,.day.on .ln{color:#F3E4DC}
+.lifts3{display:flex;flex-wrap:wrap;gap:5px;margin-top:11px}
+.lift{background:#F1EFF8;border-radius:8px;padding:4px 8px;font-family:Montserrat,sans-serif;font-weight:800;
+ font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:#5D5977}
+.day.on .lift{background:rgba(255,255,255,.22);color:var(--invInk)}
+.day .ln{font-size:12.5px;font-weight:500;line-height:1.5;color:var(--mut);margin-top:8px;padding-top:9px;
+ border-top:1px solid var(--line)}
+.day.on .ln{border-color:rgba(255,255,255,.28)}
+.bio{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:16px 15px 14px}
+.bio .kick{font-family:Montserrat,sans-serif;font-weight:800;font-size:9px;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--acc);margin-bottom:7px}
+.bio .type{font-family:Montserrat,sans-serif;font-weight:800;font-size:19px;letter-spacing:.05em;
+ text-transform:uppercase;line-height:1.15}
+.bio p{margin:11px 0 0;font-size:13.5px;font-weight:500;line-height:1.55;color:#4A4663}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px}
+.tag2{background:var(--sel);color:var(--invInk);border-radius:9px;padding:5px 9px;font-family:Montserrat,sans-serif;
+ font-weight:800;font-size:8.5px;letter-spacing:.09em;text-transform:uppercase}
+.wm{font-family:Montserrat,sans-serif;font-weight:800;font-size:38px;letter-spacing:.25em;padding-left:.25em;
+ text-align:center;line-height:1}
+.slog{font-family:Montserrat,sans-serif;font-weight:800;font-size:12px;letter-spacing:.20em;padding-left:.20em;
+ text-align:center;color:#7B7793;text-transform:uppercase;margin-top:16px}
+textarea{width:100%;height:190px;border:1px solid var(--line);border-radius:12px;padding:12px;
+ font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--surf);color:#4A4663}
+</style>
+</head>
+<body><div id="app"></div>
+<script>
+/* ---------------- state ---------------- */
+const A = { name:"", nick:"", gear:"", freq:"", know:"", cap:{}, control:null, never:null,
+            athletic:null, related:[], lesson:null, stmt:{}, areas:[], start:[], finish:[],
+            venues:[], baseLunch:[], clock:{from:0,to:100,plan:44,breaks:32}, paths:[], days:[] };
+let step = 0;
+
+const STMT = [
+ ["Grooming","I plan my day around the grooming report."],
+ ["Powder","If it snowed overnight, I am on the first chair."],
+ ["Trees","I like skiing tree runs."],
+ ["Bumps","I like skiing moguls."],
+ ["Effort","I want to feel it in my legs at the end of the day."],
+ ["Park","I like hitting the terrain park."],
+ ["Lift lines","I\u2019ll ride the quieter lift over the famous one."],
+ ["Scenery","I like a run with a view."],
+ ["Speed","I like carrying speed down a run."],
+ ["Ambition","I like skiing something I have never skied before."],
+ ["Lunch","I like to take my time at lunch."],
+ ["Nerve","Steep terrain is fun, not frightening."]
+];
+const BEGINNER_STMT = ["Lift lines","Scenery","Ambition","Lunch","Nerve"];
+
+const RD={"Top of 4 Ridge":"e","Swingsville":"e","Ramshorn":"m","Northwoods":"m","Flap Jack":"e",
+ "Timberline Catwalk":"rg","The Slot":"m","Buckskin Glade":"m","Sleepytime Road":"rb","Over Yonder":"b",
+ "Snag Park":"m","Hairbag Alley":"b","Whistle Pig":"m","Gandy Dancer":"b","Northstar (bottom)":"m",
+ "Prima (top)":"x","Pronto":"x","Sun Up Catwalk":"rb","Forever":"b","Sun Down Catwalk":"rk",
+ "Riva Ridge (top)":"b","Riva Ridge (mid)":"m","Tourist Trap":"b","Riva Ridge (bottom)":"m",
+ "Riva Catwalk":"rb","Gopher Hill":"e"};
+const SYM={e:"\u25CF",m:"\u25A0",b:"\u25C6",x:"\u25C6\u25C6",rg:"\u25CF",rb:"\u25A0",rk:"\u25C6"};
+
+const PATHS=[
+ ["Groomed","Easiest","Swingsville","4 min",["Top of 4 Ridge","Swingsville"]],
+ ["Groomed","Moderate","Ramshorn","3 min",["Ramshorn"]],
+ ["Groomed","Advanced","Northwoods","6 min",["Northwoods","Flap Jack"]],
+ ["Trees","Easiest","Buckskin Glade","13 min",["Ramshorn","Buckskin Glade","Ramshorn"]],
+ ["Trees","Moderate","Over Yonder","9 min",["Sleepytime Road","Over Yonder"]],
+ ["Trees","Advanced","Hairbag Alley","17 min",["Timberline Catwalk","Snag Park","Hairbag Alley"]],
+ ["Moguls","Easiest","Whistle Pig","6 min",["Top of 4 Ridge","Whistle Pig"]],
+ ["Moguls","Moderate","Gandy Dancer","6 min",["Gandy Dancer","Northstar (bottom)"]],
+ ["Moguls","Advanced","Prima into Pronto","11 min",["Top of 4 Ridge","Prima (top)","Pronto"]],
+ ["Long lines","Easiest","The Slot","6 min",["The Slot","Sun Up Catwalk"]],
+ ["Long lines","Moderate","Forever","6 min",["Forever","Sun Down Catwalk"]],
+ ["Long lines","Advanced","Riva Ridge","7 min",["Top of 4 Ridge","Riva Ridge (top)","Riva Ridge (mid)","Tourist Trap","Riva Ridge (bottom)","Riva Catwalk","Gopher Hill"]]
+];
+
+const DAYS=[
+ ["Beginner\u2019s paradise","9 Laps","3,103 Vertical ft","3h 05 On the hill",
+  ["Eagle Bahn #19","Little Eagle #15","Magic carpets","Download #19"],
+  "Eagle Bahn up to Eagle\u2019s Nest and everything stays up top. A bad run costs you nothing because you never have to get down the mountain to try again.",true],
+ ["A first morning","8 Laps","9,956 Vertical ft","3h 40 On the hill",
+  ["Gondola One","Mountain Top #4","Wildwood #3","Avanti #2"],
+  "Gondola One to Mid-Vail, then the easy laps off 4, 3 and 2. Swingsville and The Meadows to start, Hunky Dory and Ramshorn once the legs are warm.",true],
+ ["Blue cruiser","13 Laps","18,593 Vertical ft","4h 30 On the hill",
+  ["Gondola One","Wildwood #3","Game Creek #7","Northwoods #11","Orient Express #21"],
+  "Half the mountain on blue runs, Two Elk for lunch and Blue Sky after, back before that side shuts.",false],
+ ["Front side blues","12 Laps","16,999 Vertical ft","4h 08 On the hill",
+  ["Riva Bahn #6","Northwoods #11","Wildwood #3","Born Free #8"],
+  "Golden Peak start, Northwoods laps, then Game Creek and Lionshead, Mid-Vail for lunch.",false],
+ ["Fast track to the back bowls","13 Laps","17,514 Vertical ft","4h 18 On the hill",
+  ["Riva Bahn Mid #6m","Highline #10","Sourdough #14","Sun Down #17","Mongolia #22"],
+  "Off at the #6 midstation and straight over: Grand Junction Catwalk, Highline, Flap Jack, then the bowls all afternoon.",false],
+ ["The Grand Traverse","13 Lifts","19,916 Vertical ft","5h 25 Door to door",
+  ["Gondola One","High Noon #5","Northwoods #11","Skyline #37","Pete\u2019s #39"],
+  "Morning Side Ridge and Forever, Gandy Dancer into Log Chute, an hour at Two Elk, then Genghis Khan, Heavy Metal and Grand Review, finishing down Riva Ridge.",false],
+ ["The Chairlift Challenge","24 Lifts","31,477 Vertical ft","2:23pm Done",
+  ["All 24 chairs","Village to Village","No repeats"],
+  "Every chair on the mountain in one day, in the only order that works. Miss one connection before Blue Sky closes and the whole thing is gone.",false],
+ ["Late riser","7 Laps","11,173 Vertical ft","2h 24 On the hill",
+  ["Born Free #8","Avanti #2","Gondola One"],
+  "A one o\u2019clock start and easy blues across the front side. No rush and no back bowls to get home from.",true]
+];
+
+/* ---------------- helpers ---------------- */
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const beginner = () => A.never === true;
+const S = () => beginner()
+  ? ["open","who","freq","never","stmtA","vail","clock","daysB","profile","save"]
+  : ["open","who","freq","cap","stmtA","stmtB","vail","clock","line","days","profile","save"];
+const total = () => S().length - 2;
+
+function chip(n){const c=RD[n]||"m";const p=n.match(/^(.*?)(\s\(.*\))$/);
+ const body=p?esc(p[1])+'<i style="font-size:.66em;font-weight:700;opacity:.78;font-style:normal">'+esc(p[2])+'</i>':esc(n);
+ return '<div class="chip '+c+'"><span class="sym">'+SYM[c]+'</span>'+body+(c[0]==="r"?'<span class="road">CAT TRACK</span>':'')+'</div>';}
+function head(t,q,sub,pick){
+ const i=S().indexOf(cur()), n=total();
+ let r=''; for(let k=0;k<n;k++) r+='<div class="seg'+(k<i?' on':'')+'"></div>';
+ return '<div class="ptitle">SKOPE Onboarding</div>'+
+  '<div class="prog"><div class="back" onclick="go(-1)"><i>\u2039</i>Back</div><div class="rail">'+r+'</div></div>'+
+  (t?'<div class="eyebrow">'+t+'</div>':'')+'<h1>'+q+'</h1>'+
+  (sub?'<p class="sub">'+sub+'</p>':'')+(pick?'<div class="pm">'+pick+'</div>':'');
+}
+const foot = (label,ok) => '<div class="foot"><button class="btn" '+(ok===false?'disabled':'')+' onclick="go(1)">'+label+'</button></div>';
+const attr = v => String(v).replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+const row = (t,on,act,key,sub) => '<div class="rw'+(on?' on':'')+'" data-v="'+attr(t)+'" '+
+  'onclick="'+act+'(\''+key+'\',this.dataset.v)"><div class="g">'+t+
+  (sub?'<span class="lifts2">'+sub+'</span>':'')+'</div></div>';
+function pick(k,v){ A[k]=v; render(); }
+function tog(k,v){ const i=A[k].indexOf(v); i<0?A[k].push(v):A[k].splice(i,1); render(); }
+function tierT(k,v){ A.cap[k]=A.cap[k]||[]; const i=A.cap[k].indexOf(v); i<0?A.cap[k].push(v):A.cap[k].splice(i,1); render(); }
+
+function cur(){ return S()[step]; }
+function go(d){ step=Math.max(0,Math.min(S().length-1,step+d)); window.scrollTo(0,0); render(); }
+function set(k,v){ A[k]=v; render(); }
+function toggle(arr,v){ const i=A[arr].indexOf(v); i<0?A[arr].push(v):A[arr].splice(i,1); render(); }
+function tier(k,v){ A.cap[k]=A.cap[k]||[]; const i=A.cap[k].indexOf(v); i<0?A.cap[k].push(v):A.cap[k].splice(i,1); render(); }
+function stmt(k,v){ A.stmt[k]=v; render(); }
+function clock(k,v){ A.clock[k]=+v; render(); }
+function neverPath(){ A.never=true; step=S().indexOf("never"); render(); }
+
+/* ---------------- the profile it builds ---------------- */
+function profile(){
+ const s=A.stmt, n=A.nick||A.name||"You";
+ const top=(k)=>(s[k]||3);
+ const traits=[["The Powder Hound",top("Powder")],["The Corduroy Chaser",top("Grooming")],
+  ["The Tree Skier",top("Trees")],["The Bump Skier",top("Bumps")],["The Park Rat",top("Park")],
+  ["The Line Dodger",top("Lift lines")],["The Sightseer",top("Scenery")],["The Leg Burner",top("Effort")],
+  ["The Explorer",top("Ambition")],["The Long Luncher",top("Lunch")]];
+ traits.sort((a,b)=>b[1]-a[1]);
+ let type = beginner() ? "The First Timer" : traits[0][1]>=4 ? traits[0][0] : "The All-Rounder";
+ const capWords=[]; ["Green","Blue","Black","Double black"].forEach(t=>{ if((A.cap[t]||[]).length) capWords.push(t.toLowerCase()); });
+ const p=[];
+ if(beginner()){
+  p.push("You have never skied, and the plan knows it. Everything stays green, everything stays close to a lift, and nothing on it will surprise you.");
+ } else {
+  p.push("You top out at "+(capWords.length?capWords[capWords.length-1]:"blue")+
+   ", and inside that you picked "+((A.cap["Black"]||A.cap["Blue"]||[]).join(", ")||"the groomed ones")+".");
+ }
+ const likes=traits.filter(t=>t[1]>=4).map(t=>t[0].replace("The ","").toLowerCase());
+ if(likes.length) p.push("What you actually want out of a day: "+likes.slice(0,3).join(", ")+".");
+ if(A.areas.length) p.push("At Vail that means "+A.areas.join(" and ")+" before anything else.");
+ if(A.venues.length||A.baseLunch.length) p.push("Lunch is "+[].concat(A.venues,A.baseLunch).join(" or ")+".");
+ const tags=[]; if(capWords.length) tags.push(capWords[capWords.length-1]);
+ traits.filter(t=>t[1]>=4).slice(0,4).forEach(t=>tags.push(t[0].replace("The ","")));
+ A.areas.forEach(a=>tags.push(a)); A.days.forEach(d=>tags.push(DAYS[d][0]));
+ return {type,p,tags:tags.slice(0,8),n};
+}
+
+function answersText(){
+ const P=profile(), L=[];
+ L.push("SKOPE ONBOARDING \u2014 "+(A.name||"(no name)")+(A.nick?" ("+A.nick+")":""));
+ L.push("Profile: "+P.type);
+ L.push("Gear: "+(A.gear||"-")+" | Skis: "+(A.freq||"-")+" | Knows Vail: "+(A.know||"-"));
+ if(beginner()){
+  L.push("NEVER SKIED. Confidence: "+(A.athletic||"-")+" | Related: "+(A.related.join(", ")||"-")+" | Lesson: "+(A.lesson||"-"));
+ } else {
+  Object.keys(A.cap).forEach(k=>{ if(A.cap[k].length) L.push("Cap "+k+": "+A.cap[k].join(", ")); });
+  L.push("At your limit: "+(A.control!=null?(A.control+1)+"/5":"-"));
+ }
+ L.push("");
+ STMT.forEach(([tag])=>{ if(A.stmt[tag]!=null) L.push(tag+": "+(A.stmt[tag]+1)+"/5"); });
+ L.push("");
+ L.push("Areas: "+(A.areas.join(", ")||"-"));
+ L.push("Start: "+(A.start.join(", ")||"-")+" | Finish: "+(A.finish.join(", ")||"-"));
+ L.push("Lunch: "+([].concat(A.venues,A.baseLunch).join(", ")||"-"));
+ L.push("Clock: on the hill "+A.clock.from+"\u2013"+A.clock.to+" of the day | plans lunch "+A.clock.plan+"% | breaks "+A.clock.breaks+"%");
+ if(!beginner()) L.push("Runs they would take: "+(A.paths.map(i=>PATHS[i][2]).join(", ")||"none"));
+ L.push("Days they liked: "+(A.days.map(i=>DAYS[i][0]).join(", ")||"none"));
+ return L.join("\n");
+}
+
+/* ---------------- screens ---------------- */
+function render(){
+ const k=cur(); let h="";
+
+ if(k==="open"){
+  h='<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:40px">'+
+    '<div class="wm">SKOPE</div><div class="slog">SKOPE your day.</div></div>'+
+    '<div class="foot"><button class="btn" onclick="go(1)">Build my profile</button>'+
+    '<button class="btn ghost">Sign in</button></div>';
+ }
+
+ if(k==="who"){
+  h=head("First, the basics","Introduce yourself to SKOPE","","")+
+   '<div class="flow">'+
+   '<div class="fld"><div class="k">Name</div><input id="f_name" value="'+esc(A.name)+'" oninput="A.name=this.value" placeholder="YOUR NAME"></div>'+
+   '<div class="fld"><div class="k">SKOPE calls you</div><input id="f_nick" value="'+esc(A.nick)+'" oninput="A.nick=this.value" placeholder="NICKNAME"></div>'+
+   '<div class="slab"><span class="g">Do you ski or ride?</span><span class="pm">Pick one</span></div>'+
+   '<div class="third">'+["Ski","Snowboard","Both"].map(x=>row(x,A.gear===x,"pick","gear")).join('')+'</div>'+
+   '</div>'+foot("Next",!!A.gear);
+ }
+
+ if(k==="freq"){
+  h=head("Two quick ones","How much do you ski?","","Pick one")+
+   '<div class="flow"><div class="rows">'+
+   ["First time ever","I\u2019ve been a handful of times","Multiple trips a year","Lifelong skier or rider"]
+    .map(x=>row(x,A.freq===x,"pick","freq")).join('')+'</div>'+
+   '<div class="slab"><span class="g">How well do you know Vail?</span><span class="pm">Pick one</span></div>'+
+   '<div class="rows">'+["First visit","Been a handful of times","I\u2019m a local, or local at heart"]
+    .map(x=>row(x,A.know===x,"pick","know")).join('')+'</div></div>'+
+   foot("Next",!!(A.freq&&A.know));
+ }
+
+ if(k==="cap"){
+  const T=[["e","\u25CF","Green",["Groomed green runs","Green cat tracks, the long flat ones","Keep the multi-mile green roads out of my day"]],
+           ["m","\u25A0","Blue",["Groomed blues","Blue cat tracks","Blues that bump up when it has not snowed","Keep long blue roads out unless there is no way around"]],
+           ["b","\u25C6","Black",["Groomed blacks","Blacks bumped up when it has not snowed","Blacks with fresh snow on them","Black tree runs","Black cat tracks, the way out of a bowl or into somewhere good"]],
+           ["x","\u25C6\u25C6","Double black",["Long steep mogul fields","Thin cover, natural obstacles","Cliffs and drops","Anything that is open"]]];
+  h=head("What you can ski, and what kind","What are you capable of?","","Pick any, in every tier")+
+   '<div class="flow">'+
+   '<div class="branch" onclick="neverPath()"><div class="g"><div class="k">Never skied or ridden?</div>'+
+     '<div class="t">Start here instead</div></div><div style="font-size:15px;color:var(--acc)">\u203A</div></div>'+
+   T.map(([c,sy,name,opts])=>'<div class="tier"><div class="hd"><div class="em '+c+'">'+sy+'</div>'+
+     '<div class="nm '+c+'">'+name+'</div></div><div class="body">'+
+     opts.map(o=>'<div class="pk" data-v="'+attr(o)+'" data-t="'+attr(name)+'" '+
+       'onclick="tierT(this.dataset.t,this.dataset.v)">'+
+       '<div class="box'+((A.cap[name]||[]).indexOf(o)>=0?' on':'')+'"></div><div>'+o+'</div></div>').join('')+
+     '</div></div>').join('')+
+   '<div class="slab"><span class="g">On a run at your limit</span><span class="pm">Pick one</span></div>'+
+   '<div class="ramp"><div class="track">'+[0,1,2,3,4].map(i=>
+     '<div class="stop'+(A.control===i?' on':'')+'" onclick="pick(\'control\','+i+')">'+(i+1)+'</div>').join('')+'</div>'+
+     '<div class="ends"><span>Careful and patient</span><span>Confident anywhere</span></div></div>'+
+   '</div>'+foot("Next", Object.values(A.cap).some(v=>v.length) && A.control!=null);
+ }
+
+ if(k==="never"){
+  h=head("First time ever","Let\u2019s start somewhere else","","")+
+   '<div class="flow">'+
+   '<div class="slab"><span class="g">How will you take to it?</span><span class="pm">Pick one</span></div>'+
+   '<div class="rows">'+["I have athletic experience","I have confidence I\u2019ll pick it up","I\u2019m honestly nervous"]
+     .map(x=>row(x,A.athletic===x,"pick","athletic")).join('')+'</div>'+
+   '<div class="slab"><span class="g">Anything close to this?</span><span class="pm">Pick any</span></div>'+
+   '<div class="rows">'+["I skate or surf","I water ski","I have been on a mountain bike","None of these"]
+     .map(x=>row(x,A.related.indexOf(x)>=0,"tog","related")).join('')+'</div>'+
+   '<div class="slab"><span class="g">Have you booked a lesson?</span><span class="pm">Pick one</span></div>'+
+   '<div class="half">'+["Full day","Half day","Not yet","Someone is teaching me"]
+     .map(x=>row(x,A.lesson===x,"pick","lesson")).join('')+'</div>'+
+   '</div>'+foot("Next",!!A.athletic);
+ }
+
+ if(k==="stmtA"||k==="stmtB"){
+  const list = beginner() ? STMT.filter(s=>BEGINNER_STMT.indexOf(s[0])>=0)
+                          : (k==="stmtA"?STMT.slice(0,6):STMT.slice(6));
+  const eb = beginner() ? "Five quick ones" : (k==="stmtA"?"One through six":"Seven through twelve");
+  h=head(eb,"Agree or disagree?","","One answer each")+
+   '<div class="flow">'+list.map(([tag,txt])=>
+    '<div class="stmt"><div class="tag">'+tag+'</div><div class="txt">'+txt+'</div><div class="scale">'+
+    ["Disagree","Somewhat<br>disagree","Neutral","Somewhat<br>agree","Agree"].map((L,i)=>
+     '<div class="'+(A.stmt[tag]===i?'on':'')+'" data-t="'+attr(tag)+'" onclick="stmt(this.dataset.t,'+i+')">'+L+'</div>').join('')+
+    '</div></div>').join('')+'</div>'+
+   foot("Next", list.every(s=>A.stmt[s[0]]!=null));
+ }
+
+ if(k==="vail"){
+  h=head("Vail","Where do you actually ski?","","Pick any")+
+   '<div class="flow">'+
+   '<div class="half">'+["Front Side","Back Bowls","Blue Sky Basin","Northeast Bowl","Game Creek","Golden Peak"]
+     .map(x=>row(x,A.areas.indexOf(x)>=0,"tog","areas")).join('')+'</div>'+
+   '<div class="slab"><span class="g">Where do you start?</span><span class="pm">Pick any</span></div>'+
+   '<div class="rows">'+[["Vail Village","Gondola One"],["Golden Peak","Riva Bahn #6 \u00b7 Gopher Hill #12"],
+     ["Lionshead","Born Free #8 \u00b7 Eagle Bahn #19"],["Cascade Village","Cascade Village #20"]]
+     .map(([x,l])=>row(x,A.start.indexOf(x)>=0,"tog","start",l)).join('')+'</div>'+
+   '<div class="slab"><span class="g">Where do you finish?</span><span class="pm">Pick any</span></div>'+
+   '<div class="half">'+["Vail Village","Lionshead","Golden Peak","Cascade Village"]
+     .map(x=>row(x,A.finish.indexOf(x)>=0,"tog","finish")).join('')+'</div>'+
+   '<div class="slab"><span class="g">Where do you eat on the mountain?</span><span class="pm">Pick any</span></div>'+
+   '<div class="rows">'+["Two Elk Lodge","Buffalo\u2019s","Mid-Vail","Wildwood Smokehouse","Eagle\u2019s Nest","Belle\u2019s Camp"]
+     .map(x=>row(x,A.venues.indexOf(x)>=0,"tog","venues")).join('')+'</div>'+
+   '<div class="slab"><span class="g">Or down at a base</span><span class="pm">Pick any</span></div>'+
+   '<div class="third">'+["Vail Village","Lionshead","Golden Peak"]
+     .map(x=>row(x,A.baseLunch.indexOf(x)>=0,"tog","baseLunch")).join('')+'</div>'+
+   '</div>'+foot("Next",A.start.length>0);
+ }
+
+ if(k==="clock"){
+  const tm=(k2,label,val,lo,hi)=>'<div class="tm"><div class="hd"><div class="k">'+label+'</div><div class="v">'+val+'</div></div>'+
+   '<input type="range" min="0" max="100" value="'+A.clock[k2]+'" oninput="clock(\''+k2+'\',this.value)">'+
+   '<div class="ends"><span>'+lo+'</span><span>'+hi+'</span></div></div>';
+  const t=(p)=>{const m=8.5*60+p/100*(16*60-8.5*60);const H=Math.floor(m/60),M=Math.round((m%60)/5)*5;
+   return ((H%12)||12)+":"+String(M===60?0:M).padStart(2,"0")+(H<12?"am":"pm");};
+  h=head("On an average day","How do you spend the day?","A typical day, not necessarily your best one.","")+
+   '<div class="flow">'+
+   tm("from","On the hill from",A.clock.from<4?"First Chair":t(A.clock.from),"First Chair","Last Chair")+
+   tm("to","Until",A.clock.to>96?"Last Chair":t(A.clock.to),"First Chair","Last Chair")+
+   tm("plan","Do you plan lunch ahead?",A.clock.plan<33?"Rarely":A.clock.plan>66?"Always":"Sometimes","Eat when I\u2019m hungry","Booked, at a time")+
+   tm("breaks","Breaks",A.clock.breaks<33?"Hardly any":A.clock.breaks>66?"Plenty":"A Couple","Only if it\u2019s freezing","Hot chocolate all day")+
+   '</div>'+foot("Next");
+ }
+
+ if(k==="line"){
+  let last="";
+  h=head("Scenario","Which of these can you ski?",
+    "You have just ridden Mountain Top Express #4 and you are standing at the top of Vail. These are some of the ways down. You do not need to know the names, go by what is in them.","Pick any")+
+   '<div class="flow">'+PATHS.map(([grp,tierL,nm,mi,runs],i)=>{
+    const g = grp!==last ? '<div class="grp">'+grp+'</div>' : ''; last=grp;
+    return g+'<div class="path'+(A.paths.indexOf(i)>=0?' on':'')+'" onclick="tog(\'paths\','+i+')">'+
+     '<div class="tl">'+tierL+'</div><div class="hd"><div class="nm">'+nm+'</div><div class="mi">'+mi+'</div></div>'+
+     '<div class="steps">'+runs.map(chip).join('<div class="arw">\u2193</div>')+'</div></div>';
+   }).join('')+'</div>'+foot("Next");
+ }
+
+ if(k==="days"||k==="daysB"){
+  const idx = k==="daysB" ? [0,1] : DAYS.map((d,i)=>i);
+  h=head(k==="daysB"?"Your first morning":"Real days, already built",
+    k==="daysB"?"Which sounds better?":"Which of these look good?","", "Pick any")+
+   '<div class="flow">'+idx.map(i=>{const d=DAYS[i];
+    return '<div class="day'+(A.days.indexOf(i)>=0?' on':'')+'" onclick="tog(\'days\','+i+')">'+
+     '<div class="nm">'+d[0]+'</div><div class="stats">'+[d[1],d[2],d[3]].map(x=>{
+       const sp=x.split(" "); return '<div class="st"><div class="n">'+sp.shift()+'</div><div class="l">'+sp.join(" ")+'</div></div>';}).join('')+
+     '</div><div class="lifts3">'+d[4].map(l=>'<span class="lift">'+l+'</span>').join('')+'</div>'+
+     '<div class="ln">'+d[5]+'</div></div>';
+   }).join('')+'</div>'+foot("Next",A.days.length>0);
+ }
+
+ if(k==="profile"){
+  const P=profile();
+  h=head("That\u2019s everything","Nice to meet you","","")+
+   '<div class="flow"><div class="bio"><div class="kick">'+esc(P.n)+'\u2019s SKOPE profile</div>'+
+   '<div class="type">'+P.type+'</div>'+P.p.map(x=>'<p>'+esc(x)+'</p>').join('')+
+   '<div class="tags">'+P.tags.map(t=>'<span class="tag2">'+esc(t)+'</span>').join('')+'</div></div>'+
+   '<p class="sub">Every line came from something you answered.</p></div>'+foot("Next");
+ }
+
+ if(k==="save"){
+  h=head("Last thing","Send it back","Copy this and text it to whoever sent you the link.","")+
+   '<div class="flow"><textarea id="out" readonly>'+esc(answersText())+'</textarea>'+
+   '<div class="foot" style="padding-top:12px"><button class="btn" onclick="copyOut()">Copy my answers</button>'+
+   '<button class="btn ghost" onclick="step=0;render()">Start again</button></div></div>';
+ }
+
+ app.innerHTML=h;
+}
+function copyOut(){
+ const t=document.getElementById("out"); t.select(); t.setSelectionRange(0,99999);
+ try{ document.execCommand("copy"); }catch(e){}
+ if(navigator.clipboard) navigator.clipboard.writeText(t.value).catch(()=>{});
+ const b=event.target; const o=b.textContent; b.textContent="Copied"; setTimeout(()=>b.textContent=o,1400);
+}
+render();
+</script>
+</body>
+</html>
