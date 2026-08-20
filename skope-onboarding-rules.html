@@ -1,0 +1,257 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SKOPE · What the onboarding writes</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--field:#E4E1F1;--fieldTop:#E1DEEF;--fieldLow:#E9E7F6;--ink:#2D2A45;--mut:#7B7793;
+ --line:rgba(45,42,69,.11);--surf:#FFFFFF;--acc:#C06A34}
+*{box-sizing:border-box}
+html,body{margin:0;background:linear-gradient(178deg,var(--fieldTop),var(--fieldLow));color:var(--ink);
+ font:14px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding:34px 18px 80px}
+h1{font-family:Montserrat,sans-serif;font-weight:800;font-size:21px;letter-spacing:.05em;text-transform:uppercase;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:8px;line-height:1.6}
+h2{font-family:Montserrat,sans-serif;font-weight:800;font-size:12px;letter-spacing:.13em;text-transform:uppercase;
+ margin:34px 0 4px;color:var(--acc)}
+h2 span{color:var(--ink);margin-left:8px}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin-top:10px}
+.ctrl{font-family:Montserrat,sans-serif;font-weight:800;font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+.field{font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--acc);margin-top:5px;word-break:break-word}
+.eff{font-size:13px;color:#4A4663;margin-top:7px}
+.rule{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin-top:10px}
+.rid{font-family:Montserrat,sans-serif;font-weight:800;font-size:10px;letter-spacing:.12em;color:var(--mut)}
+.rtxt{font-size:14px;font-weight:600;margin-top:5px}
+.rval{font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#5D5977;margin-top:7px;word-break:break-word}
+.note{border-left:3px solid var(--acc);padding:2px 0 2px 12px;margin-top:12px;font-size:13px;color:#4A4663}
+ol{padding-left:20px;font-size:13.5px;color:#4A4663}
+ol li{margin:5px 0}
+</style></head><body><div class='wrap'>
+<h1>What the onboarding writes</h1>
+<p class='sub'>Without this the onboarding is a survey: taps happen and nothing is kept. This is the contract between the flow and the planner, and it is what a builder needs in order to wire a screen to anything.</p>
+<p class='sub'>Generated from <b>skope-user-rules.json</b> v0.3. Change the JSON and regenerate; do not edit this page.</p>
+<h2>Who wins when two rules disagree</h2>
+<ol><li>1. GRAPH LAWS — ORDER-03 and anything owner:derived. Never overridable by a user.</li><li>2. HOURS AND SAFETY — TIME-01, lift closes, the ability ceiling. A preference cannot ski a closed lift.</li><li>3. SHARED RULES — skope-rules.json, owner:hayden.</li><li>4. USER RULES — this file.</li><li>5. THE OPTIMISER — free to choose anything the four layers above leave open.</li></ol>
+<h2>Screen 2<span>Who you are</span></h2>
+<div class='card'><div class='ctrl'>Name</div>
+<div class='field'>writes profile.name</div>
+<div class='eff'>display only, rendered in caps</div></div>
+<div class='card'><div class='ctrl'>SKOPE calls you</div>
+<div class='field'>writes profile.nickname</div>
+<div class='eff'>every greeting, and the head of the profile card</div></div>
+<div class='card'><div class='ctrl'>Handle</div>
+<div class='field'>writes profile.handle</div>
+<div class='eff'>the social layer. The @ is fixed in the field and stored with the value</div></div>
+<div class='card'><div class='ctrl'>Birthday</div>
+<div class='field'>writes profile.birthday</div>
+<div class='eff'>typed MM / DD / YYYY, slashes inserted as you go. A badge, and a soft prior on ability</div></div>
+<div class='card'><div class='ctrl'>Ski / Snowboard / Both</div>
+<div class='field'>writes USER-03.equipment</div>
+<div class='eff'>SNOWBOARD applies a negative multiplier to every cat track. A routing input, not a profile detail</div></div>
+<h2>Screen 2b<span>How much you ski</span></h2>
+<div class='card'><div class='ctrl'>How much do you ski?</div>
+<div class='field'>writes USER-02.seasons</div>
+<div class='eff'>confidence, not ability. FIRST TIME EVER also switches the whole flow to the beginner branch</div></div>
+<div class='card'><div class='ctrl'>How well do you know Vail?</div>
+<div class='field'>writes USER-02.local_knowledge</div>
+<div class='eff'>how much SKOPE explains, and FIRST VISIT switches screens 5 and 6 to their plain-English versions</div></div>
+<div class='card'><div class='ctrl'>Who do you usually ski with</div>
+<div class='field'>writes USER-16.crew</div>
+<div class='eff'>a PRIOR, never a lock. Shifts pace, lift choice and how much slack the plan carries; any day overrides it</div></div>
+<div class='card'><div class='ctrl'>Your gear</div>
+<div class='field'>writes USER-15.kit</div>
+<div class='eff'>two answers: own everything, or need to pick something up. If anything needs collecting, DAY ONE opens at a shop rather than a lift, once. Also where a rental partnership sits</div></div>
+<h2>Screen 3<span>What are you capable of</span></h2>
+<div class='card'><div class='ctrl'>Which tiers are ticked</div>
+<div class='field'>writes USER-01.band</div>
+<div class='eff'>the ability CEILING, not a diet. Every tier at or below stays in play; ticking double black never removes groomers</div></div>
+<div class='card'><div class='ctrl'>The sub-picks inside each tier</div>
+<div class='field'>writes USER-01.terrain</div>
+<div class='eff'>INCLUSIONS, per tier. Only the lines beginning KEEP are exclusions</div></div>
+<div class='card'><div class='ctrl'>The KEEP lines</div>
+<div class='field'>writes USER-01.excluded</div>
+<div class='eff'>multiplies the existing road weighting rather than replacing it</div></div>
+<div class='card'><div class='ctrl'>On a run at your limit</div>
+<div class='field'>writes USER-12.confidence</div>
+<div class='eff'>CAREFUL AND PATIENT to CONFIDENT ANYWHERE. 1 keeps the pitch down even at a high cap; 5 allows the hardest option at the ceiling</div></div>
+<div class='card'><div class='ctrl'>Never skied or ridden</div>
+<div class='field'>writes USER-01.band = 0</div>
+<div class='eff'>the signposted branch at the top of the screen</div></div>
+<h2>Screen 3b<span>Never skied</span></h2>
+<div class='card'><div class='ctrl'>How will you take to it?</div>
+<div class='field'>writes USER-12.confidence</div>
+<div class='eff'>the same field, asked a different way</div></div>
+<div class='card'><div class='ctrl'>Anything close to this?</div>
+<div class='field'>writes USER-02.related_sport</div>
+<div class='eff'>a prior on how fast to progress across a first week</div></div>
+<div class='card'><div class='ctrl'>Have you booked a lesson?</div>
+<div class='field'>writes USER-13.lesson</div>
+<div class='eff'>a lesson means SKOPE plans around a meeting point. Not booked plus low nerve makes BOOK A LESSON the profile&#x27;s first advice</div></div>
+<h2>Screen 4<span>Agree or disagree</span></h2>
+<div class='card'><div class='ctrl'>Grooming</div>
+<div class='field'>writes USER-05.grooming</div>
+<div class='eff'>reads groomedUsual and the daily report; decides the morning</div></div>
+<div class='card'><div class='ctrl'>Powder</div>
+<div class='field'>writes USER-05.powder</div>
+<div class='eff'>first-tracks timing and starPowder runs move earlier after snow</div></div>
+<div class='card'><div class='ctrl'>Trees</div>
+<div class='field'>writes USER-05.trees</div>
+<div class='eff'>weights the trees tag</div></div>
+<div class='card'><div class='ctrl'>Bumps</div>
+<div class='field'>writes USER-05.bumps</div>
+<div class='eff'>weights ungroomed blacks when it has not snowed</div></div>
+<div class='card'><div class='ctrl'>Effort</div>
+<div class='field'>writes USER-05.effort</div>
+<div class='eff'>raises the vertical target and shortens breaks</div></div>
+<div class='card'><div class='ctrl'>Park</div>
+<div class='field'>writes USER-05.park</div>
+<div class='eff'>puts Golden Peak Terrain Park, Avanti Park and Black Forest in play</div></div>
+<div class='card'><div class='ctrl'>Lift lines</div>
+<div class='field'>writes USER-05.quiet</div>
+<div class='eff'>reads the queue model; prefers the shorter line over the famous run</div></div>
+<div class='card'><div class='ctrl'>Scenery</div>
+<div class='field'>writes USER-05.scenic</div>
+<div class='eff'>weights scenic runs, scenic lift rides and photo-op points</div></div>
+<div class='card'><div class='ctrl'>Speed</div>
+<div class='field'>writes USER-05.speed</div>
+<div class='eff'>prefers long uninterrupted fall lines over technical ones</div></div>
+<div class='card'><div class='ctrl'>Ambition</div>
+<div class='field'>writes USER-05.novelty</div>
+<div class='eff'>the explore weight: something new over something known-good</div></div>
+<div class='card'><div class='ctrl'>Lunch</div>
+<div class='field'>writes USER-05.lunch</div>
+<div class='eff'>how long the lunch band is</div></div>
+<div class='card'><div class='ctrl'>Nerve</div>
+<div class='field'>writes USER-05.nerve</div>
+<div class='eff'>pairs with confidence; low nerve softens the hardest option even at a high cap</div></div>
+<div class='card'><div class='ctrl'>And anything you will not do?</div>
+<div class='field'>writes USER-17.avoid_terrain</div>
+<div class='eff'>moguls, trees, cliffs and drops, the terrain park, flat light above the trees. SOFT, NOT PERMANENT: kept out of a normal day, still offered when the conditions are right, and always refusable. Long cat tracks and crowded runs are deliberately NOT here, both are asked elsewhere</div></div>
+<h2>Screen 6<span>The clock</span></h2>
+<div class='card'><div class='ctrl'>On the hill from / until</div>
+<div class='field'>writes USER-07.start, USER-07.finish</div>
+<div class='eff'>one track from FIRST CHAIR to LAST CHAIR, named rather than timed because last chair moves by mountain</div></div>
+<div class='card'><div class='ctrl'>Do you plan lunch ahead?</div>
+<div class='field'>writes USER-08.booked</div>
+<div class='eff'>high pins lunch to a time; low lets it float to the nearest place when hungry</div></div>
+<div class='card'><div class='ctrl'>Breaks</div>
+<div class='field'>writes USER-08.breaks</div>
+<div class='eff'>how many stops the day carries, raised on a cold day</div></div>
+<h2>screen_5_where<span></span></h2>
+<div class='card'><div class='ctrl'>The front side / and out back</div>
+<div class='field'>writes USER-09.areas</div>
+<div class='eff'>the sixteen area names. Picking NORTHEAST BOWL includes Highline; picking HIGHLINE alone means the expert terrain off #10 (Highline, Blue Ox, Roger&#x27;s Run, Log Chute, Hairbag Alley, and NOT Prima or Pronto, which start at the top of 4/5/11), which is an ability claim as much as a place</div></div>
+<div class='card'><div class='ctrl'>Your top three</div>
+<div class='field'>writes USER-09.top_three</div>
+<div class='eff'>gold, silver, bronze, chosen from what they ticked. SKOPE leans on these when a day could go either way. Appears once three areas are picked</div></div>
+<div class='card'><div class='ctrl'>Anywhere you would rather not ski</div>
+<div class='field'>writes USER-17.avoid_areas</div>
+<div class='eff'>the same sixteen names, from the other side</div></div>
+<h2>screen_7_day<span></span></h2>
+<div class='card'><div class='ctrl'>Where are you staying</div>
+<div class='field'>writes USER-14.lodging</div>
+<div class='eff'>sets the bases, editable after. VAIL VILLAGE starts at the village or Golden Peak (a short walk) and finishes at the village; GOLDEN PEAK starts at either and finishes at Golden Peak; LIONSHEAD and CASCADE are the same at both ends; OFF PROPERTY opens all three main bases. Finishing where you stay is the strong pull, starting is the loose one</div></div>
+<div class='card'><div class='ctrl'>Where do you start / finish</div>
+<div class='field'>writes USER-14.start_bases, USER-14.finish_bases</div>
+<div class='eff'>pre-filled from lodging, one tap to change</div></div>
+<div class='card'><div class='ctrl'>Lunch</div>
+<div class='field'>writes USER-10.mode</div>
+<div class='eff'>I STOP AND DINE, I PACK MY LUNCH (a modifier: you still need somewhere to sit) or I DO NOT STOP (a different day shape). The places list shows either way</div></div>
+<div class='card'><div class='ctrl'>Where do you like to eat or stop</div>
+<div class='field'>writes USER-10.venues</div>
+<div class='eff'>a named venue is a HARD ORDERING PIN per ORDER-06. For the no-stop answer these become warm-up and break stops instead</div></div>
+<div class='card'><div class='ctrl'>Or down at a base</div>
+<div class='field'>writes USER-10.base_lunch</div>
+<div class='eff'>lunch at the bottom means the plan returns to a base at midday and changes the shape of the afternoon</div></div>
+<h2>screen_8_the_line<span></span></h2>
+<div class='card'><div class='ctrl'>Which paths are ticked</div>
+<div class='field'>writes USER-01.verified_terrain</div>
+<div class='eff'>CONFIRMS the cap against real terrain. Someone who ticks a black cap but skips every mogul path gets bumps demoted regardless of the tier they claimed.</div></div>
+<h2>screen_9_samples<span></span></h2>
+<div class='card'><div class='ctrl'>Which days are ticked</div>
+<div class='field'>writes USER-06.shape</div>
+<div class='eff'>coverage against depth against repeats, plus pace. Ticking two very different days is itself the answer: both modes are wanted.</div></div>
+<h2>screen_10_profile<span></span></h2>
+<div class='card'><div class='ctrl'>Read-only</div>
+<div class='field'>writes nothing</div>
+<div class='eff'>reads the answers back as a person. Order: the line about who you are, what you want out of a day, your ceiling, the ceiling not the diet, gear, at Vail, lunch and breaks, the clock, and last everything kept out</div></div>
+<h2>screen_11_account<span></span></h2>
+<div class='card'><div class='ctrl'>Apple / Google / email</div>
+<div class='field'>writes account.*</div>
+<div class='eff'>where the rule book is stored. Declining keeps it on the device only.</div></div>
+<h2>The rules it produces · ability</h2>
+<div class='rule'><div class='rid'>USER-01 · from screen 3</div>
+<div class='rtxt'>Ability ceiling is DOUBLE BLACK, with groomed runs kept in play at every tier below it.</div>
+<div class='rval'>{&quot;band&quot;: 4, &quot;terrain&quot;: {&quot;green&quot;: [&quot;groomed&quot;], &quot;blue&quot;: [&quot;groomed&quot;, &quot;bumped&quot;], &quot;black&quot;: [&quot;groomed&quot;, &quot;bumped&quot;, &quot;fresh&quot;, &quot;trees&quot;, &quot;roads&quot;], &quot;double_black&quot;: [&quot;moguls&quot;, &quot;thin cover&quot;, &quot;cliffs&quot;, &quot;anything open&quot;]}, &quot;excluded&quot;: [&quot;multi-mile green roads&quot;, &quot;long blue roads unless unavoidable&quot;]}</div>
+<div class='note'>The top difficulty they want to SEE, not the only thing they will ski. The sub-picks say what KIND at each level, and a groomer stays available at every one of them.</div>
+</div>
+<div class='rule'><div class='rid'>USER-02 · from screen 2b</div>
+<div class='rtxt'>Multiple trips a year, and a local at heart on this mountain.</div>
+<div class='rval'>{&quot;seasons&quot;: &quot;multiple_trips&quot;, &quot;local_knowledge&quot;: &quot;local&quot;}</div>
+<div class='note'>Confidence, and how much SKOPE explains. Neither raises USER-01.</div>
+</div>
+<div class='rule'><div class='rid'>USER-12 · from screen 3</div>
+<div class='rtxt'>Confident anywhere.</div>
+<div class='rval'>{&quot;confidence&quot;: 4, &quot;nerve&quot;: 4}</div>
+<div class='note'>A cautious expert and a bold intermediate pick the same diamond and want different days.</div>
+</div>
+<h2>The rules it produces · taste</h2>
+<div class='rule'><div class='rid'>USER-03 · from screen 2</div>
+<div class='rtxt'>Skis. No snowboard penalty on cat tracks.</div>
+<div class='rval'>{&quot;equipment&quot;: &quot;ski&quot;}</div>
+</div>
+<div class='rule'><div class='rid'>USER-04 · from screen 3</div>
+<div class='rtxt'>Long green and blue roads stay out unless there is no way around.</div>
+<div class='rval'>{&quot;road_avoidance&quot;: &quot;high&quot;, &quot;road_weight_multiplier&quot;: 1.5}</div>
+</div>
+<div class='rule'><div class='rid'>USER-05 · from screen 4</div>
+<div class='rtxt'>The twelve statements, each 1 to 5.</div>
+<div class='rval'>{&quot;grooming&quot;: 4, &quot;powder&quot;: 5, &quot;trees&quot;: 4, &quot;bumps&quot;: 2, &quot;effort&quot;: 5, &quot;park&quot;: 1, &quot;quiet&quot;: 4, &quot;scenic&quot;: 3, &quot;speed&quot;: 5, &quot;novelty&quot;: 4, &quot;lunch&quot;: 2, &quot;nerve&quot;: 4}</div>
+</div>
+<div class='rule'><div class='rid'>USER-06 · from screen 8</div>
+<div class='rtxt'>Depth over coverage, and repeats welcome up to the cap.</div>
+<div class='rval'>{&quot;shape&quot;: &quot;depth&quot;, &quot;repeats&quot;: &quot;up_to_cap&quot;, &quot;max_same_path&quot;: 3}</div>
+<div class='note'>A user preference moves a weight. It cannot move a rule Hayden owns.</div>
+</div>
+<div class='rule'><div class='rid'>USER-07 · from screen 6</div>
+<div class='rtxt'>First Chair to Last Chair.</div>
+<div class='rval'>{&quot;start&quot;: &quot;first_chair&quot;, &quot;finish&quot;: &quot;last_chair&quot;}</div>
+</div>
+<div class='rule'><div class='rid'>USER-08 · from screens 4 and 6</div>
+<div class='rtxt'>Lunch when hungry, short, and one other break.</div>
+<div class='rval'>{&quot;booked&quot;: 0.4, &quot;duration&quot;: 25, &quot;breaks&quot;: 0.3}</div>
+</div>
+<div class='rule'><div class='rid'>USER-16 · from screen 2b</div>
+<div class='rtxt'>Usually skis with people at about the same level.</div>
+<div class='rval'>{&quot;crew&quot;: [&quot;at my level&quot;]}</div>
+<div class='note'>A prior, not a lock. Any day can override it.</div>
+</div>
+<div class='rule'><div class='rid'>USER-15 · from screen 2b</div>
+<div class='rtxt'>Owns everything, so the day starts at a lift.</div>
+<div class='rval'>{&quot;kit&quot;: &quot;owns&quot;}</div>
+</div>
+<div class='rule'><div class='rid'>USER-17 · from screens 4 and 5</div>
+<div class='rtxt'>Keeps the terrain park out; no areas excluded.</div>
+<div class='rval'>{&quot;avoid_terrain&quot;: [&quot;The terrain park&quot;], &quot;avoid_areas&quot;: [], &quot;hard&quot;: false}</div>
+<div class='note'>Soft by design. SKOPE keeps these out of a normal day and can still offer one when it thinks you are ready.</div>
+</div>
+<h2>The rules it produces · this mountain</h2>
+<div class='rule'><div class='rid'>USER-09 · from screen 5</div>
+<div class='rtxt'>Favourite areas: Sun Up and Sun Down, Blue Sky.</div>
+<div class='rval'>{&quot;areas&quot;: [&quot;Sun Up &amp; Sun Down&quot;, &quot;Blue Sky&quot;]}</div>
+<div class='note'>Wins a near-tie. Never overrides TIME-01.</div>
+</div>
+<div class='rule'><div class='rid'>USER-10 · from screen 5</div>
+<div class='rtxt'>Lunch at Two Elk, Buffalo&#x27;s or Belle&#x27;s Camp.</div>
+<div class='rval'>{&quot;venues&quot;: [&quot;Two Elk Lodge&quot;, &quot;Buffalo&#x27;s&quot;, &quot;Belle&#x27;s Camp&quot;]}</div>
+<div class='note'>Two Elk at 12:30 cost the validated challenge day 35 minutes. SKOPE says so before the user commits.</div>
+</div>
+<div class='rule'><div class='rid'>USER-14 · from screen 5</div>
+<div class='rtxt'>Starts at Vail Village or Golden Peak, finishes at Vail Village.</div>
+<div class='rval'>{&quot;start_bases&quot;: [&quot;vail_village&quot;, &quot;golden_peak&quot;], &quot;finish_bases&quot;: [&quot;vail_village&quot;]}</div>
+</div>
+<h2>What it deliberately never asks</h2>
+<div class='card'><div class='eff'>Nobody describes their taste in words. Every screen is a pick, because people are bad at describing taste and good at recognising it.</div></div>
+<div class='card'><div class='eff'>Nobody is asked how many vertical feet they want. That is an output, not an input.</div></div>
+<div class='card'><div class='eff'>Nobody rates themselves on a slider. USER-01 is a trail symbol and USER-02 is a count of seasons; both are things a person knows about themselves.</div></div>
+<div class='card'><div class='eff'>Nobody is asked how fast they ski. USER-12 asks about confidence instead, which is the same information without the framing.</div></div>
+</div></body></html>
