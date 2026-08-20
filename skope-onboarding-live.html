@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SKOPE · Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--fieldTop:#E1DEEF;--field:#E4E1F1;--fieldLow:#E9E7F6;--bloom:#E6D7D7;
+ --ink:#2D2A45;--mut:#7B7793;--line:rgba(45,42,69,.11);--surf:#FFFFFF;
+ --acc:#C06A34;--sel:#CE8B71;--inv:#2D2A45;--invInk:#EDEBF6;
+ --e:#529A64;--m:#5B8FC7;--b:#23262E;--x:#9AA0AF}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* THE FIELD IS PAINTED ONCE, ON A FIXED LAYER BEHIND EVERYTHING.
+   Never put it on html or body with background-attachment:fixed — iOS Safari
+   re-paints that per viewport as the address bar collapses, and it shows as a
+   hard seam partway down a long screen. Applies to every screen in the app. */
+html{min-height:100%;background:var(--field)}
+body{margin:0;min-height:100%;color:var(--ink);background:var(--field);
+ font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+ background:radial-gradient(58% 22% at 86% 6%,var(--bloom) 0%,rgba(230,215,215,0) 72%),
+ linear-gradient(178deg,var(--fieldTop) 0%,var(--field) 46%,var(--fieldLow) 100%)}
+#app{max-width:430px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
+ padding:calc(env(safe-area-inset-top) + 22px) 20px calc(env(safe-area-inset-bottom) + 20px)}
+.ptitle{font-family:Montserrat,sans-serif;font-weight:800;font-size:21px;letter-spacing:.045em;
+ text-transform:uppercase;white-space:nowrap;line-height:1;margin-bottom:16px}
+.prog{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:18px;min-height:16px}
+.rail{display:flex;gap:4px;width:172px}
+.seg{height:3px;flex:1;border-radius:2px;background:rgba(45,42,69,.14)}
+.seg.on{background:var(--acc)}
+.back{position:absolute;left:0;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:4px;
+ color:var(--mut);font-family:Montserrat,sans-serif;font-weight:800;font-size:10px;letter-spacing:.14em;
+ text-transform:uppercase;cursor:pointer}
+.back i{font-style:normal;font-size:13px;line-height:1;position:relative;top:-.5px}
+.eyebrow{font-family:Montserrat,sans-serif;font-weight:800;font-size:10px;letter-spacing:.15em;padding-left:.15em;
+ text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+h1{font-family:Montserrat,sans-serif;font-weight:800;font-size:17.5px;letter-spacing:.055em;line-height:1.1;
+ text-transform:uppercase;margin:0}
+.sub{color:#5D5977;font-size:13px;font-weight:500;line-height:1.5;margin:8px 0 0}
+.pm{display:inline-block;align-self:flex-start;margin-top:6px;font-family:Montserrat,sans-serif;font-weight:800;font-size:8px;
+ letter-spacing:.11em;text-transform:uppercase;color:var(--mut);border:1px solid rgba(123,119,147,.30);
+ border-radius:6px;padding:3px 6px 2px}
+.flow{flex:1;margin-top:14px;padding-bottom:8px}
+.slab{font-family:Montserrat,sans-serif;font-weight:800;font-size:10px;letter-spacing:.13em;padding-left:.13em;
+ text-transform:uppercase;color:var(--mut);margin:16px 0 8px;display:flex;align-items:baseline;gap:8px}
+.slab .g{flex:1}
+.foot{margin-top:auto;padding-top:14px}
+.btn{display:block;width:100%;text-align:center;border:0;border-radius:14px;padding:15px 0;background:var(--inv);
+ color:var(--invInk);font-family:Montserrat,sans-serif;font-weight:800;font-size:11.5px;letter-spacing:.14em;
+ padding-left:.14em;text-transform:uppercase;cursor:pointer}
+.btn[disabled]{opacity:.35}
+.btn.ghost{background:transparent;color:var(--mut);border:1px solid rgba(45,42,69,.20);margin-top:9px}
+.fld{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:9px 13px;margin-bottom:8px}
+.fld .k{font-family:Montserrat,sans-serif;font-weight:800;font-size:8.5px;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--mut)}
+.fld input{width:100%;border:0;background:transparent;outline:none;color:var(--ink);margin-top:2px;-webkit-appearance:none;
+ font-family:Montserrat,sans-serif;font-weight:800;font-size:13px;letter-spacing:.07em;text-transform:uppercase}
+.rows{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.rw{display:flex;align-items:center;width:100%;background:var(--surf);border:1px solid var(--line);
+ border-radius:13px;padding:13px 14px;font-family:Montserrat,sans-serif;font-weight:800;font-size:9.5px;
+ letter-spacing:.05em;line-height:1.3;text-transform:uppercase;cursor:pointer}
+.rw.on{background:var(--sel);border-color:var(--sel);color:var(--invInk)}
+.rw .g{flex:1}
+.rw .lifts2{display:block;font-family:ui-sans-serif,system-ui,sans-serif;font-weight:500;letter-spacing:0;
+ text-transform:none;font-size:11px;color:var(--mut);margin-top:3px}
+.rw.on .lifts2{color:#F3E4DC}
+.half{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+.third{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:8px}
+.third .rw{justify-content:center;padding:13px 8px;text-align:center}
+.third .rw .g{flex:0 1 auto}
+.tier{background:var(--surf);border:1px solid var(--line);border-radius:14px;margin-bottom:8px;overflow:hidden}
+.tier .hd{display:flex;align-items:center;gap:9px;padding:11px 13px}
+.em{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+ font-size:10px;flex:0 0 20px}
+.em.e{background:rgba(82,154,100,.16);color:var(--e)}.em.m{background:rgba(91,143,199,.16);color:var(--m)}
+.em.b{background:rgba(35,38,46,.12);color:var(--b)}.em.x{background:rgba(154,160,175,.22);color:#6E7482;font-size:8px}
+.tier .nm{font-family:Montserrat,sans-serif;font-weight:800;font-size:12px;letter-spacing:.09em;
+ text-transform:uppercase;flex:1}
+.tier .nm.e{color:var(--e)}.tier .nm.m{color:var(--m)}.tier .nm.b{color:var(--b)}.tier .nm.x{color:#7C8290}
+.tier .body{padding:0 13px 11px}
+.pk{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-top:1px solid var(--line);
+ font-size:13px;font-weight:600;line-height:1.35;cursor:pointer}
+.box{width:20px;height:20px;flex:0 0 20px;border-radius:6px;border:1.5px solid rgba(45,42,69,.28)}
+.box.on{background:var(--sel);border-color:var(--sel)}
+.box.on:after{content:"\2713";color:var(--invInk);font-size:11px;display:block;text-align:center;line-height:17px}
+.branch{display:flex;align-items:center;gap:12px;width:100%;background:rgba(206,139,113,.10);
+ border:1.5px dashed rgba(206,139,113,.75);border-radius:14px;padding:13px 14px;margin-bottom:12px;cursor:pointer}
+.branch .g{flex:1}
+.branch .k{font-family:Montserrat,sans-serif;font-weight:800;font-size:8.5px;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--acc)}
+.branch .t{font-family:Montserrat,sans-serif;font-weight:800;font-size:11px;letter-spacing:.05em;
+ text-transform:uppercase;margin-top:3px}
+.ramp .track{display:flex;background:var(--surf);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:8px}
+.ramp .stop{flex:1;padding:11px 2px;text-align:center;font-family:Montserrat,sans-serif;font-weight:800;
+ font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);border-right:1px solid var(--line);cursor:pointer}
+.ramp .stop:last-child{border-right:0}
+.ramp .stop.on{background:var(--sel);color:var(--invInk)}
+.ends{display:flex;justify-content:space-between;margin-top:6px;font-size:11.5px;color:var(--mut)}
+.stmt{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:12px 12px 11px;margin-bottom:8px}
+.stmt .tag{font-family:Montserrat,sans-serif;font-weight:800;font-size:8.5px;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--acc);margin-bottom:5px}
+.stmt .txt{font-size:13.5px;font-weight:600;line-height:1.35}
+.scale{display:flex;gap:5px;margin-top:9px}
+.scale div{flex:1;height:40px;display:flex;align-items:center;justify-content:center;text-align:center;
+ border:1px solid var(--line);border-radius:12px;background:#FAF9FD;font-family:Montserrat,sans-serif;
+ font-weight:800;font-size:7.5px;letter-spacing:.05em;line-height:1.25;text-transform:uppercase;color:var(--mut);cursor:pointer}
+.scale div.on{background:var(--sel);color:var(--invInk);border-color:var(--sel)}
+.tm{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:12px 14px 13px;margin-bottom:8px}
+.tm .hd{display:flex;justify-content:space-between;align-items:baseline}
+.tm .k{font-family:Montserrat,sans-serif;font-weight:800;font-size:9.5px;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--mut)}
+.tm .v{font-family:Montserrat,sans-serif;font-weight:800;font-size:14px}
+input[type=range]{-webkit-appearance:none;width:100%;height:28px;margin:9px 0 0;background:transparent}
+input[type=range]::-webkit-slider-runnable-track{height:28px;border-radius:14px;background:#F1EFF8}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:14px;
+ background:var(--sel);border:0}
+input[type=range]::-moz-range-track{height:28px;border-radius:14px;background:#F1EFF8}
+input[type=range]::-moz-range-thumb{width:28px;height:28px;border:0;border-radius:14px;background:var(--sel)}
+.grp{font-family:Montserrat,sans-serif;font-weight:800;font-size:9.5px;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--mut);margin:20px 0 9px}
+.path{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:11px 12px 10px;
+ margin-bottom:12px;cursor:pointer}
+.path.on{background:var(--sel);border-color:var(--sel);color:var(--invInk)}
+.path .tl{font-family:Montserrat,sans-serif;font-weight:800;font-size:8.5px;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--mut);margin-bottom:5px}
+.path.on .tl,.path.on .mi{color:#F6EAE3}
+.path .hd{display:flex;align-items:baseline;justify-content:space-between}
+.path .nm{font-family:Montserrat,sans-serif;font-weight:800;font-size:11px;letter-spacing:.09em;text-transform:uppercase}
+.path .mi{font-family:Montserrat,sans-serif;font-weight:800;font-size:9.5px;letter-spacing:.08em;color:var(--mut)}
+.steps{margin-top:8px;display:flex;flex-direction:column}
+.chip{display:flex;align-items:center;gap:6px;width:100%;border-radius:9px;padding:6px 9px;
+ border:2px solid rgba(255,255,255,.62);font-family:Montserrat,sans-serif;font-weight:800;font-size:10px;
+ letter-spacing:.07em;text-transform:uppercase;color:#F7F8FB;line-height:1.1;white-space:nowrap;overflow:hidden}
+.chip .sym{display:inline-flex;align-items:center;flex:0 0 auto;line-height:0}
+.chip .sym svg{display:block}
+.chip .road{font-size:7.5px;letter-spacing:.1em;opacity:.8;margin-left:auto;padding-left:8px}
+.chip.e{background:var(--e)}.chip.m{background:var(--m)}.chip.b{background:var(--b)}
+.chip.x{background:#C6C9D2;color:#1D2029;border-color:rgba(0,0,0,.42)}
+.chip.rg{background:var(--e);border-style:dashed}.chip.rb{background:var(--m);border-style:dashed}
+.chip.rk{background:var(--b);border-style:dashed}
+.arw{height:13px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--mut)}
+.path.on .arw{color:#F3E0D6}
+.day{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;
+ margin-bottom:11px;cursor:pointer}
+.day.on{background:var(--sel);border-color:var(--sel);color:var(--invInk)}
+.day .nm{font-family:Montserrat,sans-serif;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.dhd{display:flex;align-items:center;gap:10px}
+.dhd .nm{flex:1}
+.dif{display:flex;gap:4px;flex:0 0 auto}
+.dpill{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+ font-size:9px;color:#F7F8FB;line-height:1}
+.dpill.e{background:var(--e)}.dpill.m{background:var(--m)}.dpill.b{background:var(--b)}
+.dpill.x{background:#C6C9D2;color:#1D2029;font-size:7px;width:26px;letter-spacing:0}
+.day.on .dpill{box-shadow:0 0 0 1.5px rgba(255,255,255,.55)}
+.day .stats{display:flex;gap:16px;margin-top:11px}
+.day .st .n{font-family:Montserrat,sans-serif;font-weight:800;font-size:16px}
+.day .st .l{font-family:Montserrat,sans-serif;font-weight:700;font-size:8.5px;letter-spacing:.12em;
+ text-transform:uppercase;color:var(--mut);margin-top:2px}
+.day.on .st .l,.day.on .ln{color:#F3E4DC}
+.lifts3{display:flex;flex-wrap:wrap;gap:5px;margin-top:11px}
+.lift{background:#F1EFF8;border-radius:8px;padding:4px 8px;font-family:Montserrat,sans-serif;font-weight:800;
+ font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:#5D5977}
+.day.on .lift{background:rgba(255,255,255,.22);color:var(--invInk)}
+.day .ln{font-size:12.5px;font-weight:500;line-height:1.5;color:var(--mut);margin-top:8px;padding-top:9px;
+ border-top:1px solid var(--line)}
+.day.on .ln{border-color:rgba(255,255,255,.28)}
+.bio{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:16px 15px 14px}
+.bio .kick{font-family:Montserrat,sans-serif;font-weight:800;font-size:9px;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--acc);margin-bottom:7px}
+.bio .type{font-family:Montserrat,sans-serif;font-weight:800;font-size:19px;letter-spacing:.05em;
+ text-transform:uppercase;line-height:1.15}
+.bio p{margin:11px 0 0;font-size:13.5px;font-weight:500;line-height:1.55;color:#4A4663}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px}
+.tag2{background:var(--sel);color:var(--invInk);border-radius:9px;padding:5px 9px;font-family:Montserrat,sans-serif;
+ font-weight:800;font-size:8.5px;letter-spacing:.09em;text-transform:uppercase}
+#app.shot{background:url(data:image/jpeg;base64,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BQQABUAFRQEABUAAAAAAAAAAAAAAAAAAAVAAAAAAVAAAAAAAAAAAAAAAAAAAAAFAAAAgAAAAAUAEAAARRQEAAAAEVFBFQBRAAFBBUBRABUUBFQAVAAAAAAAAAAAVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQAAQFBAUAAAURQQBABUBRAAFBFEAFARUAFQBUAAFBAAVAAAAAABQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFAARUBQQFQAVBQRUUBFQFEAAAFQBUABUAAAVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADACgAgqAogCoqAAAKgCoKCAAAAAACoAqAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACooIKgCoACoAAAAAqAAAAKCAAqAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABkABQBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf//Z) center top/cover no-repeat;height:100vh;height:100dvh;justify-content:flex-end}
+
+textarea{width:100%;height:190px;border:1px solid var(--line);border-radius:12px;padding:12px;
+ font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--surf);color:#4A4663}
+</style>
+</head>
+<body><div id="app"></div>
+<script>
+const BUILD="b16 \u00b7 opening screen fits the phone";
+/* ---------------- state ---------------- */
+const A = { name:"", nick:"", handle:"", dob:"", gear:"", kit:"", stay:"", crew:[], avoid:[], avoidAreas:[], avoid:[], freq:"", know:"", cap:{}, control:null, never:null,
+            athletic:null, related:[], lesson:null, stmt:{}, areas:[], start:[], finish:[],
+            venues:[], baseLunch:[], clock:{from:0,to:100,plan:44,breaks:32}, paths:[], days:[] };
+let step = 0;
+
+const STMT = [
+ ["Grooming","I plan my day around the grooming report."],
+ ["Powder","If it snowed overnight, I am on the first chair."],
+ ["Trees","I like skiing tree runs."],
+ ["Bumps","I like skiing moguls."],
+ ["Effort","I want to feel it in my legs at the end of the day."],
+ ["Park","I like hitting the terrain park."],
+ ["Lift lines","I\u2019ll ride the quieter lift over the famous one."],
+ ["Scenery","I like a run with a view."],
+ ["Speed","I like carrying speed down a run."],
+ ["Ambition","I like skiing something I have never skied before."],
+ ["Lunch","I like to take my time at lunch."],
+ ["Nerve","Steep terrain is fun, not frightening."]
+];
+const BEGINNER_STMT = ["Lift lines","Scenery","Ambition","Lunch","Nerve"];
+
+const RD={"Top of 4 Ridge":"e","Swingsville":"e","Ramshorn":"m","Northwoods":"m","Flap Jack":"e",
+ "Timberline Catwalk":"rg","The Slot":"m","Buckskin Glade":"m","Sleepytime Road":"rb","Over Yonder":"b",
+ "Snag Park":"m","Hairbag Alley":"b","Whistle Pig":"m","Gandy Dancer":"b","Northstar (bottom)":"m",
+ "Prima (top)":"x","Pronto":"x","Sun Up Catwalk":"rb","Forever":"b","Sun Down Catwalk":"rk",
+ "Riva Ridge (top)":"b","Riva Ridge (mid)":"m","Tourist Trap":"b","Riva Ridge (bottom)":"m",
+ "Riva Catwalk":"rb","Gopher Hill":"e"};
+const MARK={
+ e:'<svg viewBox="0 0 16 14" width="16" height="14"><circle cx="8" cy="7" r="5.2" fill="currentColor"/></svg>',
+ m:'<svg viewBox="0 0 16 14" width="16" height="14"><rect x="3" y="2" width="10" height="10" rx="1" fill="currentColor"/></svg>',
+ b:'<svg viewBox="0 0 16 14" width="16" height="14"><path d="M8 1l6 6-6 6-6-6z" fill="currentColor"/></svg>',
+ x:'<svg viewBox="0 0 24 14" width="24" height="14"><path d="M6 1.5l5.2 5.5-5.2 5.5L.8 7z" fill="currentColor"/><path d="M17.6 1.5L22.8 7l-5.2 5.5L12.4 7z" fill="currentColor"/></svg>'};
+MARK.rg=MARK.e; MARK.rb=MARK.m; MARK.rk=MARK.b;
+
+const PATHS=[
+ ["Groomed","Easiest","Swingsville","4 min",["Top of 4 Ridge","Swingsville"]],
+ ["Groomed","Moderate","Ramshorn","3 min",["Ramshorn"]],
+ ["Groomed","Advanced","Northwoods","6 min",["Northwoods","Flap Jack"]],
+ ["Trees","Easiest","Buckskin Glade","13 min",["Ramshorn","Buckskin Glade","Ramshorn"]],
+ ["Trees","Moderate","Over Yonder","9 min",["Sleepytime Road","Over Yonder"]],
+ ["Trees","Advanced","Hairbag Alley","17 min",["Timberline Catwalk","Snag Park","Hairbag Alley"]],
+ ["Moguls","Easiest","Whistle Pig","6 min",["Top of 4 Ridge","Whistle Pig"]],
+ ["Moguls","Moderate","Gandy Dancer","6 min",["Gandy Dancer","Northstar (bottom)"]],
+ ["Moguls","Advanced","Prima into Pronto","11 min",["Top of 4 Ridge","Prima (top)","Pronto"]],
+ ["Long lines","Easiest","The Slot","6 min",["The Slot","Sun Up Catwalk"]],
+ ["Long lines","Moderate","Forever","6 min",["Forever","Sun Down Catwalk"]],
+ ["Long lines","Advanced","Riva Ridge","7 min",["Top of 4 Ridge","Riva Ridge (top)","Riva Ridge (mid)","Tourist Trap","Riva Ridge (bottom)","Riva Catwalk","Gopher Hill"]]
+];
+
+const DAYS=[
+ ["Beginner\u2019s paradise","9|Laps","3,103|Vertical ft","3h05|On the hill",
+  ["Eagle Bahn #19","Little Eagle #15","Magic carpets","Download #19"],
+  "For someone standing on skis for the first time, who wants to get better without an audience. Eagle Bahn up to Eagle\u2019s Nest and everything stays up top, so a bad run costs you nothing: you never have to get down the mountain to try again.",true],
+ ["A first morning","8|Laps","9,956|Vertical ft","3h40|On the hill",
+  ["Gondola One","Mountain Top #4","Wildwood #3","Avanti #2"],
+  "For someone finding their feet again and happy to be out rather than out to prove anything. Gondola One to Mid-Vail, then the easy laps off 4, 3 and 2: Swingsville and The Meadows to start, Hunky Dory and Ramshorn once the legs are warm.",true],
+ ["Blue cruiser","13|Laps","18,593|Vertical ft","4h30|On the hill",
+  ["Gondola One","Wildwood #3","Game Creek #7","Northwoods #11","Orient Express #21"],
+  "For the skier who wants to SEE Vail rather than conquer it, and would take a long cruise over a short steep one. Half the mountain on blue runs, Two Elk for lunch and Blue Sky after, back before that side shuts.",false],
+ ["Front side blues","12|Laps","16,999|Vertical ft","4h08|On the hill",
+  ["Riva Bahn #6","Northwoods #11","Wildwood #3","Born Free #8"],
+  "For the confident intermediate who wants a proper amount of vertical and no surprises. Golden Peak start, Northwoods laps, then Game Creek and Lionshead, with Mid-Vail for lunch.",false],
+ ["Fast track to the back bowls","13|Laps","17,514|Vertical ft","4h18|On the hill",
+  ["Riva Bahn Mid #6m","Highline #10","Sourdough #14","Sun Down #17","Mongolia #22"],
+  "For anyone who came here for the back of the mountain and does not want to spend the morning getting there. Off at the #6 midstation and straight over on Grand Junction Catwalk, Highline and Flap Jack, then the bowls all afternoon.",false],
+ ["The Grand Traverse","13|Lifts","19,916|Vertical ft","5h25|Door to door",
+  ["Gondola One","High Noon #5","Northwoods #11","Skyline #37","Pete\u2019s #39"],
+  "For the skier who never rides the same chair twice and wants every kind of terrain in one day. Morning Side Ridge and Forever, Gandy Dancer into Log Chute, an hour at Two Elk, then Genghis Khan, Heavy Metal and Grand Review, finishing down Riva Ridge.",false],
+ ["The Chairlift Challenge","24|Lifts","31,477|Vertical ft","2:23pm|Done",
+  ["All 24 chairs","Village to Village","No repeats"],
+  "For the person who treats a ski day as a problem to solve. Every chair on the mountain in one day, in the only order that works, and missing one connection before Blue Sky closes loses the whole thing.",false],
+ ["Late riser","7|Laps","11,173|Vertical ft","2h24|On the hill",
+  ["Born Free #8","Avanti #2","Gondola One"],
+  "For a slow morning, a late lunch, or legs that have already had a week of it. A one o\u2019clock start and easy blues across the front side, with no rush and no back bowls to get home from.",true]
+];
+
+const DAYDIFF={"Beginner\u2019s paradise":["e"],"A first morning":["e","m"],"Blue cruiser":["e","m"],
+ "Front side blues":["e","m"],"Fast track to the back bowls":["e","m","b"],
+ "The Grand Traverse":["m","b","x"],"The Chairlift Challenge":["e","m","b"],"Late riser":["e","m"]};
+const TYPELINE={
+ "The Dawn Patroller":"You are the reason the first chair has a queue.",
+ "The Storm Chaser":"Snow in the forecast rearranges your week.",
+ "The Corduroy Chaser":"You can tell what was groomed last night from the parking lot.",
+ "The Glade Runner":"Given a choice between a run and the trees beside it, you take the trees.",
+ "The Mogul Masher":"You look at a bumped-up black and see a rhythm, not a problem.",
+ "The Park Rat":"You measure a day in features, not in vertical.",
+ "The Crowd Dodger":"You would rather ski something quiet than something famous.",
+ "The Long Way Round":"You have stopped mid-run for a view more times than you would admit.",
+ "The Leg Burner":"You are not done until your legs say so.",
+ "The Mountain Wanderer":"You would rather be somewhere new than somewhere good.",
+ "The Long Luncher":"The day is built around a table with a view.",
+ "The Full Sweep":"You want the whole mountain, and you want it in one go.",
+ "The Zone Regular":"You would rather know one part of the mountain properly than see all of it once.",
+ "The Bowl Regular":"The front side is how you get to the back side.",
+ "The All-Mountain Skier":"You take the mountain as it comes, and it usually comes good.",
+ "The First Timer":"Everything about this is about to be new, which is the best part."
+};
+/* ---------------- helpers ---------------- */
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const beginner = () => A.never === true;
+const newHere = () => A.know === "First visit" || beginner();
+const S = () => beginner()
+  ? ["open","who","freq","never","stmtA","vail","vail2","clock","daysB","profile","save"]
+  : ["open","who","freq","cap","stmtA","stmtB","vail","vail2","clock","line","days","profile","save"];
+const total = () => S().length - 2;
+
+function chip(n){const c=RD[n]||"m";const p=n.match(/^(.*?)(\s\(.*\))$/);
+ const body=p?esc(p[1])+'<i style="font-size:.66em;font-weight:700;opacity:.78;font-style:normal">'+esc(p[2])+'</i>':esc(n);
+ return '<div class="chip '+c+'"><span class="sym">'+MARK[c]+'</span>'+body+(c[0]==="r"?'<span class="road">CAT TRACK</span>':'')+'</div>';}
+function head(t,q,sub,pick){
+ const i=S().indexOf(cur()), n=total();
+ let r=''; for(let k=0;k<n;k++) r+='<div class="seg'+(k<i?' on':'')+'"></div>';
+ return '<div class="ptitle">SKOPE Onboarding</div>'+
+  '<div class="prog"><div class="back" onclick="go(-1)"><i>\u2039</i>Back</div><div class="rail">'+r+'</div></div>'+
+  (t?'<div class="eyebrow">'+t+'</div>':'')+'<h1>'+q+'</h1>'+
+  (sub?'<p class="sub">'+sub+'</p>':'')+(pick?'<div><span class="pm">'+pick+'</span></div>':'');
+}
+const foot = (label,ok) => '<div class="foot"><button class="btn" '+(ok===false?'disabled':'')+' onclick="go(1)">'+label+'</button></div>';
+const attr = v => String(v).replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+const row = (t,on,act,key,sub) => '<div class="rw'+(on?' on':'')+'" data-v="'+attr(t)+'" '+
+  'onclick="'+act+'(\''+key+'\',this.dataset.v)"><div class="g">'+t+
+  (sub?'<span class="lifts2">'+sub+'</span>':'')+'</div></div>';
+const STAY={
+ "Vail Village":{start:["Vail Village","Golden Peak"],finish:["Vail Village"]},
+ "Golden Peak":{start:["Golden Peak","Vail Village"],finish:["Golden Peak"]},
+ "Lionshead":{start:["Lionshead"],finish:["Lionshead"]},
+ "Cascade Village":{start:["Cascade Village"],finish:["Cascade Village"]},
+ "Off property, driving in":{start:["Vail Village","Lionshead","Golden Peak"],
+   finish:["Vail Village","Lionshead","Golden Peak"]}};
+/* the numeric keypad has no slash key, so the field puts them in */
+function dob(el){
+ const d=el.value.replace(/\D/g,"").slice(0,8);
+ let out=d.slice(0,2);
+ if(d.length>2) out+=" / "+d.slice(2,4);
+ if(d.length>4) out+=" / "+d.slice(4,8);
+ el.value=out; A.dob=out;
+ try{ el.setSelectionRange(out.length,out.length); }catch(e){}
+}
+function pick(k,v){ A[k]= (k==="asJson") ? (v.indexOf("rule book")>=0) : v;
+ if(k==="stay"&&STAY[v]){ A.start=STAY[v].start.slice(); A.finish=STAY[v].finish.slice(); }
+ if(k==="freq"){ A.never = (v==="First time ever") ? true : null;
+  if(A.never){ A.clock.from=18; A.clock.to=62; } }
+ render(); }
+function tog(k,v){ const i=A[k].indexOf(v); i<0?A[k].push(v):A[k].splice(i,1);
+ if(k==="start"&&newHere()) A.finish=A.start.slice();
+ render(); }
+function tierT(k,v){ A.cap[k]=A.cap[k]||[]; const i=A.cap[k].indexOf(v); i<0?A.cap[k].push(v):A.cap[k].splice(i,1); render(); }
+
+function clockTime(p){const m=8.5*60+p/100*(16*60-8.5*60);const H=Math.floor(m/60);let M=Math.round((m%60)/5)*5;
+ let h=H; if(M===60){M=0;h=H+1;} return ((h%12)||12)+":"+String(M).padStart(2,"0")+(h<12?"am":"pm");}
+function clockLabel(k){const v=A.clock[k];
+ if(k==="from") return v<4?"First Chair":clockTime(v);
+ if(k==="to")   return v>96?"Last Chair":clockTime(v);
+ if(k==="plan") return v<33?"Rarely":v>66?"Always":"Sometimes";
+ return v<33?"Hardly any":v>66?"Plenty":"A couple";}
+function cur(){ return S()[step]; }
+function go(d){ step=Math.max(0,Math.min(S().length-1,step+d)); window.scrollTo(0,0); render(); }
+function set(k,v){ A[k]=v; render(); }
+function toggle(arr,v){ const i=A[arr].indexOf(v); i<0?A[arr].push(v):A[arr].splice(i,1); render(); }
+function tier(k,v){ A.cap[k]=A.cap[k]||[]; const i=A.cap[k].indexOf(v); i<0?A.cap[k].push(v):A.cap[k].splice(i,1); render(); }
+function stmt(k,v){ A.stmt[k]=v; render(); }
+function clock(k,v){ A.clock[k]=+v; render(); }
+function neverPath(){ A.never=true; step=S().indexOf("never"); render(); }
+
+/* ---------------- the profile it builds ---------------- */
+function profile(){
+ const s=A.stmt, n=A.nick||A.name||"You", g=k=>((s[k]==null?2:s[k])+1);
+ const tiers=["Green","Blue","Black","Double black"];
+ const topTier=[...tiers].reverse().find(t=>(A.cap[t]||[]).length);
+ const picks=topTier?(A.cap[topTier]||[]).filter(x=>x.indexOf("Keep")<0):[];
+ const many=A.areas.length>=5, coverage=A.days.length>=4;
+
+ /* two-trait names first, single traits after */
+ const NAMES=[
+  ["The Dawn Patroller", g("Powder")>=5 && A.clock.from<20],
+  ["The Storm Chaser",   g("Powder")>=5 && g("Nerve")>=4],
+  ["The Corduroy Chaser",g("Grooming")>=4 && g("Speed")>=4],
+  ["The Glade Runner",   g("Trees")>=5],
+  ["The Mogul Masher",   g("Bumps")>=5],
+  ["The Park Rat",       g("Park")>=4],
+  ["The Crowd Dodger",   g("Lift lines")>=5],
+  ["The Long Way Round", g("Scenery")>=5 && g("Speed")<=3],
+  ["The Leg Burner",     g("Effort")>=5 && g("Lunch")<=2],
+  ["The Mountain Wanderer", g("Ambition")>=5 && many],
+  ["The Long Luncher",   g("Lunch")>=5],
+  ["The Full Sweep",     coverage],
+  ["The Zone Regular",   !many && A.areas.length && A.areas.length<=2],
+  ["The Bowl Regular",   A.areas.indexOf("Back Bowls")>=0 && g("Powder")>=4],
+  ["The All-Mountain Skier", true]
+ ];
+ let type = beginner() ? "The First Timer" : NAMES.find(x=>x[1])[0];
+
+ const p=[];
+ if(TYPELINE[type]) p.push(TYPELINE[type]);
+ if(beginner()){
+  p.push("You have never skied, and the plan knows it. Everything stays green, everything stays near a lift, and nothing on it will surprise you.");
+  if(A.lesson==="Not yet"||A.lesson==="Someone is teaching me"){
+   p.push(g("Nerve")<=2
+    ? "Book a lesson before anything else. A morning with an instructor is the difference between a first day you repeat and one you do not, and SKOPE will plan around the meeting point."
+    : "Worth booking a lesson for the first morning. SKOPE will plan around the meeting point and pick the day up afterwards.");
+  } else if(A.lesson){
+   p.push("Your "+A.lesson.toLowerCase()+" lesson comes first, and the plan is built around where it finishes.");
+  }
+ } else {
+  const low=x=>x.charAt(0).toLowerCase()+x.slice(1);
+  const three=picks.slice(0,3).map(low).map(x=>x.replace(", natural obstacles"," and natural obstacles"));
+  p.push("You top out at "+topTier.toLowerCase()+
+   (three.length? ", and inside that you take "+
+     (three.length>1? three.slice(0,-1).join(", ")+" and "+three[three.length-1] : three[0])+"." : "."));
+  /* the cap is a CEILING, not a diet: say what stays in */
+  const groomed=tiers.filter(t=>(A.cap[t]||[]).some(x=>/^Groomed/.test(x)))
+    .map(t=>t.toLowerCase()+"s").filter(t=>t!==topTier.toLowerCase()+"s");
+  const kept=[];
+  if(groomed.length) kept.push("groomed "+(groomed.length>1? groomed.slice(0,-1).join(", ")+" and "+groomed[groomed.length-1] : groomed[0]));
+  const others=tiers.filter(t=>t!==topTier && (A.cap[t]||[]).some(x=>!/^Groomed|^Keep/.test(x))).length;
+  if(kept.length||others) p.push("That is the ceiling, not the diet. "+
+   (kept.length? kept[0].charAt(0).toUpperCase()+kept[0].slice(1)+" stay in every plan" : "Everything below it stays in play")+
+   ", and a soft day still gets you the easy stuff.");
+  if(A.avoid.length) p.push("Out of a normal day: "+A.avoid.map(x=>x.charAt(0).toLowerCase()+x.slice(1)).join(", ")+
+   ". SKOPE will still ask before it stretches you.");
+ const outs=tiers.flatMap(t=>(A.cap[t]||[]).filter(x=>/^Keep/.test(x)));
+  if(outs.length) p.push("The only things kept out: "+outs.map(x=>x.replace(/^Keep (the )?/,"").replace(" out of my day","").replace(" out unless there is no way around"," unless there is no way around")).join(", ")+".");
+ }
+ if(A.kit==="I need to pick something up") p.push("You have gear to collect, so DAY ONE starts at a shop rather than a lift. SKOPE allows the time it really takes, once.");
+ const want=[];
+ if(g("Powder")>=4) want.push("first tracks after a storm");
+ if(g("Grooming")>=4) want.push("the grooming report");
+ if(g("Bumps")>=4) want.push("bumps");
+ if(g("Trees")>=4) want.push("trees");
+ if(g("Park")>=4) want.push("the park");
+ if(g("Effort")>=4) want.push("a day you feel in your legs");
+ if(g("Scenery")>=4) want.push("a view worth the detour");
+ if(g("Speed")>=4) want.push("room to carry speed");
+ if(g("Ambition")>=4) want.push(beginner()?"seeing more of the mountain than the beginner area":"something you have not skied before");
+ if(g("Lift lines")>=4) want.push(beginner()?"the quiet lifts, away from the crowds":"a lift nobody is on");
+ if(want.length) p.push("What you want out of a day: "+want.slice(0,4).join(", ")+".");
+
+ const BASEY=["Vail Village / Mid-Vail","Lionshead","Golden Peak","Avanti","Cascade","Terrain Park"];
+ const terrainAreas=A.areas.filter(a=>BASEY.indexOf(a)<0), baseAreas=A.areas.filter(a=>BASEY.indexOf(a)>=0);
+ const lead=terrainAreas.length?terrainAreas:A.areas;
+ if(A.areas.length) p.push(newHere()
+   ? "You have not skied Vail yet, and what you want to see is "+
+     A.areas.map(x=>x.charAt(0).toLowerCase()+x.slice(1)).join(" and ")+"."
+   : many
+   ? "At Vail you ski all of it, and the parts you named first are "+lead.slice(0,4).join(", ")+"."
+   : "At Vail that means "+lead.join(" and ")+
+     (baseAreas.length&&terrainAreas.length?", off "+baseAreas.slice(0,2).join(" and "):"")+" before anything else.");
+ const lunch=[].concat(A.venues,A.baseLunch);
+ if(lunch.length && newHere()){
+  p.push("For lunch: "+lunch.map(x=>x.charAt(0).toLowerCase()+x.slice(1)).join(", ")+".");
+ } else if(lunch.length){
+  /* the on-mountain places and the bases are different answers, so both get said */
+  const up=A.venues, down=A.baseLunch;
+  let t = up.length ? (up.length>2
+      ? "Lunch is wherever you are at noon: "+up.join(", ")
+      : "Lunch is "+up.join(" or ")) : "";
+  if(down.length) t = t
+    ? t+", or down at "+down.join(" or ")+" if the day leans that way."
+    : "Lunch is down at "+down.join(" or ")+".";
+  else t += ".";
+  p.push(t);
+ }
+ const early=A.clock.from<20, late=A.clock.to>80;
+ p.push(beginner() ? "A first day is short by design, and SKOPE will keep it that way."
+   : early&&late ? "First Chair to Last Chair, every time."
+   : early ? "You are there for First Chair." : late ? "You stay until they stop spinning." : "");
+
+ const tags=[];
+ if(topTier) tags.push(topTier);
+ [["Powder","Powder"],["Grooming","Groomers"],["Bumps","Bumps"],["Trees","Trees"],["Park","Park"],
+  ["Effort","Big days"],["Scenery","Views"],["Speed","Speed"],["Ambition","New terrain"],
+  ["Lift lines","Quiet lifts"],["Nerve","No nerves"]].forEach(([k,label])=>{ if(g(k)>=5) tags.push(label); });
+ A.areas.slice(0,2).forEach(a=>tags.push(a));
+ return {type,p:p.filter(Boolean),tags:tags.slice(0,8),n};
+}
+
+function ruleBook(){
+ const s=A.stmt, g=k=>((s[k]==null?2:s[k])+1);
+ const tiers=["Green","Blue","Black","Double black"];
+ const top=[...tiers].reverse().find(t=>(A.cap[t]||[]).length);
+ const band={Green:1,Blue:2,Black:3,"Double black":4}[top]||(beginner()?0:2);
+ const terrain={}, excluded=[];
+ tiers.forEach(t=>{ (A.cap[t]||[]).forEach(x=>{
+   if(/^Keep/.test(x)) excluded.push(x);
+   else (terrain[t.toLowerCase().replace(" ","_")]=terrain[t.toLowerCase().replace(" ","_")]||[]).push(x); }); });
+ return {
+  _meta:{artifact:"SKOPE USER RULE BOOK",version:"0.2",source:"onboarding",
+         when:new Date().toISOString().slice(0,10),resort:"vail"},
+  profile:{name:A.name,nickname:A.nick,type:profile().type},
+  ability:[
+   {id:"USER-01",from:"screen 3",value:{band:band,terrain:terrain,excluded:excluded}},
+   {id:"USER-02",from:"screen 2b",value:{seasons:A.freq,local_knowledge:A.know}},
+   {id:"USER-12",from:"screen 3",value:{confidence:(A.control==null?null:A.control+1),nerve:g("Nerve")}}
+  ],
+  taste:[
+   {id:"USER-03",from:"screen 2",value:{equipment:A.gear}},
+   {id:"USER-05",from:"screen 4",value:Object.fromEntries(STMT.map(([t])=>[t.toLowerCase().replace(" ","_"),
+     A.stmt[t]==null?null:A.stmt[t]+1]))},
+   {id:"USER-06",from:"screen 8",value:{days:A.days.map(i=>DAYS[i][0])}},
+   {id:"USER-07",from:"screen 6",value:{from:A.clock.from,to:A.clock.to}},
+   {id:"USER-08",from:"screens 5 and 6",value:{venues:A.venues,base_lunch:A.baseLunch,
+     booked:A.clock.plan/100,breaks:A.clock.breaks/100}},
+   {id:"USER-15",from:"screen 2",value:{kit:A.kit}},
+   {id:"USER-16",from:"screen 2b",value:{crew:A.crew}}
+  ],
+  vail:[
+   {id:"USER-09",from:"screen 5",value:{areas:A.areas}},
+   {id:"USER-14",from:"screen 5",value:{lodging:A.stay,start_bases:A.start,finish_bases:A.finish}},
+   {id:"USER-01b",from:"screen 7",value:{verified_terrain:A.paths.map(i=>PATHS[i][2])}}
+  ],
+  never_skied: beginner()? {athletic:A.athletic,related:A.related,lesson:A.lesson} : null
+ };
+}
+
+function ruleBook(){
+ const P=profile(), s=A.stmt, g=k=>((s[k]==null?2:s[k])+1);
+ const tiers=["Green","Blue","Black","Double black"], band={"Green":1,"Blue":2,"Black":3,"Double black":4};
+ const top=[...tiers].reverse().find(t=>(A.cap[t]||[]).length);
+ const terrain={}, excluded=[];
+ tiers.forEach(t=>{ const v=(A.cap[t]||[]);
+  if(v.length) terrain[t.toLowerCase().replace(" ","_")]=v.filter(x=>!/^Keep/.test(x));
+  v.filter(x=>/^Keep/.test(x)).forEach(x=>excluded.push(x)); });
+ return {
+  _meta:{artifact:"SKOPE USER RULE BOOK",version:"0.2",owner:"user",resort:"vail",
+   written_by:"onboarding",when:new Date().toISOString().slice(0,10),profile_type:P.type},
+  profile:{name:A.name,nickname:A.nick,handle:A.handle,birthday:A.dob,equipment:A.gear,kit:A.kit},
+  "USER-01":{band:beginner()?0:(band[top]||2),terrain:terrain,excluded:excluded},
+  "USER-02":{seasons:A.freq,local_knowledge:A.know,related_sport:A.related},
+  "USER-05":Object.fromEntries(STMT.map(([t])=>[t.toLowerCase().replace(" ","_"),A.stmt[t]==null?null:A.stmt[t]+1])),
+  "USER-07":{from:A.clock.from,to:A.clock.to},
+  "USER-08":{booked:A.clock.plan/100,breaks:A.clock.breaks/100},
+  "USER-09":{areas:A.areas},
+  "USER-10":{venues:A.venues,base_lunch:A.baseLunch},
+  "USER-12":{confidence:A.control==null?null:A.control+1,nerve:A.stmt["Nerve"]==null?null:A.stmt["Nerve"]+1},
+  "USER-13":{lesson:A.lesson,athletic:A.athletic},
+  "USER-14":{lodging:A.stay,start_bases:A.start,finish_bases:A.finish},
+  "USER-16":{crew:A.crew},
+  "USER-17":{avoid_terrain:A.avoid,avoid_areas:A.avoidAreas},
+  "USER-17":{avoid:A.avoid,hard:false},
+  verified_terrain:A.paths.map(i=>PATHS[i][2]),
+  liked_days:A.days.map(i=>DAYS[i][0])
+ };
+}
+function answersText(){
+ const P=profile(), L=[];
+ L.push("SKOPE ONBOARDING \u2014 "+(A.name||"(no name)")+(A.nick?" ("+A.nick+")":"")+(A.handle?" "+A.handle:""));
+ if(A.dob) L.push("Birthday: "+A.dob);
+ L.push("Profile: "+P.type);
+ L.push("Gear: "+(A.gear||"-")+" | Kit: "+(A.kit||"-")+" | Skis: "+(A.freq||"-")+" | Knows Vail: "+(A.know||"-"));
+ if(beginner()){
+  L.push("NEVER SKIED. Confidence: "+(A.athletic||"-")+" | Related: "+(A.related.join(", ")||"-")+" | Lesson: "+(A.lesson||"-"));
+ } else {
+  Object.keys(A.cap).forEach(k=>{ if(A.cap[k].length) L.push("Cap "+k+": "+A.cap[k].join(", ")); });
+  L.push("At your limit: "+(A.control!=null?(A.control+1)+"/5":"-"));
+ }
+ L.push("");
+ STMT.forEach(([tag])=>{ if(A.stmt[tag]!=null) L.push(tag+": "+(A.stmt[tag]+1)+"/5"); });
+ L.push("");
+ L.push("Usually skis with: "+(A.crew.join(", ")||"-"));
+ L.push("Would rather not: "+(A.avoid.join(", ")||"-"));
+ L.push("Would rather not ski: "+(A.avoidAreas.join(", ")||"-"));
+ L.push("Would rather not: "+(A.avoid.join(", ")||"-"));
+ L.push("Would rather not ski: "+(A.avoidAreas.join(", ")||"-"));
+ L.push("Staying: "+(A.stay||"-"));
+ L.push("Areas: "+(A.areas.join(", ")||"-"));
+ L.push("Start: "+(A.start.join(", ")||"-")+" | Finish: "+(A.finish.join(", ")||"-"));
+ L.push("Lunch: "+([].concat(A.venues,A.baseLunch).join(", ")||"-"));
+ L.push("Clock: on the hill "+A.clock.from+"\u2013"+A.clock.to+" of the day | plans lunch "+A.clock.plan+"% | breaks "+A.clock.breaks+"%");
+ if(!beginner()) L.push("Runs they would take: "+(A.paths.map(i=>PATHS[i][2]).join(", ")||"none"));
+ L.push("Days they liked: "+(A.days.map(i=>DAYS[i][0]).join(", ")||"none"));
+ return L.join("\n");
+}
+
+/* ---------------- screens ---------------- */
+function render(){
+ const k=cur(); let h="";
+
+ if(k==="open"){
+  h='<div style="flex:1"></div>'+
+    '<div class="foot"><button class="btn" onclick="go(1)">Build my profile</button>'+
+    '<button class="btn ghost">Sign in</button>'+
+    '<div style="text-align:center;margin-top:10px;font-size:10px;color:#9A96B0">'+BUILD+'</div></div>';
+ }
+
+ if(k==="who"){
+  h=head("First, the basics","Introduce yourself to SKOPE","","")+
+   '<div class="flow">'+
+   '<div class="fld"><div class="k">Name</div><input id="f_name" value="'+esc(A.name)+'" oninput="A.name=this.value" placeholder="YOUR NAME"></div>'+
+   '<div class="fld"><div class="k">SKOPE calls you</div><input id="f_nick" value="'+esc(A.nick)+'" oninput="A.nick=this.value" placeholder="NICKNAME"></div>'+
+   '<div class="fld"><div class="k">Handle</div><input id="f_handle" value="'+esc(A.handle)+'" oninput="A.handle=this.value" placeholder="@YOURNAME"></div>'+
+   '<div class="fld"><div class="k">Birthday</div><input id="f_dob" inputmode="numeric" value="'+esc(A.dob)+'" oninput="dob(this)" placeholder="MM / DD / YYYY"></div>'+
+   '<div class="slab"><span class="g">Do you ski or ride?</span><span class="pm">Pick one</span></div>'+
+   '<div class="third">'+["Ski","Snowboard","Both"].map(x=>row(x,A.gear===x,"pick","gear")).join('')+'</div>'+
+   '</div>'+foot("Next",!!A.gear);
+ }
+
+ if(k==="freq"){
+  h=head("A few quick ones","How much do you ski?","","Pick one")+
+   '<div class="flow"><div class="rows">'+
+   ["First time ever","I\u2019ve been a handful of times","Multiple trips a year","Lifelong skier or rider"]
+    .map(x=>row(x,A.freq===x,"pick","freq")).join('')+'</div>'+
+   '<div class="slab"><span class="g">How well do you know Vail?</span><span class="pm">Pick one</span></div>'+
+   '<div class="rows">'+["First visit","Been a handful of times","I\u2019m a local, or local at heart"]
+    .map(x=>row(x,A.know===x,"pick","know")).join('')+'</div>'+
+   '<div class="slab"><span class="g">Who do you usually ski with?</span><span class="pm">Pick any</span></div>'+
+   '<div class="rows">'+["Mostly alone","People at about my level","People better than me",
+     "People I am looking after","Kids"]
+    .map(x=>row(x,A.crew.indexOf(x)>=0,"tog","crew")).join('')+'</div>'+
+   '<p class="sub">Usually, not always. You can change it on any given day.</p>'+
+   '<div class="slab"><span class="g">Your gear</span><span class="pm">Pick one</span></div>'+
+   '<div class="rows">'+[
+     ["I own everything","Straight to the lift"],
+     ["I need to pick something up","Day one starts at the shop"]
+    ].map(([x,w])=>row(x,A.kit===x,"pick","kit",w)).join('')+'</div>'+
+   '</div>'+
+   foot("Next",!!(A.freq&&A.know&&A.kit));
+ }
+
+ if(k==="cap"){
+  const T=[["e","\u25CF","Green",["Groomed green runs","Green cat tracks, the long flat ones","Keep the multi-mile green roads out of my day"]],
+           ["m","\u25A0","Blue",["Groomed blues","Blue cat tracks","Blues that bump up when it has not snowed","Keep long blue roads out unless there is no way around"]],
+           ["b","\u25C6","Black",["Groomed blacks","Blacks bumped up when it has not snowed","Blacks with fresh snow on them","Black tree runs","Black cat tracks, the way out of a bowl or into somewhere good"]],
+           ["x","\u25C6\u25C6","Double black",["Long steep mogul fields","Thin cover, natural obstacles","Cliffs and drops","Anything that is open"]]];
+  h=head("What you can ski, and what kind","What are you capable of?","","Pick any, in every tier")+
+   '<div class="flow">'+
+   '<div class="branch" onclick="neverPath()"><div class="g"><div class="k">Never skied or ridden?</div>'+
+     '<div class="t">Start here instead</div></div><div style="font-size:15px;color:var(--acc)">\u203A</div></div>'+
+   T.map(([c,sy,name,opts])=>'<div class="tier"><div class="hd"><div class="em '+c+'">'+sy+'</div>'+
+     '<div class="nm '+c+'">'+name+'</div></div><div class="body">'+
+     opts.map(o=>'<div class="pk" data-v="'+attr(o)+'" data-t="'+attr(name)+'" '+
+       'onclick="tierT(this.dataset.t,this.dataset.v)">'+
+       '<div class="box'+((A.cap[name]||[]).indexOf(o)>=0?' on':'')+'"></div><div>'+o+'</div></div>').join('')+
+     '</div></div>').join('')+
+   '<div class="slab"><span class="g">On a run at your limit</span><span class="pm">Pick one</span></div>'+
+   '<div class="ramp"><div class="track">'+[0,1,2,3,4].map(i=>
+     '<div class="stop'+(A.control===i?' on':'')+'" onclick="pick(\'control\','+i+')">'+(i+1)+'</div>').join('')+'</div>'+
+     '<div class="ends"><span>Careful and patient</span><span>Confident anywhere</span></div></div>'+
+   '</div>'+foot("Next", Object.values(A.cap).some(v=>v.length) && A.control!=null);
+ }
+
+ if(k==="never"){
+  h=head("First time ever","Let\u2019s start somewhere else","","")+
+   '<div class="flow">'+
+   '<div class="slab"><span class="g">How will you take to it?</span><span class="pm">Pick one</span></div>'+
+   '<div class="rows">'+["I have athletic experience","I have confidence I\u2019ll pick it up","I\u2019m honestly nervous"]
+     .map(x=>row(x,A.athletic===x,"pick","athletic")).join('')+'</div>'+
+   '<div class="slab"><span class="g">Anything close to this?</span><span class="pm">Pick any</span></div>'+
+   '<div class="rows">'+["I skate or surf","I water ski","I have been on a mountain bike","None of these"]
+     .map(x=>row(x,A.related.indexOf(x)>=0,"tog","related")).join('')+'</div>'+
+   '<div class="slab"><span class="g">Have you booked a lesson?</span><span class="pm">Pick one</span></div>'+
+   '<div class="half">'+["Full day","Half day","Not yet","Someone is teaching me"]
+     .map(x=>row(x,A.lesson===x,"pick","lesson")).join('')+'</div>'+
+   '</div>'+foot("Next",!!A.athletic);
+ }
+
+ if(k==="stmtA"||k==="stmtB"){
+  const list = beginner() ? STMT.filter(s=>BEGINNER_STMT.indexOf(s[0])>=0)
+                          : (k==="stmtA"?STMT.slice(0,6):STMT.slice(6));
+  const eb = beginner() ? "Five quick ones" : (k==="stmtA"?"One through six":"Seven through twelve");
+  const last = beginner() || k==="stmtB";
+  h=head(eb,"Agree or disagree?","","One answer each")+
+   '<div class="flow">'+list.map(([tag,txt])=>
+    '<div class="stmt"><div class="tag">'+tag+'</div><div class="txt">'+txt+'</div><div class="scale">'+
+    ["Disagree","Somewhat<br>disagree","Neutral","Somewhat<br>agree","Agree"].map((L,i)=>
+     '<div class="'+(A.stmt[tag]===i?'on':'')+'" data-t="'+attr(tag)+'" onclick="stmt(this.dataset.t,'+i+')">'+L+'</div>').join('')+
+    '</div></div>').join('')+
+   (last ? '<div class="slab"><span class="g">And anything you will not do?</span><span class="pm">Pick any</span></div>'+
+     '<div class="rows">'+[
+       ["Moguls","Leave the bumped-up runs out"],
+       ["Trees","Keep me out of the glades"],
+       ["Cliffs and drops","Nothing with air in it"],
+       ["The terrain park","Not my thing"],
+       ["Flat light above the trees","The bowls on a grey day"],
+       ["Nothing, I am open","Put whatever in front of me"]
+      ].map(([x,w])=>row(x,A.avoid.indexOf(x)>=0,"tog","avoid",w)).join('')+'</div>'+
+     '<p class="sub">Soft, not permanent. SKOPE keeps these out of a normal day, and can still offer to stretch you when the conditions are right.</p>' : '')+
+   '</div>'+
+   foot("Next", list.every(s=>A.stmt[s[0]]!=null));
+ }
+
+ if(k==="vail"){
+  if(newHere()){
+   h=head("Vail","What should SKOPE show you?",
+     "You have not skied here before, so names will not help yet. Pick what sounds good and SKOPE will fill in the runs.","Pick any")+
+    '<div class="flow">'+
+    '<div class="rows">'+[
+      ["The classics","The runs everyone comes here for"],
+      ["Stay on the front side","Close to the village, easy to get back"],
+      ["The Back Bowls","Wide open, above the trees, no trail signs"],
+      ["Blue Sky Basin","The far side, quiet, feels like the backcountry"],
+      ["Wherever the snow is best","Let SKOPE decide on the day"]
+     ].map(([x,w])=>row(x,A.areas.indexOf(x)>=0,"tog","areas",w)).join('')+'</div>'+
+    '<div class="slab"><span class="g">Anywhere you would rather not go?</span><span class="pm">Pick any</span></div>'+
+    '<div class="rows">'+[
+      ["Anything steep","Keep the pitch gentle"],
+      ["The far side of the mountain","Nothing that strands me a long way from the base"],
+      ["Crowded parts","Quieter runs even if they are further"],
+      ["Nowhere, I am open","Put whatever in front of me"]
+     ].map(([x,w])=>row(x,A.avoidAreas.indexOf(x)>=0,"tog","avoidAreas",w)).join('')+'</div>'+
+    '</div>'+foot("Next",A.areas.length>0);
+  } else {
+   h=head("Vail","Where do you actually ski?","","Pick any")+
+   '<div class="flow">'+
+   '<div class="slab" style="margin-top:0"><span class="g">The front side</span><span class="pm">Pick any</span></div>'+
+   /* AREA RULE, asymmetric on purpose:
+      NORTHEAST BOWL includes Highline, because #10 is largely a people mover for that side.
+      HIGHLINE on its own means the expert terrain it serves and nothing else:
+      Highline, Blue Ox, Roger's Run, Log Chute, Hairbag Alley. NOT Prima or Pronto,
+      which #10 delivers you to the bottom of but which start at the top of 4/5/11.
+      Picking Highline is a claim about ability, so it also confirms the cap. */
+   '<div class="half">'+["Vail Village / Mid-Vail","Lionshead","Golden Peak","Terrain Park",
+     "Avanti","Highline","Game Creek Bowl","Northeast Bowl"]
+     .map(x=>row(x,A.areas.indexOf(x)>=0,"tog","areas")).join('')+'</div>'+
+   '<div class="slab"><span class="g">And out back</span><span class="pm">Pick any</span></div>'+
+   '<div class="half">'+["Sun Down Bowl","Sun Up Bowl","Tea Cup Bowl","China Bowl",
+     "Siberia Bowl","Inner Mongolia Bowl","Outer Mongolia Bowl","Blue Sky Basin"]
+     .map(x=>row(x,A.areas.indexOf(x)>=0,"tog","areas")).join('')+'</div>'+
+   '<div class="slab"><span class="g">Anywhere you would rather not ski?</span><span class="pm">Pick any</span></div>'+
+   '<div class="half">'+["Vail Village / Mid-Vail","Lionshead","Golden Peak","Terrain Park","Avanti",
+     "Highline","Game Creek Bowl","Northeast Bowl","Sun Down Bowl","Sun Up Bowl","Tea Cup Bowl",
+     "China Bowl","Siberia Bowl","Inner Mongolia Bowl","Outer Mongolia Bowl","Blue Sky Basin"]
+     .map(x=>row(x,A.avoidAreas.indexOf(x)>=0,"tog","avoidAreas")).join('')+'</div>'+
+   '</div>'+foot("Next",A.areas.length>0);
+  }
+ }
+
+ if(k==="vail2"){
+  if(newHere()){
+   h=head("Your day","Where does the day start and end?","","Pick one")+
+    '<div class="flow">'+
+    '<div class="slab" style="margin-top:0"><span class="g">Where are you staying in Vail?</span><span class="pm">Pick one</span></div>'+
+    '<div class="rows">'+[
+      ["Vail Village","Gondola One, and Golden Peak is a short walk"],
+      ["Lionshead","Born Free #8 and the Eagle Bahn"],
+      ["Golden Peak","Riva Bahn #6"],
+      ["Cascade Village","Cascade #20"],
+      ["Off property, driving in","Park at any garage and start wherever suits the day"]
+     ].map(([x,w])=>row(x,A.stay===x,"pick","stay",w)).join('')+'</div>'+
+    '<p class="sub">You will finish back where you started unless you say otherwise, which is what a first day should do.</p>'+
+    '<div class="slab"><span class="g">What kind of lunch?</span><span class="pm">Pick one</span></div>'+
+    '<div class="rows">'+[
+      ["Somewhere with a view","Up on the mountain, worth the stop"],
+      ["Quick, on the move","In and out, back on the snow"],
+      ["A proper sit-down","Take the time, warm up"],
+      ["Down at the base","Off the hill for it"],
+      ["No preference","Wherever you are at noon"]
+     ].map(([x,w])=>row(x,A.venues.indexOf(x)>=0,"tog","venues",w)).join('')+'</div>'+
+    '</div>'+foot("Next",!!A.stay);
+  } else {
+   h=head("Your day","Where does the day start and end?","","")+
+   '<div class="flow">'+
+   '<div class="slab" style="margin-top:0"><span class="g">Where are you staying?</span><span class="pm">Pick one</span></div>'+
+   '<div class="rows">'+[
+     ["Vail Village","Start here or Golden Peak, finish at Vail Village"],
+     ["Golden Peak","Start here or Vail Village, finish at Golden Peak"],
+     ["Lionshead","Start and finish at Lionshead"],
+     ["Cascade Village","Start and finish at Cascade"],
+     ["Off property, driving in","Park anywhere, any base is fair game"]
+    ].map(([x,w])=>row(x,A.stay===x,"pick","stay",w)).join('')+'</div>'+
+   '<p class="sub">That sets the bases below. Change them if a day calls for it.</p>'+
+   '<div class="slab"><span class="g">Where do you start?</span><span class="pm">Pick any</span></div>'+
+   '<div class="rows">'+[["Vail Village","Gondola One"],["Golden Peak","Riva Bahn #6 \u00b7 Gopher Hill #12"],
+     ["Lionshead","Born Free #8 \u00b7 Eagle Bahn #19"],["Cascade Village","Cascade Village #20"]]
+     .map(([x,l])=>row(x,A.start.indexOf(x)>=0,"tog","start",l)).join('')+'</div>'+
+   '<div class="slab"><span class="g">Where do you finish?</span><span class="pm">Pick any</span></div>'+
+   '<div class="half">'+["Vail Village","Golden Peak","Lionshead","Cascade Village"]
+     .map(x=>row(x,A.finish.indexOf(x)>=0,"tog","finish")).join('')+'</div>'+
+   '<div class="slab"><span class="g">Where do you eat on the mountain?</span><span class="pm">Pick any</span></div>'+
+   '<div class="rows">'+[["Two Elk Lodge","Top of #14"],["Buffalo\u2019s","Top of #4/5/11"],["Mid-Vail","Mid-Vail"],
+     ["The 10th","Mid-Vail \u00b7 fine dining"],["Wildwood Smokehouse","Top of #3/7/17"],["Eagle\u2019s Nest","Top of #15/19"],
+     ["Belle\u2019s Camp","Top of #37 \u00b7 snacks"],["The Dawg Haus","Base of #39 \u00b7 outside"],
+     ["The Coop","Base of #2 \u00b7 outside"]]
+     .map(([x,w])=>row(x,A.venues.indexOf(x)>=0,"tog","venues",w)).join('')+'</div>'+
+   '<div class="slab"><span class="g">Or down at a base</span><span class="pm">Pick any</span></div>'+
+   '<div class="third">'+["Vail Village","Lionshead","Golden Peak"]
+     .map(x=>row(x,A.baseLunch.indexOf(x)>=0,"tog","baseLunch")).join('')+'</div>'+
+   '</div>'+foot("Next",!!A.stay);
+  }
+ }
+
+ if(k==="clock"){
+  const tm=(k2,label,lo,hi)=>'<div class="tm"><div class="hd"><div class="k">'+label+'</div>'+
+   '<div class="v" id="lab_'+k2+'">'+clockLabel(k2)+'</div></div>'+
+   '<input type="range" min="0" max="100" value="'+A.clock[k2]+'" '+
+   'oninput="A.clock.'+k2+'=+this.value;document.getElementById(\'lab_'+k2+'\').textContent=clockLabel(\''+k2+'\')">'+
+   '<div class="ends"><span>'+lo+'</span><span>'+hi+'</span></div></div>';
+
+  h=head("On an average day","How do you spend the day?","A typical day, not necessarily your best one.","")+
+   '<div class="flow">'+
+   tm("from","On the hill from","First Chair","Last Chair")+
+   tm("to","Until","First Chair","Last Chair")+
+   tm("plan","Do you plan lunch ahead?","Eat when I\u2019m hungry","Booked, at a time")+
+   tm("breaks","Breaks","Only if it\u2019s freezing","Hot chocolate all day")+
+   '</div>'+foot("Next");
+ }
+
+ if(k==="line"){
+  let last="";
+  h=head("Scenario","Which of these can you ski?",
+    "You have just ridden Mountain Top Express #4 and you are standing at the top of Vail. These are some of the ways down. You do not need to know the names, go by what is in them.","Pick any")+
+   '<div class="flow">'+PATHS.map(([grp,tierL,nm,mi,runs],i)=>{
+    const g = grp!==last ? '<div class="grp">'+grp+'</div>' : ''; last=grp;
+    return g+'<div class="path'+(A.paths.indexOf(i)>=0?' on':'')+'" onclick="tog(\'paths\','+i+')">'+
+     '<div class="tl">'+tierL+'</div><div class="hd"><div class="nm">'+nm+'</div><div class="mi">'+mi+'</div></div>'+
+     '<div class="steps">'+runs.map(chip).join('<div class="arw">\u2193</div>')+'</div></div>';
+   }).join('')+'</div>'+foot("Next");
+ }
+
+ if(k==="days"||k==="daysB"){
+  const idx = k==="daysB" ? [0,1] : DAYS.map((d,i)=>i);
+  h=head(k==="daysB"?"Your first morning":"Real days, already built",
+    k==="daysB"?"Which sounds better?":"Which of these look good?","", "Pick any")+
+   '<div class="flow">'+idx.map(i=>{const d=DAYS[i];
+    const dif=(DAYDIFF[d[0]]||[]).map(c=>'<span class="dpill '+c+'">'+MARK[c]+'</span>').join('');
+    return '<div class="day'+(A.days.indexOf(i)>=0?' on':'')+'" onclick="tog(\'days\','+i+')">'+
+     '<div class="dhd"><div class="nm">'+d[0]+'</div><div class="dif">'+dif+'</div></div>'+
+     '<div class="stats">'+[d[1],d[2],d[3]].map(x=>{
+       const sp=x.split("|"); return '<div class="st"><div class="n">'+sp[0]+'</div><div class="l">'+sp[1]+'</div></div>';}).join('')+
+     '</div><div class="lifts3">'+d[4].map(l=>'<span class="lift">'+l+'</span>').join('')+'</div>'+
+     '<div class="ln">'+d[5]+'</div></div>';
+   }).join('')+'</div>'+foot("Next",A.days.length>0);
+ }
+
+ if(k==="profile"){
+  const P=profile();
+  h=head("That\u2019s everything","Nice to meet you","","")+
+   '<div class="flow"><div class="bio"><div class="kick">'+esc(P.n)+'\u2019s SKOPE profile</div>'+
+   '<div class="type">'+P.type+'</div>'+P.p.map(x=>'<p>'+esc(x)+'</p>').join('')+
+   '<div class="tags">'+P.tags.map(t=>'<span class="tag2">'+esc(t)+'</span>').join('')+'</div></div>'+
+   '<p class="sub">Every line came from something you answered.</p></div>'+foot("Next");
+ }
+
+ if(k==="save"){
+  h=head("Last thing","Send it back","Copy this and text it to whoever sent you the link.","")+
+   '<div class="flow"><textarea id="out" readonly>'+esc(A.asJson?JSON.stringify(ruleBook(),null,1):answersText())+'</textarea>'+
+   '<div class="rows" style="margin-top:10px">'+
+    row("Readable",!A.asJson,"pick","asJson")+row("As the rule book SKOPE reads",!!A.asJson,"pick","asJson")+
+   '</div>'+
+   '<div class="foot" style="padding-top:12px"><button class="btn" onclick="copyOut()">Copy this</button>'+
+   '<button class="btn ghost" onclick="step=0;render()">Start again</button></div></div>';
+ }
+
+ app.className = (k==="open") ? "shot" : "";
+ app.innerHTML=h;
+}
+function showJSON(){
+ const t=document.getElementById("out");
+ t.value=JSON.stringify(ruleBook(),null,1); t.select(); t.setSelectionRange(0,99999);
+ try{ document.execCommand("copy"); }catch(e){}
+ if(navigator.clipboard) navigator.clipboard.writeText(t.value).catch(()=>{});
+ const b=event.target, o=b.textContent; b.textContent="Copied"; setTimeout(()=>b.textContent=o,1400);
+}
+function copyOut(){
+ const t=document.getElementById("out"); t.select(); t.setSelectionRange(0,99999);
+ try{ document.execCommand("copy"); }catch(e){}
+ if(navigator.clipboard) navigator.clipboard.writeText(t.value).catch(()=>{});
+ const b=event.target; const o=b.textContent; b.textContent="Copied"; setTimeout(()=>b.textContent=o,1400);
+}
+render();
+</script>
+</body>
+</html>
