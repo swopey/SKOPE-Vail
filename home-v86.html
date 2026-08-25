@@ -1,0 +1,823 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SKOPE · SKOPE Home v79</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#15181F;font-family:Montserrat,system-ui,sans-serif;
+ padding:40px 20px 80px;-webkit-font-smoothing:antialiased}
+.page{max-width:1560px;margin:0 auto}
+.intro h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px;color:#EEF1F6}
+.intro p{color:#A9B3C6;font-size:13px;line-height:1.6;max-width:720px;margin-bottom:30px}
+.frames{display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start}
+.phone{width:413px;height:873px;border-radius:52px;padding:10px;background:#0C0E13;
+ box-shadow:0 24px 60px rgba(0,0,0,.6);flex-shrink:0;overflow:hidden}
+.phone>.scr{transform:scale(1.16272);transform-origin:top left}
+.cap{margin:11px 0 0;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+ color:#7E8AA0;text-align:center}
+
+/* ===== theme ===== */
+.scr{width:338px;height:734px;border-radius:30px;overflow:hidden;position:relative;
+ display:flex;flex-direction:column;
+ --accent:#CE8B71;--accentSoft:rgba(206,139,113,.14);--act:#CE8B71;--actInk:#fff;--sel:#CE8B71;
+ --gold:#C79A4A;--glacier:#6E8FBF;--sage:#7FA087;
+ --wea:#9AB2CE;--terSoft:rgba(122,155,114,.16);--terInk:#5E8155;--ter:#9AB58F;--cha:#C9AE7B;--bdg:#A3A9BA;--bro:#BC9271;
+ --vail:#6E8FBF;--bc:#78868F;
+ --hd:#464E68;--ink:#2E2A44;--mut:#6E6885;--dim:#938DA6;--invFlat:#3A4051;--invInk:#E4E2F0;
+ --surf:rgba(255,255,255,.88);--surf2:rgba(255,255,255,.78);--navbg:rgba(234,232,244,.82);--ctabg:rgba(255,255,255,.92);--ctabd:rgba(206,139,113,.42);
+ --rule:rgba(46,42,68,.09);--barbg:rgba(46,42,68,.1);
+ color:var(--ink);
+ background:
+  radial-gradient(78% 34% at 88% -2%, rgba(233,214,210,.9), rgba(233,214,210,0) 66%),
+  linear-gradient(168deg,#E4E1F0 0%,#E8E5F4 54%,#DEDBEE 100%)}
+.scr.dark{
+ --accent:#E9AB92;--accentSoft:rgba(233,171,146,.16);--act:#AC6E5B;--actInk:#EDF2F8;--sel:#CE8B71;
+ --gold:#EBC77E;--glacier:#8FB4D8;--sage:#9DBBA4;
+ --wea:#B3CCE4;--terSoft:rgba(183,205,172,.16);--terInk:#B7CDAC;--ter:#B7CDAC;--cha:#E6D3A8;--bdg:#B8BECC;--bro:#CFA688;
+ --vail:#8FB4D8;--bc:#93A2AC;
+ --hd:#E3EAF3;--ink:#EDEFF5;--mut:#A2A9BC;--dim:#828AA0;--invFlat:#E0DDEE;--invInk:#2E2A44;
+ --surf:rgba(74,82,101,.92);--surf2:rgba(68,75,93,.86);--navbg:rgba(62,68,84,.82);--ctabg:rgba(255,255,255,.09);--ctabd:rgba(233,171,146,.45);
+ --rule:rgba(255,255,255,.09);--barbg:rgba(255,255,255,.1);
+ background:
+  radial-gradient(78% 34% at 88% -2%, rgba(118,100,100,.85), rgba(118,100,100,0) 66%),
+  linear-gradient(168deg,#434959 0%,#3E4454 54%,#2E3442 100%)}
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none;position:relative;z-index:2}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ===== header ===== */
+.island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:104px;height:31px;
+ border-radius:18px;background:#000;z-index:9}
+.statusbar{position:absolute;top:16px;left:20px;right:20px;z-index:8;display:flex;
+ justify-content:space-between;font-size:10.5px;font-weight:700;color:var(--ink);letter-spacing:.02em}
+.navbar{position:absolute;top:0;left:0;right:0;height:74px;z-index:5;display:flex;
+ align-items:flex-end;justify-content:center;padding-bottom:10px;
+ font-size:11px;line-height:1;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+ color:var(--ink);
+ background:var(--navbg);backdrop-filter:blur(18px);border-bottom:1px solid transparent;
+ opacity:0;transition:opacity .22s ease;pointer-events:none}
+.navbar.on{opacity:1;border-bottom-color:var(--rule)}
+.dark .statusbar{color:#EDEFF5}
+.head{padding:56px 17px 0}
+.title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px}
+.title h1{font-size:21px;font-weight:800;letter-spacing:.09em;line-height:1;color:var(--hd);
+ white-space:nowrap;flex-shrink:0}
+.brow{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.eyebrow{font-size:12.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
+ color:var(--hd);line-height:1.2;margin-bottom:13px}
+.tright{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.navbar .nbr{position:absolute;right:13px;bottom:5px;display:flex;align-items:center;gap:7px}
+.navbar .dirc{width:40px;height:22px;border-radius:999px}
+.navbar .dirc svg{width:11px;height:11px}
+.navbar .dirc u{top:-1px;right:-1px;width:7px;height:7px;border-width:1.5px}
+.livep{position:relative;display:inline-flex;align-items:center;justify-content:center;line-height:0;
+ height:21px;padding:0 9px;border:0;border-radius:999px;background:var(--sel);flex-shrink:0;
+ font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;
+ transition:transform .12s ease,filter .12s ease}
+.livep::after{content:'';position:absolute;inset:-10px -8px}
+.livep:active{transform:scale(.95);filter:brightness(.94)}
+.livec{position:relative;width:34px;height:34px;flex-shrink:0;border:0;border-radius:50%;
+ background:var(--sel);display:flex;flex-direction:column;align-items:center;justify-content:center;
+ font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;
+ transition:transform .12s ease,filter .12s ease}
+.livec::after{content:'';position:absolute;inset:-4px}
+.livec:active{transform:scale(.95);filter:brightness(.94)}
+.livec b,.livec i{display:block;color:#E4E2F0;font-weight:700;text-transform:uppercase;line-height:1;
+ font-style:normal;letter-spacing:.09em;padding-left:.09em;font-size:6px;
+ animation:beat 2.6s ease-in-out infinite}
+.livec i{margin-top:0}
+.livep b{font-size:6.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#FBF7F5;
+ white-space:nowrap;line-height:1;display:block;padding-top:1px;
+ animation:beat 2.6s ease-in-out infinite}
+@keyframes beat{0%,100%{opacity:1}50%{opacity:.42}}
+@media (prefers-reduced-motion:reduce){.livep u{animation:none}}
+.navbar .livep{position:static;width:40px;height:22px;padding:0;flex-direction:column}
+.navbar .livep b,.navbar .livep i{display:block;font-style:normal;font-size:6px;
+ font-weight:700;letter-spacing:.09em;padding-left:.09em;padding-top:0;line-height:1;
+ color:#FBF7F5;text-transform:uppercase;animation:beat 2.6s ease-in-out infinite}
+.av{width:34px;height:34px;border-radius:50%;background:var(--accentSoft);
+ display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--accent)}
+/* the direction circle: summons the LIVE SKOPE rectangle, dot while it is waiting */
+.dirc{position:relative;width:34px;height:34px;flex-shrink:0;border:0;border-radius:50%;
+ background:var(--invFlat);display:flex;align-items:center;justify-content:center;
+ color:var(--invInk);line-height:0;font-family:inherit;cursor:pointer;
+ -webkit-tap-highlight-color:transparent;transition:transform .12s ease,filter .12s ease}
+.dirc:active{transform:scale(.95);filter:brightness(.94)}
+.dirc svg{width:15px;height:15px}
+.dirc u{position:absolute;top:0;right:0;width:8px;height:8px;border-radius:50%;
+ background:var(--sel);border:2px solid var(--navbg)}
+.head h2{margin-top:0;font-size:20px;font-weight:800;letter-spacing:.11em;line-height:1.05;color:var(--hd)}
+.head .sub{font-size:12.5px;color:var(--mut);margin-top:5px}
+.head .cta{display:flex;align-items:center;justify-content:center;gap:9px;margin:0 0 24px;
+ padding:16px;border-radius:999px;background:linear-gradient(150deg,#464D60,#3A4051);color:#E4E2F0;
+ font-size:11.5px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;
+ box-shadow:0 10px 26px rgba(46,42,68,.22);position:relative;overflow:hidden;isolation:isolate}
+.dark .head .cta{background:linear-gradient(150deg,#E5E3F1,#DAD7E9);color:#2E2A44}
+.head .cta>*{position:relative;z-index:1}
+.head .cta em{font-style:normal;font-size:13px;color:inherit}
+.head .cta::before{content:'';position:absolute;inset:-55%;z-index:0;opacity:1;
+ background:
+  radial-gradient(46% 46% at 80% 14%, rgba(128,104,104,.85), rgba(128,104,104,0) 70%),
+  radial-gradient(40% 40% at 16% 86%, rgba(226,226,240,.14), rgba(226,226,240,0) 70%);
+ animation:drift 22s ease-in-out infinite alternate}
+.dark .head .cta::before{background:
+  radial-gradient(46% 46% at 80% 14%, rgba(233,214,210,1), rgba(233,214,210,0) 70%),
+  radial-gradient(40% 40% at 16% 86%, rgba(255,255,255,.55), rgba(255,255,255,0) 70%)}
+@media (prefers-reduced-motion:reduce){.head .cta::before{animation:none}}
+.dark .head .cta{box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.head .cta em{font-style:normal;font-size:13px}
+.body{padding:18px 17px 24px}
+
+/* ===== alert ===== */
+.alert{border-radius:15px;margin-bottom:14px;padding:14px 15px;background-color:var(--act);
+ color:var(--actInk);isolation:isolate;opacity:1}
+.alert .k{font-size:8.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
+ margin-bottom:6px;color:rgba(255,255,255,.85)}
+.alert .t{font-size:15px;font-weight:800;line-height:1.35;letter-spacing:-.015em;color:var(--actInk)}
+.alert .s{font-size:11.5px;margin-top:6px;line-height:1.5;color:rgba(255,255,255,.9)}
+.alert .go{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
+ margin-top:11px;color:var(--actInk)}
+.dark .alert .k{color:rgba(237,242,248,.72)}
+.dark .alert .s{color:rgba(237,242,248,.86)}
+
+/* ===== conditions ===== */
+.panel{background:var(--surf);border-radius:16px;overflow:hidden}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--rule)}
+.grid4 div{padding:12px 5px;text-align:center;border-right:1px solid var(--rule)}
+.grid4 div:last-child{border-right:none}
+.grid4 b{display:block;font-size:15px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
+.grid4 span{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+ color:var(--dim);margin-top:4px;display:block}
+.panel .more{display:flex;justify-content:space-between;align-items:center;padding:11px 15px;
+ font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.panel .more .when{color:var(--dim);letter-spacing:.11em;font-weight:700}
+.panel .more b{font-weight:800}
+
+/* ===== ONE header component ===== */
+.sec{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.sec h3{font-size:13.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
+ line-height:1.2;color:var(--hd)}
+.sec p{font-size:11px;color:var(--mut);margin-top:5px;letter-spacing:0;font-weight:500}
+.sec .go{font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+ color:var(--accent);flex-shrink:0;padding-top:2px}
+.block{margin-bottom:26px}
+
+/* ===== today's call ===== */
+.hero{border-radius:17px;overflow:hidden;background:var(--surf)}
+.dark .hero{background:#565F74}
+.hero{--band:linear-gradient(155deg,#4B5265,#5E5A63 55%,#39404F)}
+.hero .top{height:88px;position:relative;background:var(--band)}
+.hero .top svg{position:absolute;bottom:0;left:0;width:100%;height:46px}
+.hero .top .n b{display:block;font-size:18px;font-weight:800;letter-spacing:-.03em;line-height:1}
+
+/* date sits on the same baseline as the eyebrow, no floating chip */
+.hero .top .n{position:absolute;left:15px;right:15px;bottom:12px;color:#fff}
+.hero .top .meta2{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px}
+.hero .top .meta2 span{font-size:8.5px;font-weight:800;letter-spacing:.16em;
+ text-transform:uppercase;color:rgba(255,255,255,.68)}
+.hero .top .meta2 em{font-style:normal;font-size:8.5px;font-weight:800;letter-spacing:.13em;
+ color:rgba(255,255,255,.9)}
+.hero .in{padding:13px 15px 15px}
+.hero .in p{font-size:11.5px;color:var(--mut);line-height:1.55}
+.hero .meta{display:flex;gap:16px;margin-top:11px;padding-top:11px;border-top:1px solid var(--rule)}
+.hero .meta div b{display:block;font-size:14px;font-weight:800;letter-spacing:-.025em;color:var(--ink)}
+.hero .meta div span{font-size:7.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
+ color:var(--dim);display:block;margin-top:3px}
+.hero .go{display:block;text-align:center;margin-top:13px;padding:12px 0;border-radius:11px;
+ background:var(--band);color:#EDEFF5;
+ font-size:10.5px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;
+ isolation:isolate;opacity:1}
+
+/* ===== preset shelf: solid cap + tint ===== */
+.shelf{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -17px;padding:2px 17px}
+.shelf::-webkit-scrollbar{display:none}
+.card{width:178px;flex-shrink:0;border-radius:15px;overflow:hidden}
+.card .in{padding:13px 13px 13px}
+.card u{display:inline-block;font-size:8px;font-weight:800;letter-spacing:.18em;
+ text-transform:uppercase}
+.card b{display:block;font-size:14px;font-weight:800;letter-spacing:-.02em;line-height:1.2;
+ margin-top:8px;color:var(--ink)}
+.card span{display:block;font-size:10.5px;color:var(--mut);margin-top:6px;line-height:1.45}
+.card .bar{height:3px;border-radius:2px;margin-top:11px;background:var(--barbg);overflow:hidden}
+.card .bar i{display:block;height:100%;border-radius:2px}
+.card .acts{display:flex;justify-content:space-between;align-items:center;margin-top:11px;
+ padding-top:10px;border-top:1px solid var(--rule);
+ font-size:8.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}
+.card .acts .sv{color:var(--dim)}
+.card .acts .saved{color:var(--mut)}
+.card .acts .live{color:var(--accent)}
+.pw{background:#F0F3FA} .pt{background:#F4F7F1} .pc{background:#FBF7EF}
+.pw u,.pw .acts .sk{color:var(--wea)} .pw .bar i{background:var(--wea)}
+.pt u,.pt .acts .sk{color:var(--ter)} .pt .bar i{background:var(--ter)}
+.pc u,.pc .acts .sk{color:var(--cha)} .pc .bar i{background:var(--cha)}
+.dark .pw{background:#555F72} .dark .pt{background:#545F55} .dark .pc{background:#5E5B50}
+
+/* ===== active skopes ===== */
+.sc{background:var(--surf);border-radius:16px;padding:14px 15px;margin-bottom:9px}
+.sc.bdgc{background:#EEEFF4} .sc.chac{background:#FBF7EF}
+.dark .sc.bdgc{background:#565C6B} .dark .sc.chac{background:#5E5B50}
+.sc.pri{background:linear-gradient(150deg,#464D60,#3A4051);position:relative;overflow:hidden}
+.sc.pri>*{position:relative;z-index:1}
+.sc.pri::before{content:'';position:absolute;inset:-45%;z-index:0;
+ background:
+  radial-gradient(46% 46% at 80% 14%, rgba(128,104,104,.85), rgba(128,104,104,0) 70%),
+  radial-gradient(40% 40% at 16% 86%, rgba(226,226,240,.14), rgba(226,226,240,0) 70%);
+ animation:drift 22s ease-in-out infinite alternate}
+.dark .sc.pri::before{background:
+  radial-gradient(46% 46% at 80% 14%, rgba(233,214,210,1), rgba(233,214,210,0) 70%),
+  radial-gradient(40% 40% at 16% 86%, rgba(255,255,255,.55), rgba(255,255,255,0) 70%)}
+@keyframes drift{
+ 0%{transform:translate3d(-4%,-3%,0) rotate(0deg) scale(1.05)}
+ 50%{transform:translate3d(4%,3%,0) rotate(8deg) scale(1.14)}
+ 100%{transform:translate3d(-2%,5%,0) rotate(-6deg) scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.sc.pri::before{animation:none}}
+.dark .sc.pri{background:linear-gradient(150deg,#E5E3F1,#DAD7E9)}
+.sc .r1{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.sc .k{font-size:8px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:var(--accent);
+ line-height:1.2}
+.sc .k em{display:block;font-style:normal;margin-top:1.5px;font-weight:700;
+ letter-spacing:.14em;opacity:.72}
+.sc .k.ch{color:var(--cha)} .sc .k.bg{color:var(--bdg)}
+.sc .nm{font-size:16px;font-weight:800;letter-spacing:-.025em;margin-top:7px;line-height:1.2;color:var(--ink)}
+.sc .s{font-size:11.5px;color:var(--mut);margin-top:5px;line-height:1.5}
+.sc .n{text-align:right;flex-shrink:0}
+.sc .n b{display:block;font-size:16px;font-weight:800;color:var(--accent);letter-spacing:-.03em;line-height:1}
+.sc .n b.g{color:var(--bdg)} .sc .n b.b{color:var(--cha)}
+.sc .n span{font-size:7.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.sc .bar{height:3px;background:var(--barbg);border-radius:2px;margin-top:12px;overflow:hidden}
+.sc .bar i{display:block;height:100%;border-radius:2px;background:var(--accent)}
+.sc .bar i.g{background:var(--bdg)} .sc .bar i.b{background:var(--cha)}
+.sc .view{display:flex;justify-content:space-between;align-items:center;margin-top:11px;
+ padding-top:10px;border-top:1px solid var(--rule);font-size:9px;font-weight:800;
+ letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.sc .view .exp{color:var(--dim);letter-spacing:.11em}
+/* the chat-built skope flips with the theme, like the pill */
+.sc.pri .k{color:#EDB79F}
+.sc.pri .nm{color:#F2F3F8}
+.sc.pri .s{color:#C3C8D6}
+.sc.pri .n b{color:#EDB79F}
+.sc.pri .n span{color:#AEB4C4}
+.sc.pri .bar{background:rgba(255,255,255,.18)}
+.sc.pri .bar i{background:#EDB79F}
+.sc.pri .view{border-top-color:rgba(255,255,255,.16);color:#EDB79F}
+.sc.pri .view .exp{color:#AEB4C4}
+.dark .sc.pri .k,.dark .sc.pri .n b,.dark .sc.pri .view{color:#B0684F}
+.dark .sc.pri .bar i{background:#B0684F}
+.dark .sc.pri .nm{color:#2E2A44}
+.dark .sc.pri .s{color:#6E6885}
+.dark .sc.pri .n span,.dark .sc.pri .view .exp{color:#938DA6}
+.dark .sc.pri .bar{background:rgba(46,42,68,.12)}
+.dark .sc.pri .view{border-top-color:rgba(46,42,68,.12)}
+
+/* ===== rare air ===== */
+.row{display:flex;gap:12px;background:#F4F7F1;border-radius:13px;padding:13px 15px;
+ margin-bottom:8px;align-items:stretch}
+.row .rail{width:2px;border-radius:2px;background:var(--ter);flex-shrink:0}
+.dark .row{background:#545F55}
+.row .t2{font-size:14px;font-weight:700;letter-spacing:-.015em;line-height:1.35;color:var(--ink)}
+.row .s{font-size:11.5px;color:var(--mut);margin-top:5px;line-height:1.5}
+.row .add{display:inline-block;margin-top:12px;padding:8px 13px;border-radius:999px;
+ background:var(--terSoft);color:var(--terInk);font-size:8.5px;font-weight:800;
+ letter-spacing:.14em;text-transform:uppercase}
+
+/* ===== your season ===== */
+.season{background:var(--surf);border-radius:16px;overflow:hidden}
+.stats{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--rule)}
+.stats div{padding:13px 15px}
+.stats div:first-child{border-right:1px solid var(--rule)}
+.stats b{display:block;font-size:17px;font-weight:800;letter-spacing:0;color:var(--ink);
+ line-height:1}
+.stats span{display:block;font-size:6.5px;font-weight:800;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--dim);margin-top:3px;white-space:nowrap}
+.days{display:flex;gap:5px;align-items:flex-end;height:132px;padding:15px 15px 0}
+.days div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.days i{display:flex;align-items:flex-end;justify-content:center;border-radius:4px 4px 0 0;
+ font-style:normal;font-size:9px;font-weight:700;letter-spacing:.02em;color:#F7F6FB;padding-bottom:5px}
+.dark .days i{color:#3E4454}
+.days em{font-style:normal;display:block;text-align:center;font-size:7px;font-weight:800;
+ letter-spacing:.06em;color:var(--dim);margin-top:5px;text-transform:uppercase}
+.dayrow{padding-bottom:12px;border-bottom:1px solid var(--rule)}
+.legend{display:flex;gap:14px;padding:11px 15px}
+.legend div{display:flex;align-items:center;gap:6px;font-size:8.5px;font-weight:800;
+ letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.mile{padding:12px 15px;background:var(--surf2);border-top:1px solid var(--rule)}
+.mile>b{display:block;font-size:8.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+ color:var(--bro);margin-bottom:10px}
+.mile .m{margin-bottom:11px}
+.mile .m:last-child{margin-bottom:0}
+.mile .m .r{display:flex;justify-content:space-between;align-items:baseline}
+.mile .m .r b{font-size:12px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
+.mile .m .r span{font-size:9.5px;font-weight:700;color:var(--mut);letter-spacing:.01em}
+.mile .m i{display:block;height:3px;border-radius:2px;background:var(--barbg);margin-top:7px;
+ overflow:hidden}
+.mile .m i u{display:block;height:100%;border-radius:2px;background:var(--bro)}
+.mile .m em{display:block;font-style:normal;font-size:8.5px;font-weight:700;letter-spacing:.1em;
+ text-transform:uppercase;color:var(--dim);margin-top:7px}
+.legend u{width:8px;height:8px;border-radius:3px;display:block}
+
+/* ===== social ===== */
+.list{background:var(--surf2);border-radius:14px;overflow:hidden}
+.item{display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid var(--rule)}
+.item:last-child{border-bottom:none}
+.item .d{width:28px;height:28px;border-radius:50%;background:rgba(110,143,191,.16);flex-shrink:0;
+ display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--glacier)}
+.item p{font-size:11.5px;color:var(--mut);line-height:1.45}
+.item p b{color:var(--ink);font-weight:700}
+.item .w2{margin-left:auto;font-size:9px;color:var(--dim);font-weight:700;flex-shrink:0}
+
+.tabs{height:64px;background:rgba(255,255,255,.78);backdrop-filter:blur(20px);
+ border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-around;
+ padding:0 8px;position:relative;z-index:3}
+.dark .tabs{background:rgba(46,52,66,.85)}
+.tab{flex:1;display:flex;justify-content:center;align-items:center;color:rgba(46,42,68,.32)}
+.dark .tab{color:rgba(237,239,245,.34)}
+.tab u{display:block;width:21px;height:21px;border-radius:50%;background:currentColor}
+.tab.on{color:var(--sel)}
+.tab.mid .circle{width:46px;height:46px;border-radius:50%;position:relative;overflow:hidden;
+ isolation:isolate;display:flex;align-items:center;justify-content:center;
+ background:linear-gradient(150deg,#464D60,#3A4051);box-shadow:0 4px 14px rgba(46,42,68,.26)}
+.dark .tab.mid .circle{background:linear-gradient(150deg,#E5E3F1,#DAD7E9);box-shadow:0 4px 14px rgba(0,0,0,.36)}
+.tab.mid .circle span{position:relative;z-index:1;font-size:8.6px;font-weight:800;
+ letter-spacing:.09em;text-transform:uppercase;color:#E4E2F0}
+.dark .tab.mid .circle span{color:#2E2A44}
+.tab.mid .circle::before{content:'';position:absolute;inset:-30%;z-index:0;
+ background:
+  radial-gradient(46% 46% at 80% 14%, rgba(128,104,104,.85), rgba(128,104,104,0) 70%),
+  radial-gradient(40% 40% at 16% 86%, rgba(226,226,240,.14), rgba(226,226,240,0) 70%);
+ animation:drift 22s ease-in-out infinite alternate}
+.dark .tab.mid .circle::before{background:
+  radial-gradient(46% 46% at 80% 14%, rgba(233,214,210,1), rgba(233,214,210,0) 70%),
+  radial-gradient(40% 40% at 16% 86%, rgba(255,255,255,.55), rgba(255,255,255,0) 70%)}
+.tab.mid.sel .circle{background:var(--sel);box-shadow:0 4px 14px rgba(46,42,68,.24)}
+.dark .tab.mid.sel .circle{background:var(--sel);box-shadow:0 4px 14px rgba(0,0,0,.36)}
+.tab.mid.sel .circle::before{opacity:0}
+.tab.mid.sel .circle span{color:#E4E2F0}
+.dark .tab.mid.sel .circle span{color:#2E2A44}
+@media (prefers-reduced-motion:reduce){.tab.mid .circle::before{animation:none}}
+
+
+/* ---- both-screen preview ---- */
+.prevcol{width:280px}
+.prow{border-radius:16px;padding:16px;margin-bottom:12px}
+.pL{background:linear-gradient(168deg,#E4E1F0,#DEDBEE)} .pL .lbl{color:#8A8399}
+.pD{background:linear-gradient(168deg,#434959,#2E3442)} .pD .lbl{color:#A2A9BC}
+.prow .lbl{font-size:8.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+ margin-bottom:12px}
+.ppill{display:flex;align-items:center;justify-content:center;border-radius:999px;height:50px;
+ font-size:11.5px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;
+ position:relative;overflow:hidden;isolation:isolate;margin-bottom:10px}
+.ppill.big{height:96px;font-size:18px}
+.ppill span{position:relative;z-index:1}
+.ppill::before{content:'';position:absolute;inset:-55%;z-index:0;
+ animation:drift 22s ease-in-out infinite alternate}
+.pillL{background:linear-gradient(150deg,#464D60,#3A4051);color:#E4E2F0}
+.pillL::before{background:
+  radial-gradient(46% 46% at 80% 14%, rgba(128,104,104,.85), rgba(128,104,104,0) 70%),
+  radial-gradient(40% 40% at 16% 86%, rgba(226,226,240,.14), rgba(226,226,240,0) 70%)}
+.pillD{background:linear-gradient(150deg,#E5E3F1,#DAD7E9);color:#2E2A44}
+.pillD::before{background:
+  radial-gradient(46% 46% at 80% 14%, rgba(233,214,210,1), rgba(233,214,210,0) 70%),
+  radial-gradient(40% 40% at 16% 86%, rgba(255,255,255,.55), rgba(255,255,255,0) 70%)}
+.pbrow{display:flex;gap:16px;align-items:center;margin-top:12px}
+.pbtn{width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
+ justify-content:center;font-size:8.6px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+ position:relative;overflow:hidden;isolation:isolate}
+.pbtn.big2{width:92px;height:92px;font-size:16px}
+.pbtn span{position:relative;z-index:1}
+.pbtn::before{content:'';position:absolute;inset:-30%;z-index:0;
+ animation:drift 22s ease-in-out infinite alternate}
+.btnL{background:linear-gradient(150deg,#464D60,#3A4051);color:#E4E2F0}
+.btnL::before{background:
+  radial-gradient(46% 46% at 80% 14%, rgba(128,104,104,.85), rgba(128,104,104,0) 70%),
+  radial-gradient(40% 40% at 16% 86%, rgba(226,226,240,.14), rgba(226,226,240,0) 70%)}
+.btnD{background:linear-gradient(150deg,#E5E3F1,#DAD7E9);color:#2E2A44}
+.btnD::before{background:
+  radial-gradient(46% 46% at 80% 14%, rgba(233,214,210,1), rgba(233,214,210,0) 70%),
+  radial-gradient(40% 40% at 16% 86%, rgba(255,255,255,.55), rgba(255,255,255,0) 70%)}
+.selL{background:#CE8B71;color:#E4E2F0} .selL::before{opacity:0}
+.selD2{background:#CE8B71;color:#2E2A44} .selD2::before{opacity:0}
+
+
+/* ---- motion demo ---- */
+.motcol{width:290px}
+.topmot{width:100%;margin-bottom:26px}
+.topmot .mrow{max-width:520px}
+.mrow{border-radius:16px;padding:16px;margin-bottom:12px}
+.mL{background:linear-gradient(168deg,#E4E1F0,#DEDBEE)} .mL .lbl{color:#8A8399}
+.mD{background:linear-gradient(168deg,#434959,#2E3442)} .mD .lbl{color:#A2A9BC}
+.mrow .lbl{font-size:8.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+ margin-bottom:12px}
+.spd6::before{animation-duration:6s!important}
+.spd12::before{animation-duration:12s!important}
+.mstack{display:flex;flex-direction:column;gap:12px}
+.mbrow{display:flex;gap:16px;align-items:center;margin-top:12px}
+
+
+/* ---- Skope of the Day difficulty bands ---- */
+.hero.beg{--band:linear-gradient(155deg,#2F5C3B,#3A6B45 55%,#22462C)}
+.hero.int{--band:linear-gradient(155deg,#2C5786,#356AA0 55%,#1E4068)}
+.hero.adv{--band:linear-gradient(155deg,#2A2E38,#3A3F4B 55%,#171A20)}
+.hero.exp{--band:linear-gradient(155deg,#4B5265,#5E5A63 55%,#39404F)}
+.diffcol{width:280px}
+.dcard{border-radius:16px;overflow:hidden;margin-bottom:12px;background:#fff}
+.dband{height:66px;position:relative;display:flex;align-items:flex-end;padding:0 14px 11px}
+.dband b{font-size:15px;font-weight:800;letter-spacing:-.03em;color:#fff}
+.dband span{position:absolute;right:14px;bottom:13px;font-size:8px;font-weight:800;
+ letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.72)}
+.dbody{padding:12px 14px 14px;background:#fff}
+.dgo{display:block;text-align:center;padding:11px 0;border-radius:11px;color:#EDEFF5;
+ font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
+
+/* ===== side columns ===== */
+.notes h3{font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+ color:#CE8B71;margin:26px 0 10px}
+.notes h3:first-child{margin-top:0}
+
+.notes{width:290px;color:#A9B3C6}
+.notes p{font-size:12.5px;line-height:1.65;margin-bottom:9px}
+.notes b{color:#EEF1F6;font-weight:700}
+.notes i{font-style:normal;color:#7E8AA0}
+.q{background:rgba(206,139,113,.15);border-radius:10px;padding:11px 13px;margin-top:6px}
+
+/* tracking leaves a trailing space; pull every centred label back by its own tracking */
+.cap{padding-left:.1em}
+.navbar{padding-left:.14em}
+.head .cta{padding-left:calc(16px + .15em)}
+.hero .go{padding-left:.15em}
+.ppill{padding-left:.15em}
+.pbtn{padding-left:.09em}
+.dgo{padding-left:.15em}
+.days em{padding-left:.06em}
+.tab.mid .circle span{padding-left:.09em}
+.livep b{padding-left:.14em}
+</style></head><body><div class="page">
+
+<div class="intro">
+  <h1>SKOPE Home — v86</h1>
+  <p>Three states, one per frame, captioned underneath: <b>one running</b> gives you LIVE SKOPE,
+  <b>two running</b> gives you LIVE SKOPES, and the <b>1:52pm frame has neither the circle nor the
+  banner label</b>, because the day is done and nothing is live. That third frame is the one to hand
+  Lovable as proof the component is conditional rather than chrome.</p>
+  <p>Same component as SKOPE YOUR DAY: 40px circle, 7.4px type at .09em, weight 700, LIVE over
+  SKOPE(S), and the avatar matches it at 40px.</p>
+</div>
+
+<div class="motcol topmot">
+  <h3 style="font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+   color:#CE8B71;margin:0 0 10px">Motion · sped up</h3>
+
+  <div class="mrow mL"><div class="lbl">Light · 6s loop</div>
+    <div class="mstack">
+      <div class="ppill pillL big spd6"><span>Skope your day →</span></div>
+    </div>
+    <div class="mbrow">
+      <div class="pbtn btnL big2 spd6"><span>Skope</span></div>
+      <div class="pbtn btnL spd6"><span>Skope</span></div>
+    </div></div>
+
+  <div class="mrow mD"><div class="lbl">Dark · 6s loop</div>
+    <div class="mstack">
+      <div class="ppill pillD big spd6"><span>Skope your day →</span></div>
+    </div>
+    <div class="mbrow">
+      <div class="pbtn btnD big2 spd6"><span>Skope</span></div>
+      <div class="pbtn btnD spd6"><span>Skope</span></div>
+    </div></div>
+
+  <div class="mrow mL"><div class="lbl">Light · 12s, halfway to real</div>
+    <div class="ppill pillL big spd12"><span>Skope your day →</span></div></div>
+
+  <div class="mrow mD"><div class="lbl">Dark · 12s, halfway to real</div>
+    <div class="ppill pillD big spd12"><span>Skope your day →</span></div></div>
+</div>
+
+<div class="frames">
+
+<div>
+<div class="phone"><div class="scr" id="light">
+  <div class="island"></div>
+  <div class="statusbar"><span>8:42</span><span>▮▮▮</span></div>
+  <div class="navbar">SKOPE Home<span class="nbr"><button type="button" class="dirc" aria-label="Show the next step"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.6 3.4 3.9 10.7c-1 .5-.9 1.9.2 2.2l6.4 1.9 1.9 6.4c.3 1.1 1.7 1.2 2.2.2Z"/></svg><u></u></button><button type="button" class="livep" aria-label="Open your running SKOPE"><b>Active</b><i>SKOPE</i></button></span></div>
+  <div class="scroll" id="bodyL"></div>
+  <div class="tabs">
+    <div class="tab on"><u></u></div>
+    <div class="tab"><u></u></div>
+    <div class="tab mid"><div class="circle"><span>Skope</span></div></div>
+    <div class="tab"><u></u></div>
+    <div class="tab"><u></u></div>
+  </div>
+</div></div>
+<p class="cap">Light · 8:42am · one running</p>
+</div>
+
+<div>
+<div class="phone"><div class="scr dark" id="dark">
+  <div class="island"></div>
+  <div class="statusbar"><span>8:42</span><span>▮▮▮</span></div>
+  <div class="navbar">SKOPE Home<span class="nbr"><button type="button" class="dirc" aria-label="Show the next step"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.6 3.4 3.9 10.7c-1 .5-.9 1.9.2 2.2l6.4 1.9 1.9 6.4c.3 1.1 1.7 1.2 2.2.2Z"/></svg><u></u></button><button type="button" class="livep" aria-label="Open your running SKOPEs"><b>Active</b><i>SKOPES</i></button></span></div>
+  <div class="scroll" id="bodyD"></div>
+  <div class="tabs">
+    <div class="tab on"><u></u></div>
+    <div class="tab"><u></u></div>
+    <div class="tab mid"><div class="circle"><span>Skope</span></div></div>
+    <div class="tab"><u></u></div>
+    <div class="tab"><u></u></div>
+  </div>
+</div></div>
+<p class="cap">Dark · same screen · two running</p>
+</div>
+
+<div>
+<div class="phone"><div class="scr">
+  <div class="island"></div>
+  <div class="statusbar"><span>1:52</span><span>▮▮▮</span></div>
+  <div class="navbar">SKOPE Home</div>
+  <div class="scroll" id="bodyP"></div>
+  <div class="tabs">
+    <div class="tab on"><u></u></div>
+    <div class="tab"><u></u></div>
+    <div class="tab mid"><div class="circle"><span>Skope</span></div></div>
+    <div class="tab"><u></u></div>
+    <div class="tab"><u></u></div>
+  </div>
+</div></div>
+<p class="cap">Light · 1:52pm · nothing running, no LIVE SKOPE</p>
+</div>
+
+<div class="swapcol">
+  <h3 style="font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+   color:#CE8B71;margin:0 0 10px">The pill, both ways</h3>
+  <div class="swapbox gL"><div class="lbl">Light ground · pale pill (old)</div>
+    <div class="pill pale"><span>Skope your day</span><span>→</span></div></div>
+  <div class="swapbox gL"><div class="lbl">Light ground · slate pill (now)</div>
+    <div class="pill slate"><span>Skope your day</span><span>→</span></div></div>
+  <div class="swapbox gD"><div class="lbl">Dark ground · slate pill (old)</div>
+    <div class="pill slate"><span>Skope your day</span><span>→</span></div></div>
+  <div class="swapbox gD"><div class="lbl">Dark ground · pale pill (now)</div>
+    <div class="pill pale"><span>Skope your day</span><span>→</span></div></div>
+</div>
+
+<div class="diffcol">
+  <h3 style="font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+   color:#CE8B71;margin:0 0 10px">Skope of the Day · by difficulty</h3>
+  <div class="dcard">
+    <div class="dband" style="background:linear-gradient(155deg,#2F5C3B,#3A6B45 55%,#22462C)"><b>Green Light</b><span>Beginner</span></div>
+    <div class="dbody"><div class="dgo" style="background:linear-gradient(155deg,#2F5C3B,#3A6B45 55%,#22462C)">Join skope</div></div>
+  </div>
+  <div class="dcard">
+    <div class="dband" style="background:linear-gradient(155deg,#2C5786,#356AA0 55%,#1E4068)"><b>Blue Sky Cruise</b><span>Intermediate</span></div>
+    <div class="dbody"><div class="dgo" style="background:linear-gradient(155deg,#2C5786,#356AA0 55%,#1E4068)">Join skope</div></div>
+  </div>
+  <div class="dcard">
+    <div class="dband" style="background:linear-gradient(155deg,#2A2E38,#3A3F4B 55%,#171A20)"><b>Prima Pronto</b><span>Advanced</span></div>
+    <div class="dbody"><div class="dgo" style="background:linear-gradient(155deg,#2A2E38,#3A3F4B 55%,#171A20)">Join skope</div></div>
+  </div>
+  <div class="dcard">
+    <div class="dband" style="background:linear-gradient(155deg,#4B5265,#5E5A63 55%,#39404F)"><b>The Chairlift Challenge</b><span>Expert</span></div>
+    <div class="dbody"><div class="dgo" style="background:linear-gradient(155deg,#4B5265,#5E5A63 55%,#39404F)">Join skope</div></div>
+  </div>
+</div>
+
+<div class="prevcol">
+  <h3 style="font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+   color:#CE8B71;margin:0 0 10px">Both screens · up close</h3>
+
+  <div class="prow pL"><div class="lbl">Light screen</div>
+    <div class="ppill pillL"><span>Skope your day →</span></div>
+    <div class="ppill pillL big"><span>Skope your day →</span></div>
+    <div class="pbrow">
+      <div class="pbtn btnL"><span>Skope</span></div>
+      <div class="pbtn btnL big2"><span>Skope</span></div>
+      <div class="pbtn selL"><span>Skope</span></div>
+    </div></div>
+
+  <div class="prow pD"><div class="lbl">Dark screen</div>
+    <div class="ppill pillD"><span>Skope your day →</span></div>
+    <div class="ppill pillD big"><span>Skope your day →</span></div>
+    <div class="pbrow">
+      <div class="pbtn btnD"><span>Skope</span></div>
+      <div class="pbtn btnD big2"><span>Skope</span></div>
+      <div class="pbtn selD2"><span>Skope</span></div>
+    </div></div>
+</div>
+
+<div class="notes">
+  <h3>Difficulty is the banner</h3>
+  <p>Four bands, straight off a trail sign: <b>green</b> beginner, <b>blue</b> intermediate,
+  <b>black</b> advanced, <b>platinum black</b> expert. Join Skope takes the same gradient, so the
+  card reads as one object and the rating lands before you read a word.</p>
+  <p>Both new colours sit deliberately away from the ramp — the green is a deep forest rather than
+  the terrain sage, the blue a true trail blue rather than glacier. That separation matters: the
+  ramp says <i>what kind of thing this is</i>, difficulty says <i>how hard it is</i>, and they'd
+  fight if they shared hues.</p>
+  <p>Worth noticing why platinum earns the top of the scale. It isn't blacker than black, it's
+  <b>lighter and metallic</b>, the only one of the four with any sheen. Double black is the one
+  rating that should feel like a prize rather than a warning, and going darker would just read as
+  "very advanced."</p>
+
+  <h3>Dark screen</h3>
+  <p>The band is the same platinum in both themes now, since a rating can't change with the theme.
+  What lifts it off the dark ground is the card body underneath, sitting a couple of steps above the
+  page — so the dark band reads as an object on a lighter card rather than a hole in the screen.</p>
+</div>
+</div>
+</div>
+
+<script>
+const BODY = `
+    <div class="head">
+      <div class="title"><h1>SKOPE HOME</h1>
+      <div class="tright"><button type="button" class="dirc" aria-label="Show the next step"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.6 3.4 3.9 10.7c-1 .5-.9 1.9.2 2.2l6.4 1.9 1.9 6.4c.3 1.1 1.7 1.2 2.2.2Z"/></svg><u></u></button><button type="button" class="livec" aria-label="Open your running SKOPE"><b>Active</b><i>SKOPE</i></button><div class="av">H</div></div></div>
+      <div class="eyebrow">__GREET__</div>
+      <div class="cta"><span>Skope your day</span><em>→</em></div>
+      <h2>VAIL</h2>
+      <div class="sub">__TIME__ · 18° bluebird · 8" overnight</div>
+    </div>
+
+    <div class="body">
+__ALERT__
+
+      <div class="block">
+        <div class="sec"><div><h3>On the Hill</h3><p>What Vail is looking like right now</p></div></div>
+      <div class="panel">
+        <div class="grid4">
+          <div><b>8"</b><span>New</span></div>
+          <div><b>54"</b><span>Base</span></div>
+          <div><b>31/31</b><span>Lifts</span></div>
+          <div><b>42</b><span>Groomed</span></div>
+        </div>
+        <div class="more"><span class="when">Updated 8:05AM</span><b>See more →</b></div>
+      </div>
+      </div>
+
+      <div class="block">
+        <div class="sec"><div><h3>Skope of the Day</h3><p>February 28th, 2027</p></div>
+          <div class="go">See more</div></div>
+        <div class="hero exp">
+          <div class="top">
+            <svg viewBox="0 0 320 46" preserveAspectRatio="none">
+              <path d="M0 38 L96 17 L150 28 L214 8 L320 32 L320 46 L0 46 Z" fill="rgba(255,255,255,.07)"/>
+            </svg>
+            <div class="n"><b>The Chairlift Challenge</b>
+              <div class="meta2"><span>Every lift · no repeats</span><em>2/28/27</em></div></div>
+          </div>
+          <div class="in">
+            <p>All 26 running today. Start from the Village at 8:30am and the order fits with time to
+            spare, Blue Sky cleared before it shuts.</p>
+            <div class="meta">
+              <div><b>26</b><span>Lifts</span></div>
+              <div><b>31,868</b><span>Vertical ft</span></div>
+              <div><b>3:09pm</b><span>Done by</span></div>
+            </div>
+            <div class="go">Join skope</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="sec"><div><h3>Skope for Today</h3><p>Built from tonight's snow and how you ski</p></div>
+          <div class="go">See more</div></div>
+        <div class="shelf">
+          <div class="card pw"><div class="in">
+            <u>Weather</u>
+            <b>Chase the Powder</b>
+            <span>Sun Down first, Blue Sky at 10:00am · ~14,000 ft</span>
+            <div class="acts"><span class="sk">Skope it</span><span class="sv">Save</span></div>
+          </div></div>
+          <div class="card pt"><div class="in">
+            <u>Terrain</u>
+            <b>Corduroy Hunt</b>
+            <span>Everything the cats touched last night, in order</span>
+            <div class="acts"><span class="sk">Skope it</span><span class="saved">Saved</span></div>
+          </div></div>
+          <div class="card pc"><div class="in">
+            <u>Challenge</u>
+            <b>Every Bowl</b>
+            <span>All seven in a day. You've never done it.</span>
+            <div class="acts"><span class="sk">Skope it</span><span class="live">Active</span></div>
+          </div></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="sec"><div><h3>Active Skopes</h3><p>Three running · one Skope Special</p></div>
+          <div class="go">See more</div></div>
+        <div class="sc pri">
+          <div class="r1">
+            <div><div class="k">Skope Special<em>Swopey's chat creation</em></div>
+              <div class="nm">Powder, Then Photos</div>
+              <div class="s">Forever, then Sun Down #17 · Eagle's Nest at 1:00pm for the light</div></div>
+            <div class="n"><b>4/14</b><span>+9 min</span></div>
+          </div>
+          <div class="bar"><i style="width:29%"></i></div>
+          <div class="view"><span class="exp">Complete by 4:00PM</span><span>View skope →</span></div>
+        </div>
+        <div class="sc bdgc">
+          <div class="r1">
+            <div><div class="k bg">Badge</div>
+              <div class="nm">Legacy Laps</div>
+              <div class="s">Two stops left. Ruder's Run and Tin Pants, both groomed, both on your
+                way down.</div></div>
+            <div class="n"><b class="g">8/10</b><span>within reach</span></div>
+          </div>
+          <div class="bar"><i class="g" style="width:80%"></i></div>
+          <div class="view"><span class="exp">Ends Sunday</span><span>View skope →</span></div>
+        </div>
+        <div class="sc chac">
+          <div class="r1">
+            <div><div class="k ch">Challenge</div>
+              <div class="nm">Every Bowl</div>
+              <div class="s">Sun Up, Sun Down, Tea Cup and China done. Siberia and Mongolia are
+                open.</div></div>
+            <div class="n"><b class="b">4/7</b><span>today</span></div>
+          </div>
+          <div class="bar"><i class="b" style="width:57%"></i></div>
+          <div class="view"><span class="exp">Today only</span><span>View skope →</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="sec"><div><h3>Rare Air</h3><p>Here today, gone tomorrow</p></div>
+          <div class="go">See more</div></div>
+        <div class="row"><div class="rail"></div><div>
+          <div class="t2">Ricky's Ridge is groomed</div>
+          <div class="s">First time in eleven days. Corduroy in Sun Down is rare.</div>
+          <div class="add">Add to skope</div></div></div>
+        <div class="row"><div class="rail"></div><div>
+          <div class="t2">Chair 5 Line is open</div>
+          <div class="s">Needs deep snow. The window is short.</div>
+          <div class="add">Add to skope</div></div></div>
+      </div>
+
+      <div class="block">
+        <div class="sec"><div><h3>Season Snapshot</h3><p>Your last seven days on snow</p></div>
+          <div class="go">See more</div></div>
+        <div class="season">
+          <div class="stats">
+            <div><b>130,429</b><span>Vertical ft. — Season</span></div>
+            <div><b>6,780,349</b><span>Vertical ft. — Lifetime</span></div>
+          </div>
+          <div class="days dayrow">
+            <div><i style="height:36%;background:var(--vail)">15K</i><em>12/27</em></div>
+            <div><i style="height:64%;background:var(--vail)">21K</i><em>12/28</em></div>
+            <div><i style="height:100%;background:var(--vail)">28K</i><em>12/29</em></div>
+            <div><i style="height:68%;background:var(--vail)">21K</i><em>12/30</em></div>
+            <div><i style="height:22%;background:var(--bc)">12K</i><em>1/2</em></div>
+            <div><i style="height:55%;background:var(--bc)">19K</i><em>1/3</em></div>
+            <div><i style="height:84%;background:var(--vail)">25K</i><em>1/7</em></div>
+          </div>
+          <div class="legend">
+            <div><u style="background:var(--vail)"></u>Vail · 5</div>
+            <div><u style="background:var(--bc)"></u>Beaver Creek · 2</div>
+          </div>
+          <div class="mile">
+            <b>Earn along the way</b>
+            <div class="m"><div class="r"><b>Quarter Million</b><span>130,429 / 250,000 ft</span></div>
+              <i><u style="width:52%"></u></i><em>Next up · half a million</em></div>
+            <div class="m"><div class="r"><b>The 500 Club</b><span>318 / 500 rides</span></div>
+              <i><u style="width:64%"></u></i><em>Next up · 1,000 rides</em></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="sec"><div><h3>Skope Social</h3><p>See what your friends are up to</p></div>
+          <div class="go">See more</div></div>
+        <div class="list">
+          <div class="item"><div class="d">J</div><p><b>Jesse</b> skoped Every Bowl</p><div class="w2">2h</div></div>
+          <div class="item"><div class="d">W</div><p><b>Whitney</b> sent you a day</p><div class="w2">4h</div></div>
+          <div class="item"><div class="d">S</div><p><b>Scott</b> passed you on Legacy Laps</p><div class="w2">1d</div></div>
+        </div>
+      </div>
+    </div>`;
+const AM = `      <div class="alert">
+        <div class="k">Powder alert</div>
+        <div class="t">8" overnight. Back bowls drop at 10:00am.</div>
+        <div class="s">Sun Down tracks out by 11:00am. Be up there early.</div>
+        <div class="go">Skope the powder →</div>
+      </div>`;
+const PM = `      <div class="alert">
+        <div class="k">Last call</div>
+        <div class="t">Pete's #39 stops loading in 53 minutes.</div>
+        <div class="s">Pete's Express #39 closes at 2:45pm.</div>
+        <div class="go">Skope the way out →</div>
+      </div>`;
+const NAME = 'Swopey';
+const AM_GREET = ['Good morning, '+NAME, "How's it going, "+NAME, 'Look at it out there, '+NAME,
+                  'Big one out there, '+NAME, 'Morning, '+NAME];
+const PM_GREET = ['Afternoon, '+NAME, 'Still going, '+NAME, 'Nice one so far, '+NAME];
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const build = (a,t,g) => BODY.replace('__ALERT__',a).replace('__TIME__',t).replace('__GREET__',g);
+document.getElementById('bodyL').innerHTML = build(AM,'8:42',pick(AM_GREET));
+document.getElementById('bodyD').innerHTML = build(AM,'8:42',pick(AM_GREET))
+  .replace('<i>SKOPE</i>','<i>SKOPES</i>').replace('running SKOPE','running SKOPEs');
+document.getElementById('bodyP').innerHTML = build(PM,'1:52',pick(PM_GREET))
+  .replace(/<button type="button" class="livec"[\s\S]*?<\/button>/,'');
+document.querySelectorAll('.scroll').forEach(sc => {
+  const bar = sc.parentElement.querySelector('.navbar');
+  sc.addEventListener('scroll', () => bar.classList.toggle('on', sc.scrollTop > 46));
+});
+document.querySelectorAll('.navbar').forEach(function(b){
+  if(b.querySelector('.nbr')) b.classList.add('withlive');});
+</script>
+</body></html>
