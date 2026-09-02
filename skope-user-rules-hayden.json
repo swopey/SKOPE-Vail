@@ -1,0 +1,37 @@
+{
+ "_meta": {"artifact":"SKOPE USER RULE BOOK","version":"0.5","owner":"user","resort":"vail",
+   "written_by":"onboarding","when":"2026-08-20","profile_type":"The Dawn Patroller",
+   "note":"Hayden's OWN answers, written into the v0.5 sectioned schema."},
+ "profile": {"name":"Hayden Swope","nickname":"SWOPEY","handle":"@swopeontheslopes","birthday":"10 / 02 / 2002"},
+ "ability": [
+  {"id":"USER-01","owner":"user","from":"screen 3","rule":"Ability ceiling is DOUBLE BLACK.",
+   "value":{"band":4,
+     "terrain":{"green":["Groomed green runs"],
+                "blue":["Groomed blues","Blues that bump up when it has not snowed"],
+                "black":["Groomed blacks","Blacks bumped up when it has not snowed","Blacks with fresh snow on them","Black tree runs","Black cat tracks, the way out of a bowl or into somewhere good"],
+                "double_black":["Long steep mogul fields","Thin cover, natural obstacles","Cliffs and drops","Anything that is open"]},
+     "excluded":["Keep the multi-mile green roads out of my day","Keep long blue roads out unless there is no way around"],
+     "verified_terrain":["Swingsville","Ramshorn","Northwoods","Buckskin Glade","Over Yonder","Hairbag Alley","Whistle Pig","Gandy Dancer","Prima into Pronto","The Slot","Forever","Riva Ridge"]}},
+  {"id":"USER-02","owner":"user","from":"screen 2b","value":{"seasons":"lifelong","local_knowledge":"local"}},
+  {"id":"USER-12","owner":"user","from":"screen 3","value":{"confidence":5,"nerve":5}}
+ ],
+ "taste": [
+  {"id":"USER-03","owner":"user","from":"screen 2","value":{"equipment":"ski"}},
+  {"id":"USER-04","owner":"user","from":"screen 3","value":{"road_avoidance":"high","road_weight_multiplier":1.5}},
+  {"id":"USER-05","owner":"user","from":"screen 4","value":{"grooming":4,"powder":5,"trees":3,"bumps":4,"effort":5,"park":1,"quiet":4,"scenic":5,"speed":5,"novelty":5,"lunch":3,"nerve":5}},
+  {"id":"USER-06","owner":"user","from":"screen 9","value":{"shape":"depth","repeats":"up_to_cap","max_same_path":3,
+     "liked_days":["Blue cruiser","Front side blues","Fast track to the back bowls","The Grand Traverse","The Chairlift Challenge"]}},
+  {"id":"USER-07","owner":"user","from":"screen 6","value":{"start":"first_chair","finish":"last_chair"}},
+  {"id":"USER-08","owner":"user","from":"screens 4 and 6","value":{"booked":0.49,"duration":40,"breaks":0}},
+  {"id":"USER-15","owner":"user","from":"screen 2b","value":{"kit":"owns"}},
+  {"id":"USER-16","owner":"user","from":"screen 2b","value":{"crew":["mostly alone","at my level","better than me","looking after"]}},
+  {"id":"USER-17","owner":"user","from":"screens 4 and 5","value":{"avoid_terrain":["The terrain park"],"avoid_areas":["Terrain Park"],"hard":false}}
+ ],
+ "vail": [
+  {"id":"USER-09","owner":"user","from":"screen 5","value":{
+     "areas":["Vail Village / Mid-Vail","Lionshead","Golden Peak","Avanti","Highline","Game Creek Bowl","Northeast Bowl","Sun Down Bowl","Sun Up Bowl","Tea Cup Bowl","China Bowl","Siberia Bowl","Inner Mongolia Bowl","Outer Mongolia Bowl","Blue Sky Basin"],
+     "top_three":["Sun Down Bowl","China Bowl","Northeast Bowl"]}},
+  {"id":"USER-10","owner":"user","from":"screen 5","value":{"mode":"dine","venues":["Two Elk Lodge","Belle's Camp","The Dawg Haus"],"base_lunch":["Vail Village"]}},
+  {"id":"USER-14","owner":"user","from":"screen 5","value":{"lodging":"off property","start_bases":["Vail Village","Lionshead","Golden Peak"],"finish_bases":["Vail Village","Lionshead","Golden Peak"]}}
+ ]
+}

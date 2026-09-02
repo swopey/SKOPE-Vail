@@ -1,0 +1,535 @@
+{
+ "_meta": {
+  "artifact": "SKOPE USER RULE BOOK",
+  "version": "0.5",
+  "updated": "2026-08-20",
+  "what": "Two things in one file. THE ANSWER MAP says which control on which onboarding screen writes which field. THE RULES are those fields, filled in with one example user so the shape is concrete.",
+  "why": "Without this the onboarding is a survey: taps happen and nothing is kept. This is the contract between the flow and the planner, and it is what a builder needs in order to wire a screen to anything.",
+  "owner": "user",
+  "schema": "mirrors skope-rules.json \u2014 sections of rules, each with a stable id, an owner and a why",
+  "resolution_order": [
+   "1. GRAPH LAWS \u2014 ORDER-03 and anything owner:derived. Never overridable by a user.",
+   "2. HOURS AND SAFETY \u2014 TIME-01, lift closes, the ability ceiling. A preference cannot ski a closed lift.",
+   "3. SHARED RULES \u2014 skope-rules.json, owner:hayden.",
+   "4. USER RULES \u2014 this file.",
+   "5. THE OPTIMISER \u2014 free to choose anything the four layers above leave open."
+  ],
+  "note": "Every rule carries the screen that produced it, so a wrong answer is traceable to the question that asked it. A rule with source:learned was inferred from days actually skied and must be confirmed before it takes effect.",
+  "not_onboarding": [
+   "WHO ARE YOU SKIING WITH belongs on the day, not in the profile. It changes daily, and it is a day chip on SKOPE YOUR DAY: alone, a partner, a group, with kids. Pace, lift choice, meeting points and lunch all move with it.",
+   "WHEN ARE YOU COMING is not a question either. The app is already time-aware about which day it builds for, so a trip is a range and a local day is today. What is missing is TRIP MODE: several days planned together, with the grooming and snow report deciding the order.",
+   "OFF-SEASON: someone downloading in August should not be asked when they are coming. The app should know the mountain is shut and offer trip planning rather than a day."
+  ],
+  "for_lovable": [
+   "SAMPLE SKOPES AND PLANS SHOULD CARRY SYMBOLS, NOT ONLY WORDS. The difficulty marks are drawn SVG (circle, square, diamond, double diamond) and are already on the sample days.",
+   "STILL TO DRAW, as a small icon family in the same weight: GROOMED (corduroy lines), MOGULS, POWDER, TREES, CAT TRACK, PARK. A plan should show at a glance that it is groomers and trees rather than saying so in a sentence.",
+   "Two more indicators worth designing once the icon set exists: HOW MUCH GROUND THE DAY COVERS (one zone versus the whole mountain) and PACE (unhurried versus moving). Hayden asked for these to be noted rather than guessed at now.",
+   "GEAR IS A DAY-ONE PROBLEM, not a daily one. The shop stop belongs in the first day of a trip and never again.",
+   "BACKGROUNDS MUST NEVER SEAM. Paint the Glacier-Lavender field and its peach bloom ONCE on a fixed layer behind the app (a fixed pseudo-element at z-index -1), not on html or body with background-attachment:fixed. iOS Safari re-paints the latter per viewport as the address bar collapses, and it shows as a hard cut partway down any long screen. Applies to EVERY screen."
+  ],
+  "matches_build": "skope-onboarding-live.html b28",
+  "for_the_planner": [
+   "TICKING EVERYTHING MEANS TWO OPPOSITE THINGS, AND THE REST OF THE ANSWER SET TELLS YOU WHICH. A local who genuinely skis the whole mountain ticks every area, and so does someone who cannot judge the question. READ THE CORROBORATION: Hayden ticked all fifteen areas AND ranked a top three AND took all twelve runs on the line screen \u2014 that is a real answer, and it means the whole mountain is in play. Rylan ticked all fifteen areas and all nine venues but only ONE of twelve runs, and said himself he does not know the mountain \u2014 that is uncertainty wearing the same clothes. The discriminators, in order: local knowledge, whether a top three was set, and whether the line screen agrees.",
+   "WHEN EVERY AREA IS TICKED AND THE ANSWER IS GENUINE, THE TOP THREE IS WHAT MAKES IT USABLE. It says where to lean on a day that could go either way, without ever ruling the rest out.",
+   "THE LINE SCREEN IS THE MOST TRUSTWORTHY INPUT. It shows what is in each run rather than naming it, so even someone who does not know the mountain answers it honestly. Where it disagrees with the cap or the areas, believe the line screen.",
+   "LOCAL KNOWLEDGE GATES HOW MUCH TO EXPLAIN, NOT WHAT TO PLAN. First visit and been once or twice both get plain-English screens and their area answers are coarse (the classics, the front side, the Back Bowls, Blue Sky, wherever the snow is best). Those map to areas, they are not areas.",
+   "A FIRST-TIMER'S DAY IS THE HARDEST ONE TO BUILD, not the easiest. Madi: never skied, staying at Cascade with its single lift, no lesson booked, nerve 2, but scenery and ambition both 5. Scared and curious at once, at the thinnest base on the mountain.",
+   "GEAR IS A DAY-ONE COST, ONCE. If anything needs collecting the first day opens at a shop with real time allowed, and no day after that carries it.",
+   "OPT-OUTS ARE SOFT. Keep them out of a normal day, and offer one when the conditions are right, phrased so it can be refused without cost.",
+   "THE TOP THREE BREAKS TIES. When two candidate days score alike, the gold, silver and bronze areas decide it. They never override TIME-01 or any graph law."
+  ]
+ },
+ "answer_map": {
+  "note": "Read as: control -> field -> what changes in the plan. Eleven screens, every one required. Nothing else in the flow writes anything.",
+  "screen_2_identity": [
+   {
+    "control": "Name",
+    "writes": "profile.name",
+    "effect": "display only, rendered in caps"
+   },
+   {
+    "control": "SKOPE calls you",
+    "writes": "profile.nickname",
+    "effect": "every greeting, and the head of the profile card"
+   },
+   {
+    "control": "Handle",
+    "writes": "profile.handle",
+    "effect": "the social layer. The @ is fixed in the field and stored with the value"
+   },
+   {
+    "control": "Birthday",
+    "writes": "profile.birthday",
+    "effect": "typed MM / DD / YYYY, slashes inserted as you go. A badge, and a soft prior on ability"
+   },
+   {
+    "control": "Ski / Snowboard / Both",
+    "writes": "USER-03.equipment",
+    "effect": "SNOWBOARD applies a negative multiplier to every cat track. A routing input, not a profile detail"
+   }
+  ],
+  "screen_2b_frequency": [
+   {
+    "control": "How much do you ski?",
+    "writes": "USER-02.seasons",
+    "effect": "confidence, not ability. FIRST TIME EVER also switches the whole flow to the beginner branch"
+   },
+   {
+    "control": "How well do you know Vail?",
+    "writes": "USER-02.local_knowledge",
+    "effect": "how much SKOPE explains, and FIRST VISIT switches screens 5 and 6 to their plain-English versions"
+   },
+   {
+    "control": "Who do you usually ski with",
+    "writes": "USER-16.crew",
+    "effect": "a PRIOR, never a lock. Shifts pace, lift choice and how much slack the plan carries; any day overrides it"
+   },
+   {
+    "control": "Your gear",
+    "writes": "USER-15.kit",
+    "effect": "two answers: own everything, or need to pick something up. If anything needs collecting, DAY ONE opens at a shop rather than a lift, once. Also where a rental partnership sits"
+   }
+  ],
+  "screen_3_capable": [
+   {
+    "control": "Which tiers are ticked",
+    "writes": "USER-01.band",
+    "effect": "the ability CEILING, not a diet. Every tier at or below stays in play; ticking double black never removes groomers"
+   },
+   {
+    "control": "The sub-picks inside each tier",
+    "writes": "USER-01.terrain",
+    "effect": "INCLUSIONS, per tier. Only the lines beginning KEEP are exclusions"
+   },
+   {
+    "control": "The KEEP lines",
+    "writes": "USER-01.excluded",
+    "effect": "multiplies the existing road weighting rather than replacing it"
+   },
+   {
+    "control": "On a run at your limit",
+    "writes": "USER-12.confidence",
+    "effect": "CAREFUL AND PATIENT to CONFIDENT ANYWHERE. 1 keeps the pitch down even at a high cap; 5 allows the hardest option at the ceiling"
+   },
+   {
+    "control": "Never skied or ridden",
+    "writes": "USER-01.band = 0",
+    "effect": "the signposted branch at the top of the screen"
+   }
+  ],
+  "screen_3b_never": [
+   {
+    "control": "How will you take to it?",
+    "writes": "USER-12.confidence",
+    "effect": "the same field, asked a different way"
+   },
+   {
+    "control": "Anything close to this?",
+    "writes": "USER-02.related_sport",
+    "effect": "a prior on how fast to progress across a first week"
+   },
+   {
+    "control": "Have you booked a lesson?",
+    "writes": "USER-13.lesson",
+    "effect": "a lesson means SKOPE plans around a meeting point. Not booked plus low nerve makes BOOK A LESSON the profile's first advice"
+   }
+  ],
+  "screen_4_statements": [
+   {
+    "control": "Grooming",
+    "writes": "USER-05.grooming",
+    "effect": "reads groomedUsual and the daily report; decides the morning"
+   },
+   {
+    "control": "Powder",
+    "writes": "USER-05.powder",
+    "effect": "first-tracks timing and starPowder runs move earlier after snow"
+   },
+   {
+    "control": "Trees",
+    "writes": "USER-05.trees",
+    "effect": "weights the trees tag"
+   },
+   {
+    "control": "Bumps",
+    "writes": "USER-05.bumps",
+    "effect": "weights ungroomed blacks when it has not snowed"
+   },
+   {
+    "control": "Effort",
+    "writes": "USER-05.effort",
+    "effect": "raises the vertical target and shortens breaks"
+   },
+   {
+    "control": "Park",
+    "writes": "USER-05.park",
+    "effect": "puts Golden Peak Terrain Park, Avanti Park and Black Forest in play"
+   },
+   {
+    "control": "Lift lines",
+    "writes": "USER-05.quiet",
+    "effect": "reads the queue model; prefers the shorter line over the famous run"
+   },
+   {
+    "control": "Scenery",
+    "writes": "USER-05.scenic",
+    "effect": "weights scenic runs, scenic lift rides and photo-op points"
+   },
+   {
+    "control": "Speed",
+    "writes": "USER-05.speed",
+    "effect": "prefers long uninterrupted fall lines over technical ones"
+   },
+   {
+    "control": "Ambition",
+    "writes": "USER-05.novelty",
+    "effect": "the explore weight: something new over something known-good"
+   },
+   {
+    "control": "Lunch",
+    "writes": "USER-05.lunch",
+    "effect": "how long the lunch band is"
+   },
+   {
+    "control": "Nerve",
+    "writes": "USER-05.nerve",
+    "effect": "pairs with confidence; low nerve softens the hardest option even at a high cap"
+   },
+   {
+    "control": "And anything you will not do?",
+    "writes": "USER-17.avoid_terrain",
+    "effect": "moguls, trees, cliffs and drops, the terrain park, flat light above the trees. SOFT, NOT PERMANENT: kept out of a normal day, still offered when the conditions are right, and always refusable. Long cat tracks and crowded runs are deliberately NOT here, both are asked elsewhere"
+   }
+  ],
+  "screen_5_where": [
+   {
+    "control": "The front side / and out back",
+    "writes": "USER-09.areas",
+    "effect": "the sixteen area names. Picking NORTHEAST BOWL includes Highline; picking HIGHLINE alone means the expert terrain off #10 (Highline, Blue Ox, Roger's Run, Log Chute, Hairbag Alley, and NOT Prima or Pronto, which start at the top of 4/5/11), which is an ability claim as much as a place"
+   },
+   {
+    "control": "Your top three",
+    "writes": "USER-09.top_three",
+    "effect": "gold, silver, bronze, chosen from what they ticked. SKOPE leans on these when a day could go either way. Appears once three areas are picked"
+   },
+   {
+    "control": "Anywhere you would rather not ski",
+    "writes": "USER-17.avoid_areas",
+    "effect": "the same sixteen names, from the other side"
+   }
+  ],
+  "screen_6_clock": [
+   {
+    "control": "On the hill from / until",
+    "writes": "USER-07.start, USER-07.finish",
+    "effect": "one track from FIRST CHAIR to LAST CHAIR, named rather than timed because last chair moves by mountain"
+   },
+   {
+    "control": "Do you plan lunch ahead?",
+    "writes": "USER-08.booked",
+    "effect": "high pins lunch to a time; low lets it float to the nearest place when hungry"
+   },
+   {
+    "control": "Breaks",
+    "writes": "USER-08.breaks",
+    "effect": "how many stops the day carries, raised on a cold day"
+   }
+  ],
+  "screen_7_day": [
+   {
+    "control": "Where are you staying",
+    "writes": "USER-14.lodging",
+    "effect": "sets the bases, editable after. VAIL VILLAGE starts at the village or Golden Peak (a short walk) and finishes at the village; GOLDEN PEAK starts at either and finishes at Golden Peak; LIONSHEAD and CASCADE are the same at both ends; OFF PROPERTY opens all three main bases. Finishing where you stay is the strong pull, starting is the loose one"
+   },
+   {
+    "control": "Where do you start / finish",
+    "writes": "USER-14.start_bases, USER-14.finish_bases",
+    "effect": "pre-filled from lodging, one tap to change"
+   },
+   {
+    "control": "Lunch",
+    "writes": "USER-10.mode",
+    "effect": "I STOP AND DINE, I PACK MY LUNCH (a modifier: you still need somewhere to sit) or I DO NOT STOP (a different day shape). The places list shows either way"
+   },
+   {
+    "control": "Where do you like to eat or stop",
+    "writes": "USER-10.venues",
+    "effect": "a named venue is a HARD ORDERING PIN per ORDER-06. For the no-stop answer these become warm-up and break stops instead"
+   },
+   {
+    "control": "Or down at a base",
+    "writes": "USER-10.base_lunch",
+    "effect": "lunch at the bottom means the plan returns to a base at midday and changes the shape of the afternoon"
+   }
+  ],
+  "screen_8_the_line": [
+   {
+    "control": "Which paths are ticked",
+    "writes": "USER-01.verified_terrain",
+    "effect": "CONFIRMS the cap against real terrain. Someone who ticks a black cap but skips every mogul path gets bumps demoted regardless of the tier they claimed."
+   }
+  ],
+  "screen_9_samples": [
+   {
+    "control": "Which days are ticked",
+    "writes": "USER-06.shape",
+    "effect": "coverage against depth against repeats, plus pace. Ticking two very different days is itself the answer: both modes are wanted."
+   }
+  ],
+  "screen_10_profile": [
+   {
+    "control": "Read-only",
+    "writes": "nothing",
+    "effect": "reads the answers back as a person. Order: the line about who you are, what you want out of a day, your ceiling, the ceiling not the diet, gear, at Vail, lunch and breaks, the clock, and last everything kept out"
+   }
+  ],
+  "screen_11_account": [
+   {
+    "control": "Apple / Google / email",
+    "writes": "account.*",
+    "effect": "where the rule book is stored. Declining keeps it on the device only."
+   }
+  ]
+ },
+ "ability": [
+  {
+   "id": "USER-01",
+   "owner": "user",
+   "from": "screen 3",
+   "rule": "Ability ceiling is DOUBLE BLACK, with groomed runs kept in play at every tier below it.",
+   "value": {
+    "band": 4,
+    "terrain": {
+     "green": [
+      "groomed"
+     ],
+     "blue": [
+      "groomed",
+      "bumped"
+     ],
+     "black": [
+      "groomed",
+      "bumped",
+      "fresh",
+      "trees",
+      "roads"
+     ],
+     "double_black": [
+      "moguls",
+      "thin cover",
+      "cliffs",
+      "anything open"
+     ]
+    },
+    "excluded": [
+     "multi-mile green roads",
+     "long blue roads unless unavoidable"
+    ]
+   },
+   "why": "The top difficulty they want to SEE, not the only thing they will ski. The sub-picks say what KIND at each level, and a groomer stays available at every one of them."
+  },
+  {
+   "id": "USER-02",
+   "owner": "user",
+   "from": "screen 2b",
+   "rule": "Multiple trips a year, and a local at heart on this mountain.",
+   "value": {
+    "seasons": "multiple_trips",
+    "local_knowledge": "local"
+   },
+   "effect": "Confidence, and how much SKOPE explains. Neither raises USER-01."
+  },
+  {
+   "id": "USER-12",
+   "owner": "user",
+   "from": "screen 3",
+   "rule": "Confident anywhere.",
+   "value": {
+    "confidence": 4,
+    "nerve": 4
+   },
+   "why": "A cautious expert and a bold intermediate pick the same diamond and want different days."
+  }
+ ],
+ "taste": [
+  {
+   "id": "USER-03",
+   "owner": "user",
+   "from": "screen 2",
+   "rule": "Skis. No snowboard penalty on cat tracks.",
+   "value": {
+    "equipment": "ski"
+   }
+  },
+  {
+   "id": "USER-04",
+   "owner": "user",
+   "from": "screen 3",
+   "rule": "Long green and blue roads stay out unless there is no way around.",
+   "value": {
+    "road_avoidance": "high",
+    "road_weight_multiplier": 1.5
+   },
+   "interacts_with": [
+    "ROUTE-06",
+    "ROUTE-11"
+   ]
+  },
+  {
+   "id": "USER-05",
+   "owner": "user",
+   "from": "screen 4",
+   "rule": "The twelve statements, each 1 to 5.",
+   "value": {
+    "grooming": 4,
+    "powder": 5,
+    "trees": 4,
+    "bumps": 2,
+    "effort": 5,
+    "park": 1,
+    "quiet": 4,
+    "scenic": 3,
+    "speed": 5,
+    "novelty": 4,
+    "lunch": 2,
+    "nerve": 4
+   }
+  },
+  {
+   "id": "USER-06",
+   "owner": "user",
+   "from": "screen 8",
+   "rule": "Depth over coverage, and repeats welcome up to the cap.",
+   "value": {
+    "shape": "depth",
+    "repeats": "up_to_cap",
+    "max_same_path": 3
+   },
+   "interacts_with": [
+    "ROUTE-04"
+   ],
+   "why": "A user preference moves a weight. It cannot move a rule Hayden owns."
+  },
+  {
+   "id": "USER-07",
+   "owner": "user",
+   "from": "screen 6",
+   "rule": "First Chair to Last Chair.",
+   "value": {
+    "start": "first_chair",
+    "finish": "last_chair"
+   }
+  },
+  {
+   "id": "USER-08",
+   "owner": "user",
+   "from": "screens 4 and 6",
+   "rule": "Lunch when hungry, short, and one other break.",
+   "value": {
+    "booked": 0.4,
+    "duration": 25,
+    "breaks": 0.3
+   }
+  },
+  {
+   "id": "USER-16",
+   "owner": "user",
+   "from": "screen 2b",
+   "rule": "Usually skis with people at about the same level.",
+   "value": {
+    "crew": [
+     "at my level"
+    ]
+   },
+   "why": "A prior, not a lock. Any day can override it."
+  },
+  {
+   "id": "USER-15",
+   "owner": "user",
+   "from": "screen 2b",
+   "rule": "Owns everything, so the day starts at a lift.",
+   "value": {
+    "kit": "owns"
+   }
+  },
+  {
+   "id": "USER-17",
+   "owner": "user",
+   "from": "screens 4 and 5",
+   "rule": "Keeps the terrain park out; no areas excluded.",
+   "value": {
+    "avoid_terrain": [
+     "The terrain park"
+    ],
+    "avoid_areas": [],
+    "hard": false
+   },
+   "why": "Soft by design. SKOPE keeps these out of a normal day and can still offer one when it thinks you are ready."
+  }
+ ],
+ "vail": [
+  {
+   "id": "USER-09",
+   "owner": "user",
+   "from": "screen 5",
+   "rule": "Favourite areas: Sun Up and Sun Down, Blue Sky.",
+   "value": {
+    "areas": [
+     "Sun Up & Sun Down",
+     "Blue Sky"
+    ]
+   },
+   "effect": "Wins a near-tie. Never overrides TIME-01."
+  },
+  {
+   "id": "USER-10",
+   "owner": "user",
+   "from": "screen 5",
+   "rule": "Lunch at Two Elk, Buffalo's or Belle's Camp.",
+   "value": {
+    "venues": [
+     "Two Elk Lodge",
+     "Buffalo's",
+     "Belle's Camp"
+    ]
+   },
+   "interacts_with": [
+    "ORDER-06"
+   ],
+   "cost_to_state": "Two Elk at 12:30 cost the validated challenge day 35 minutes. SKOPE says so before the user commits."
+  },
+  {
+   "id": "USER-14",
+   "owner": "user",
+   "from": "screen 5",
+   "rule": "Starts at Vail Village or Golden Peak, finishes at Vail Village.",
+   "value": {
+    "start_bases": [
+     "vail_village",
+     "golden_peak"
+    ],
+    "finish_bases": [
+     "vail_village"
+    ]
+   }
+  }
+ ],
+ "not_asked": [
+  {
+   "id": "USER-SKIP-01",
+   "item": "Nobody describes their taste in words. Every screen is a pick, because people are bad at describing taste and good at recognising it."
+  },
+  {
+   "id": "USER-SKIP-02",
+   "item": "Nobody is asked how many vertical feet they want. That is an output, not an input."
+  },
+  {
+   "id": "USER-SKIP-03",
+   "item": "Nobody rates themselves on a slider. USER-01 is a trail symbol and USER-02 is a count of seasons; both are things a person knows about themselves."
+  },
+  {
+   "id": "USER-SKIP-04",
+   "item": "Nobody is asked how fast they ski. USER-12 asks about confidence instead, which is the same information without the framing."
+  }
+ ]
+}
