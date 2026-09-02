@@ -1,0 +1,223 @@
+{
+ "_merge_instructions": {
+  "target": "skope-rules.json v1.9 -> v2.0",
+  "note": "FRAGMENT, not a replacement. skope-rules.json itself was not uploaded, so these are written in its real schema, with section keys and field names taken from mkspec.py, rather than the file being rebuilt from memory and silently dropping the rules already in it.",
+  "ids": "Numbers continue each section from where memory says v1.9 ended. CHECK FOR COLLISIONS against the real file and renumber if needed. An id is cited in code and tests, so a duplicate is worse than a gap.",
+  "meta_to_bump": {
+   "version": "2.0",
+   "graph_build": "B68",
+   "updated": "2026-09-01"
+  },
+  "source": "Hayden Swope, 2026-09-01, in conversation.",
+  "schema_note": "Only keys in mkspec.py's PROSE_ORDER and BLOCK_ORDER render. decision_table, consequence, applies_at and rank are machine-only and never print, so anything that must appear in the spec is carried in detail, notes, or a BLOCK_ORDER key such as values, spec, cases or downloadable."
+ },
+ "time": [
+  {
+   "id": "TIME-10",
+   "rule": "A route time in the graph is the fastest, best-condition, groomed time",
+   "owner": "hayden",
+   "detail": "Every minutes value Hayden typed assumes groomed snow, good visibility, one skier and no stopping. It is a FLOOR, not a plan. Nothing reading the graph may show a raw leg time to a user as an ETA.",
+   "quote": "These times are pretty much like if you're by yourself completely not stopping going straight down. In reality that's probably gonna be less frequent than you think.",
+   "why": "Naming the floor as a floor is what makes every multiplier below arguable. A blended average would have buried the assumption inside the number where nobody could challenge it."
+  },
+  {
+   "id": "TIME-11",
+   "rule": "A run's time is written for the skier who would actually ski it",
+   "owner": "hayden",
+   "detail": "He timed runs off video of people skiing them, so a double black carries an expert's time because only experts are on it. An intermediate never skis it, so that pairing never arises and needs no number.",
+   "implementation": "This is why the pace matrix in TIME-14 is triangular rather than square. The ability band already stops a skier being offered terrain above their level, so the only cells that exist are ones where the terrain sits at or below the skier the time was written for.",
+   "why": "It explains why expert on double black is 1.0 and correct as typed, and why the multipliers only have work to do on the easy terrain everybody skis."
+  },
+  {
+   "id": "TIME-12",
+   "rule": "Every lift ride costs two fixed buffers of 25 seconds, on top of the ride and the queue",
+   "owner": "hayden",
+   "detail": "UNLOAD is off the chair, gloves, boots and reading the sign, before the first run's clock starts. LOAD is the bottom of the run, into the maze, through it, onto the chair and moving. Both belong to the LIFT and are never folded into a leg.",
+   "worked_example": "About a minute of standing still per lift. On a 24-lift day that is roughly 20 minutes nothing was counting.",
+   "values": {
+    "unload": "0.42 min",
+    "load": "0.42 min",
+    "lives in": "plan.html D.buffer",
+    "separate from": "D.pods[].q, which is the line only"
+   },
+   "why": "Additive rather than multiplicative, because a six-second connector and a fifteen-minute traverse cost the same amount of faffing at the top of the chair."
+  },
+  {
+   "id": "TIME-13",
+   "rule": "Twelve seconds at every point the run under you changes name",
+   "owner": "hayden",
+   "detail": "A name change, an intersection with a named run that is not a cat track, the official top of a run where you stop and look out, and the point a blue run turns black are all the same thing: somewhere a skier slows, looks, and waits on the group.",
+   "quote": "No one just cruises straight through a run. Usually there's people too, they're gonna wait on people.",
+   "implementation": "0.2 min per transition in the leg's run chain, counted in field [5] of every D.table option so any planned time can be taken apart.",
+   "notes": "A difficulty change inside a run is already a name change, because runs are split top, mid and bottom by difficulty. NOT BUILT: the fork you ski past without taking. The 218 fork labels say which transitions are choices, not where along a run the branch sits, so no leg can tell whether it passes one. See OPEN-11.",
+   "why": "The gap between his old feel-times and his new floor grows with the number of transitions, not with the minutes. Two-run chains ran 1.33x and five-plus-run chains 2.13x, which is a per-transition cost, so it is charged per transition."
+  },
+  {
+   "id": "TIME-14",
+   "rule": "The pace matrix is triangular, and it is steepest on the easiest terrain",
+   "owner": "hayden",
+   "detail": "Band is the skier, tier is the leg's own hardest terrain. On green the ladder reads 1.0, 1.5, 2.2, 4.5 going down the ability scale, which is geometric rather than linear and matches his instinct that the increase should be exponential. It fell out of anchoring on Gopher Hill, not out of picking a curve.",
+   "source": "Gopher Hill, top of #12 to the bottom, 0.72 mi. His base of 0.75 min is an expert pointing it; he says a first-timer takes three to four minutes. That fixes beginner on green at 4.5x and lands the leg at 3.38.",
+   "spec": {
+    "beginner on green": "4.5",
+    "intermediate on green": "2.2",
+    "intermediate on blue": "1.6",
+    "advanced on green": "1.5",
+    "advanced on blue": "1.25",
+    "advanced on black": "1.15",
+    "expert on green": "1.2",
+    "expert on blue": "1.1",
+    "expert on black": "1.05",
+    "expert on double black": "1.0"
+   },
+   "why": "The gap between an expert and a beginner is WIDEST on the easiest terrain, which is backwards from the intuition. A black is slow for everyone because it is turn-limited. A green is where an expert points it and a beginner makes forty turns."
+  },
+  {
+   "id": "TIME-15",
+   "rule": "The pace multiplier tapers with leg length",
+   "owner": "derived",
+   "detail": "The full multiplier applies to the first two base minutes. Beyond that the excess takes 1 + (m - 1) * 0.45.",
+   "symptom": "Without it, the top of Sourdough to Lionshead came out at 77 minutes for a beginner, and Hayden rightly refused to believe it.",
+   "notes": "Gopher Hill is short so it keeps its 3.38, and the traverse lands near 39. Long beginner legs stay long, and that is honest. A first-timer really does spend half an hour crossing the mountain, and telling them 12 when it takes 35 is the worse failure.",
+   "why": "4.5x is right where the base time is fast and wrong where the terrain is already the limit. Gopher Hill runs a minute a mile. A long green traverse is already four or five, because even an expert is pushing across the flats. Skill does not help you on a cat track."
+  },
+  {
+   "id": "TIME-16",
+   "rule": "Validate a change to the time model against a day's vertical, never against a leg",
+   "owner": "hayden",
+   "detail": "His ranges: 15,000 to 25,000 ft is a normal good day, 30,000 is a really good day, 40,000 is elite, and around 60,000 means you are not stopping and you are by yourself.",
+   "worked_example": "6.5 hours all-out lapping one lift, with the buffers and a mid-day queue, gives an expert 53,900 ft on Born Free and 48,600 on Highline. A beginner tops out at 25,700 on the same lift and would not really lap it all day. Both sit where he says they should.",
+   "why": "A leg time is unfalsifiable on its own. A day's vertical is something he can judge instantly from twenty years on the hill, so it is the only real check on the whole stack. Re-run it before changing any multiplier."
+  },
+  {
+   "id": "TIME-17",
+   "rule": "Live tracking recalibrates, so the static number only has to be a good first guess",
+   "owner": "hayden",
+   "detail": "Once a SKOPE is running, tracking yields a pace factor for that skier. After two or three runs the app knows this person skis 1.4x the floor and every remaining ETA moves.",
+   "quote": "You press start and then the app tracks you and then it's like able to just like on the maps app adjust your ETA.",
+   "why": "Conditions and group size are not knowable at 8am and no static model can carry them. This is the only mechanism that can, which is what takes the pressure off the multipliers being exactly right."
+  }
+ ],
+ "routing": [
+  {
+   "id": "ROUTE-13",
+   "rule": "Downloading is a routing move, not an escape hatch",
+   "owner": "hayden",
+   "detail": "Ride down when the alternative is a long flat cat track that is likely crowded and icy, when the day ends at a base you are staying at, or when the skier would otherwise spend forty minutes traversing.",
+   "quote": "Let's say you're at the bottom of 11 and you wanna ski Ruder's Run, you could just download six, get off at the mid station and ski down. People do that all the time.",
+   "example": "His beginner Sourdough day: gondola, #4, Timberline Catwalk, lap #14, Flap Jack to the bottom of #11, up #11, Swingsville, download #1. Or ride #6 up, then #11, lap #14, back to the bottom of #11 and download #6.",
+   "why": "A 48-minute beginner traverse is not a timing problem. It is the router having no way to put someone on a lift."
+  },
+  {
+   "id": "ROUTE-14",
+   "rule": "Five lifts download, plus the Riva Bahn mid-station",
+   "owner": "hayden",
+   "detail": "A DOWNLOAD TAKES THE SAME TIME AS THE RIDE UP, his call, and the two buffers in TIME-12 apply the same as any ride.",
+   "downloadable": [
+    "Gondola One #1, boarded at Mid-Vail, arrives Vail Village",
+    "Riva Bahn #6, boarded at the top of #6 which is the bottom of #11, arrives Golden Peak",
+    "Riva Bahn mid #6m, boarded at the same place, arrives the mid-station, the partial download he uses for Ruder's Run",
+    "Born Free #8, boarded at its download platform, arrives Lionshead",
+    "Eagle Bahn #19, boarded at its download platform, arrives Lionshead",
+    "Cascade Village #20, boarded at its download platform, arrives Cascade"
+   ],
+   "implementation": "#8, #19 and #20 have their own download platform nodes because their boarding point is up top and shares no group with a base. #1 and #6 never got one because foldDest collapses a dl: destination into the base cluster its board node already sits in, so both were always reachable. What was missing is that D.board lists only the lifts you ride UP from a node. Lives in plan.html D.download.board_down.",
+   "notes": "The #6 mid arrives at p6m.top, a real node with its own descents, so Ruder's Run out of there was already in the table. It needed a boarding entry, not new geometry."
+  },
+  {
+   "id": "ROUTE-15",
+   "rule": "A download pad is not the uphill line",
+   "owner": "hayden",
+   "detail": "Nobody queues to ride down. Every pad is zero except Gondola One, which is about a minute. When closures leave no open route from Mid-Vail to a base, Gondola One rises to 12 minutes, mirroring its own uphill morning figure.",
+   "implementation": "NEVER read D.pods[].q for a download. The 12 minutes is DERIVED from the availability layer rather than from a date, so it fires for a mid-January closure of the lower front side exactly as it does in November.",
+   "why": "Everyone funnelled onto one lift at the end of the day looks exactly like everyone funnelled onto one lift at the start of one."
+  },
+  {
+   "id": "ROUTE-16",
+   "rule": "A never-ever starts on the beginner lifts, and the step up is Swingsville",
+   "owner": "hayden",
+   "detail": "First time on skis means Eagle's Nest and #15, or the bottom of Golden Peak and #12, plus the carpets #18, #25, #28, #29 and #35. The next step up is Swingsville and runs like it.",
+   "notes": "Reaching Sourdough as a beginner is completely viable and must not be blocked, provided the way home is a download rather than a traverse. His Lionshead beginner pattern: Coyote Crossing, Ledges (mid) and Minnie Ha Ha, #2 for The Meadows or Overeasy, then Eagle's Nest to the top of #19 to download."
+  }
+ ],
+ "data_integrity": [
+  {
+   "id": "DATA-08",
+   "rule": "The app cannot route you to something that is closed",
+   "owner": "hayden",
+   "detail": "A daily availability layer, run name and pod id to open or closed, sourced from Vail's own lift and grooming report. Grooming comes from the same place. A closure is a HARD FILTER at the same rank as lift hours: above every shared rule and every user preference, so a pinned run, a named lunch venue or a challenge needing one specific lift all lose to it, and it is never traded against time.",
+   "quote": "Early season really doesn't make a big difference. It's gonna be the same ones and everything, but you just gotta shut down the runs in the list that are not open.",
+   "cases": [
+    "Route TIMES do not change. A closed run does not get slower, it gets removed, and nothing in D.table, D.pace or D.buffer moves.",
+    "Every leg option whose chain contains a closed run drops before ranking, which can empty a band for an origin-destination pair. That is not an error, it means you cannot get there that way today, and SKOPE should say so rather than fall back to something illegal.",
+    "A closed lift removes its own boarding and its download.",
+    "When closures leave no open route to a base, ROUTE-15's download queue fires on its own."
+   ],
+   "why": "Early season is not a mode. It is one instance of the general problem, so nothing may key off a date."
+  },
+  {
+   "id": "DATA-09",
+   "rule": "A run Vail does not publish follows one that it does",
+   "owner": "hayden",
+   "detail": "Hayden's splits, chair lines, connectors and kid zones are not on Vail's list, so each follows a run that is. If the run it follows is open, it is open. Where a run follows two or more, ONE of them being open is enough.",
+   "quote": "Either or.",
+   "implementation": "skope-run-pins.json: 46 confirmed by him run by run, 3 that take no pin, 1 manual-only, 38 unverified parent defaults. A value of lift:N means the run follows that lift running rather than another run, used where there is no run to point at.",
+   "notes": "The 38 defaults point at VAIL'S name for the whole run, which is deliberately absent from his dictionary because he carries only the segments. Those resolve against the feed, not against index.html, so a missing parent is not a broken pin. They are UNVERIFIED: Vail's site is in summer operations and lists no runs, so he could not confirm them and nothing was guessed silently. Check them when the report returns for the season.",
+   "history": "Seven of Claude's proposals were wrong and he corrected each. Buckskin Glade follows The Skipper, not Ramshorn. Coyote's Escape & Den follows Safari (mid), not Simba. Top of 10 Access Road follows Tin Pants. Sherwood Forest follows Columbine. Chaos Canyon is a real Vail run and takes no pin. China to Blue Sky Bridge follows lift #36. Post Road (upper) follows Bwana (top)."
+  },
+  {
+   "id": "DATA-10",
+   "rule": "Some runs are never assumed open",
+   "owner": "hayden",
+   "detail": "Chair 5 Line (bottom) is so rarely open that it needs someone's eyes on it. Never assume it is open and never route to it automatically.",
+   "notes": "This covers unofficial runs only. The Pump House, Mudslide and Frontside Chutes are rarely open too, but they are official Vail runs, so the report covers them and they need no special case."
+  }
+ ],
+ "metrics": [
+  {
+   "id": "MET-08",
+   "rule": "A download subtracts from skied vertical",
+   "owner": "derived",
+   "values": {
+    "#1": "1996 ft",
+    "#6": "1517 ft",
+    "#6m": "1213 ft",
+    "#8": "1593 ft",
+    "#19": "2215 ft",
+    "#20": "1278 ft"
+   },
+   "why": "Conservation of elevation only holds if these come off the total. A rise-sum that ignores downloads overstates every day that uses one, and now that downloading is a first-class routing move that will be most beginner days."
+  }
+ ],
+ "presentation": [
+  {
+   "id": "PRES-06",
+   "rule": "A planned time must be decomposable back to his own number",
+   "owner": "derived",
+   "spec": {
+    "field 0": "planned minutes",
+    "field 1": "leg chains",
+    "field 2": "road minutes",
+    "field 3": "waypoints",
+    "field 4": "his raw base minutes",
+    "field 5": "stop-point count",
+    "field 6": "the leg's hardest terrain tier"
+   },
+   "why": "Every multiplier in the time section is a judgement call. If a number ever looks wrong to him he has to be able to take it apart, rather than argue with a single figure."
+  }
+ ],
+ "open": [
+  {
+   "id": "OPEN-09",
+   "item": "The day-conditions layer does not exist. Three features are stacked behind one missing input: closures (DATA-08), the grooming multipliers, and the B-line offer on a pinned run. The source is settled as Vail's own daily report; whether that is a feed, a scrape or hand entry is not, and that answer shapes all three."
+  },
+  {
+   "id": "OPEN-10",
+   "item": "skope-planner.js does not know the time model. It computes leg times from raw export minutes and now disagrees with plan.html by about 1.7 minutes a leg, more on beginner terrain. Two code paths giving two answers is what OPEN-04 exists to prevent. The module has to adopt TIME-12 through TIME-15, after which plan.html becomes a snapshot of what the module says rather than a second opinion."
+  },
+  {
+   "id": "OPEN-11",
+   "item": "The pass-by intersection is not buildable. TIME-13 charges a stop where the run changes name but not for the fork you ski past without taking. The 218 fork labels say which transitions are choices, not where along a run the branch sits. Same geometry gap as OPEN-02's in-0.5-miles cue."
+  }
+ ]
+}
