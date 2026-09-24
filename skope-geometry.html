@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SKOPE · Vail geometry</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EBE9F4;--surf:#F6F5FA;--ink:#2E2A44;--slate:#3E4454;--mut:#7E8598;
+  --dim:#9BA2B4;--rule:rgba(46,42,68,.10);--accent:#CE8B71;--ok:#4E7F5C;--warn:#B07A4A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'Montserrat',system-ui,sans-serif;color:var(--ink);
+  padding:26px 18px 60px}
+.wrap{max-width:720px;margin:0 auto}
+h1{font-size:13px;font-weight:800;letter-spacing:.13em;padding-left:.13em;color:var(--slate)}
+h1 span{color:var(--dim)}
+.sub{margin-top:6px;font-size:11px;font-weight:600;line-height:1.55;color:var(--mut)}
+.card{background:var(--surf);border-radius:16px;padding:16px 16px 17px;margin-top:16px;
+  box-shadow:0 2px 12px rgba(46,42,68,.06)}
+.h2{font-size:10px;font-weight:800;letter-spacing:.13em;padding-left:.13em;color:var(--slate);
+  margin-bottom:10px}
+button{font-family:inherit;border:0;border-radius:12px;font-weight:800;font-size:10.5px;
+  letter-spacing:.14em;padding:13px 18px 13px calc(18px + .14em);background:var(--slate);
+  color:#fff}
+button:disabled{opacity:.4}
+button.go{background:var(--accent)}
+button.ghost{background:none;color:var(--slate);border:1px solid var(--rule)}
+.row{display:flex;gap:9px;flex-wrap:wrap}
+.log{margin-top:13px;font-size:11px;font-weight:600;line-height:1.7;color:var(--mut);
+  white-space:pre-wrap;font-variant-numeric:tabular-nums}
+.log b{color:var(--ink);font-weight:800}
+.ok{color:var(--ok);font-weight:800}
+.warn{color:var(--warn);font-weight:800}
+.g4{display:flex;margin-top:14px;border-top:1px solid var(--rule);padding-top:13px}
+.g4 div{flex:1;text-align:center}
+.g4 div+div{border-left:1px solid var(--rule)}
+.g4 b{display:block;font-size:19px;font-weight:800;letter-spacing:.005em}
+.g4 span{display:block;margin-top:3px;font-size:8px;font-weight:800;letter-spacing:.12em;
+  padding-left:.12em;color:var(--mut)}
+.list{margin-top:12px;max-height:230px;overflow:auto;border-top:1px solid var(--rule);
+  padding-top:10px}
+.list p{font-size:11px;font-weight:600;color:var(--mut);padding:3px 0}
+.list p b{color:var(--ink);font-weight:700}
+.note{margin-top:12px;font-size:10.5px;font-weight:600;line-height:1.6;color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>SKOPE · VAIL GEOMETRY <span>B69</span></h1>
+<div class="sub">Pulls Vail's runs and lifts out of OpenStreetMap and keys every shape to the
+name it has in your graph, so the map draws YOUR runs rather than OSM's. Same source and the
+same matching your lengths tool uses. Nothing here talks to Mapbox; this is the data that
+goes into it.</div>
+
+<div class="card">
+  <div class="h2">STEP ONE</div>
+  <div class="row">
+    <button class="go" id="fetch">FETCH FROM OSM</button>
+    <button class="ghost" id="clear">CLEAR CACHE</button>
+  </div>
+  <div class="log" id="log">Ready. This takes about twenty seconds.</div>
+  <div class="g4" id="stats" style="display:none">
+    <div><b id="s1">0</b><span>SHAPES</span></div>
+    <div><b id="s2">0</b><span>RUNS MATCHED</span></div>
+    <div><b id="s3">0</b><span>LIFTS MATCHED</span></div>
+    <div><b id="s4">0</b><span>NO GEOMETRY</span></div>
+  </div>
+</div>
+
+<div class="card" id="dlcard" style="display:none">
+  <div class="h2">STEP TWO</div>
+  <div class="row">
+    <button class="go" id="dl">DOWNLOAD THE GEOMETRY</button>
+  </div>
+  <div class="note">Saves a .geojson file. Send me that file. It carries every shape with your
+  run name, your difficulty, your areas and your sides already on it.</div>
+</div>
+
+<div class="card" id="misscard" style="display:none">
+  <div class="h2">YOUR RUNS WITH NO SHAPE</div>
+  <div class="list" id="miss"></div>
+  <div class="note">Expected. Ten of these are already on your own not-on-OSM list, so they are
+  known absences rather than misses.</div>
+</div>
+
+<div class="card" id="extracard" style="display:none">
+  <div class="h2">SHAPES OSM HAS THAT YOUR GRAPH DOES NOT NAME</div>
+  <div class="list" id="extra"></div>
+  <div class="note">Left in the file and marked, never thrown away. Some are lift lines and
+  service roads; any that are real runs are worth a look.</div>
+</div>
+
+</div>
+<script>
+const SEED = {"build": "B69", "runs": [{"id": "apres_vous", "name": "Apres Vous", "dif": "most", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "avanti_bottom", "name": "Avanti (bottom)", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "avanti_mid", "name": "Avanti (mid)", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "avanti_park", "name": "Avanti Park", "dif": "park", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "avanti_top", "name": "Avanti (top)", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "baccarat", "name": "Baccarat", "dif": "more", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "bear_tree", "name": "Bear Tree", "dif": "more", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "bearclaw_glade", "name": "Bearclaw Glade", "dif": "easiest", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "bens_face", "name": "Ben's Face", "dif": "more", "areas": ["Vail Village", "Mid-Vail"], "sides": ["The Front Side"]}, {"id": "berries_bottom", "name": "Berries (bottom)", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "berries_mid", "name": "Berries (mid)", "dif": "easiest", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "berries_top", "name": "Berries (top)", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "big_rock_park", "name": "Big Rock Park", "dif": "more", "areas": ["Pete's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "black_forest_racing", "name": "Black Forest Racing", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "blue_ox", "name": "Blue Ox", "dif": "most", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "bolshoi_ballroom", "name": "Bolshoi Ballroom", "dif": "most", "areas": ["Siberia Bowl"], "sides": ["The Back Bowls"]}, {"id": "boomer", "name": "Boomer", "dif": "easiest", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "born_free_bottom", "name": "Born Free (bottom)", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "born_free_lower", "name": "Born Free (lower)", "dif": "more", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "born_free_top", "name": "Born Free (top)", "dif": "more", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "born_free_upper", "name": "Born Free (upper)", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "brisk_walk", "name": "Brisk Walk", "dif": "road_green", "areas": ["Vail Village", "Golden Peak"], "sides": ["The Front Side"]}, {"id": "buckskin_glade", "name": "Buckskin Glade", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "bwana_bottom", "name": "Bwana (bottom)", "dif": "most", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "bwana_loop", "name": "Bwana Loop", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "bwana_top", "name": "Bwana (top)", "dif": "more", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "cadys_cafe", "name": "Cady's Cafe", "dif": "extreme", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "campbells", "name": "Campbell's", "dif": "most", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "cappuccino", "name": "Cappuccino", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "carpet_18_line", "name": "Carpet 18 Line", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "carpet_25_line", "name": "Carpet 25 Line", "dif": "easiest", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "carpet_28_line", "name": "Carpet 28 Line", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "carpet_29_line", "name": "Carpet 29 Line", "dif": "easiest", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "carpet_35_line", "name": "Carpet 35 Line", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "cascade_way", "name": "Cascade Way", "dif": "more", "areas": ["Cascade Village"], "sides": ["The Front Side"]}, {"id": "chair_10_line", "name": "Chair 10 Line", "dif": "most", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "chair_11_line", "name": "Chair 11 Line", "dif": "most", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "chair_15_line", "name": "Chair 15 Line", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "chair_22_line", "name": "Chair 22 Line", "dif": "most", "areas": ["Siberia Bowl"], "sides": ["The Back Bowls"]}, {"id": "chair_2_line", "name": "Chair 2 Line", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "chair_38_line", "name": "Chair 38 Line", "dif": "most", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "chair_39_line", "name": "Chair 39 Line", "dif": "most", "areas": ["Pete's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "chair_3_line", "name": "Chair 3 Line", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "chair_4_cliffs", "name": "Chair 4 Cliffs", "dif": "extreme", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "chair_5_line_bottom", "name": "Chair 5 Line (bottom)", "dif": "extreme", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "chair_5_line_top", "name": "Chair 5 Line (top)", "dif": "most", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "chair_6_line", "name": "Chair 6 Line", "dif": "most", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "challenge", "name": "Challenge", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "champagne_glade", "name": "Champagne Glade", "dif": "most", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "chaos_canyon", "name": "Chaos Canyon", "dif": "more", "areas": ["Vail Village", "Mid-Vail"], "sides": ["The Front Side"]}, {"id": "cheetah", "name": "Cheetah", "dif": "more", "areas": ["Lionshead", "Cascade Village"], "sides": ["The Front Side"]}, {"id": "cheetah_gulley", "name": "Cheetah Gully", "dif": "most", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "chicken_yard", "name": "Chicken Yard", "dif": "most", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "china_bowl_to_two_elk", "name": "China Bowl to Two Elk", "dif": "road_blue", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "china_spur", "name": "China Spur", "dif": "road_blue", "areas": ["Pete's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "choker_cut_off", "name": "Choker Cut Off", "dif": "road_blue", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "christmas", "name": "Christmas", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "cjs_glade", "name": "CJ's Glade", "dif": "most", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "cloud_9", "name": "Cloud 9", "dif": "more", "areas": ["Earl's Bowl", "Pete's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "club_walk", "name": "Club Walk", "dif": "easiest", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "cold_feet", "name": "Cold Feet", "dif": "easiest", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "columbine", "name": "Columbine", "dif": "more", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "compromise", "name": "Compromise", "dif": "road_blue", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "conn_21_3637", "name": "China to Blue Sky Bridge", "dif": "road_blue", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "cookshack", "name": "Cookshack", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "cows_face", "name": "Cow's Face", "dif": "most", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "coyote_crossing", "name": "Coyote Crossing", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "coyotes_escape", "name": "Coyote's Escape & Den", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "cubs_way", "name": "Cub's Way", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "dealers_choice", "name": "Dealer's Choice", "dif": "more", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "deuce", "name": "Deuce's Wild", "dif": "most", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "dragons_teeth", "name": "Dragon's Teeth", "dif": "most", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "eagles_nest_ridge", "name": "Eagle's Nest Ridge", "dif": "easiest", "areas": ["Mid-Vail", "Lionshead", "Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "emperors_choice", "name": "Emperor's Choice", "dif": "most", "areas": ["Tea Cup Bowl"], "sides": ["The Back Bowls"]}, {"id": "encore", "name": "Encore", "dif": "most", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "fall_line", "name": "Fall Line", "dif": "most", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "faro", "name": "Faro", "dif": "most", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "faro_glade", "name": "Faro Glade", "dif": "most", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "first_step", "name": "First Step", "dif": "most", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "flap_jack", "name": "Flap Jack", "dif": "easiest", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "forever", "name": "Forever", "dif": "most", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "frontside_chutes", "name": "Frontside Chutes", "dif": "extreme", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "game_trail", "name": "Game Trail", "dif": "easiest", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "gandy_dancer", "name": "Gandy Dancer", "dif": "most", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "genghis_khan", "name": "Genghis Khan", "dif": "most", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "giant_steps", "name": "Giant Steps", "dif": "most", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "gilletts_dream", "name": "Gillett's Dream", "dif": "more", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "gitalong_road", "name": "Gitalong Road", "dif": "road_green", "areas": ["Vail Village", "Mid-Vail"], "sides": ["The Front Side"]}, {"id": "golden_peak_race", "name": "Golden Peak Race", "dif": "most", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "golden_peak_terrain_park", "name": "Golden Peak Terrain Park", "dif": "park", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "gopher_hill", "name": "Gopher Hill", "dif": "easiest", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "gorky_park", "name": "Gorky Park", "dif": "most", "areas": ["Siberia Bowl"], "sides": ["The Back Bowls"]}, {"id": "grand_junction_catwalk", "name": "Grand Junction Catwalk", "dif": "road_green", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "grand_review", "name": "Grand Review", "dif": "more", "areas": ["Pete's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "gs_alley", "name": "GS Alley", "dif": "most", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "hairbag_alley", "name": "Hairbag Alley", "dif": "most", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "head_first", "name": "Head First", "dif": "most", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "headwall", "name": "Headwall", "dif": "most", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "heavy_metal", "name": "Heavy Metal", "dif": "most", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "hideout", "name": "Hideout", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "highline", "name": "Highline", "dif": "extreme", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "hornsilver", "name": "Hornsilver", "dif": "most", "areas": ["Pete's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "hunky_dory", "name": "Hunky Dory", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "in_the_wuides", "name": "In The Wuides", "dif": "more", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "inner_mongolia", "name": "Inner Mongolia Bowl", "dif": "most", "areas": ["Mongolia Bowl"], "sides": ["The Back Bowls"]}, {"id": "iron_mask", "name": "Iron Mask", "dif": "most", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "jade_glade", "name": "Jade Glade", "dif": "most", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "jakes_ride", "name": "Jake's Ride", "dif": "park", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "kangaroo_cornice", "name": "Kangaroo Cornice", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "kellys_toll_road", "name": "Kelly's Toll Road", "dif": "road_blue", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "klickity_klack", "name": "Klickity Klack", "dif": "most", "areas": ["Vail Village", "Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "ledges_bottom", "name": "Ledges (bottom)", "dif": "most", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "ledges_mid", "name": "Ledges (mid)", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "ledges_top", "name": "Ledges (top)", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "lindseys", "name": "Lindsey's", "dif": "extreme", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "lionshead_catwalk", "name": "Lionshead Catwalk", "dif": "road_green", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "little_ollie", "name": "Little Ollie", "dif": "most", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "lodgepole", "name": "Lodgepole", "dif": "more", "areas": ["Mid-Vail", "Lionshead"], "sides": ["The Front Side"]}, {"id": "lodgepole_gulch", "name": "Lodgepole Gulch", "dif": "more", "areas": ["Mid-Vail", "Lionshead"], "sides": ["The Front Side"]}, {"id": "log_chute", "name": "Log Chute", "dif": "most", "areas": ["Vail Village", "Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "look_ma", "name": "Look Ma", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "lost_boy", "name": "Lost Boy", "dif": "easiest", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "lovers_leap", "name": "Lover's Leap", "dif": "most", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "lower_lions_way", "name": "Lower Lion's Way", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "magic_forest", "name": "Magic Forest", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "marmot_valley", "name": "Marmot Valley", "dif": "most", "areas": ["Tea Cup Bowl"], "sides": ["The Back Bowls"]}, {"id": "mid_vail_express", "name": "Mid-Vail Express", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "mill_creek_road", "name": "Mill Creek Road", "dif": "road_green", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "milts_face", "name": "Milt's Face", "dif": "most", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "minnie_ha_ha", "name": "Minnie Ha Ha", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "minnies_mid", "name": "Minnie's (mid)", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "minnies_mile", "name": "Minnie's (bottom)", "dif": "most", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "minnies_top", "name": "Minnie's (top)", "dif": "most", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "morning_side_ridge", "name": "Morning Side Ridge", "dif": "most", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "morning_thunder", "name": "Morning Thunder", "dif": "most", "areas": ["Tea Cup Bowl"], "sides": ["The Back Bowls"]}, {"id": "mudslide", "name": "Mudslide", "dif": "extreme", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "n_rim", "name": "N. Rim", "dif": "most", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "never", "name": "Never", "dif": "most", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "northface_catwalk", "name": "Northface Catwalk (top)", "dif": "road_green", "areas": ["Vail Village", "Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "northface_catwalk_bottom", "name": "Northface Catwalk (bottom)", "dif": "road_blue", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "northstar_bottom", "name": "Northstar (bottom)", "dif": "more", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "northstar_top", "name": "Northstar (top)", "dif": "most", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "northwoods", "name": "Northwoods", "dif": "more", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "old_9_line", "name": "Old 9 Line", "dif": "most", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "orient_express_run", "name": "Orient Express", "dif": "most", "areas": ["Siberia Bowl"], "sides": ["The Back Bowls"]}, {"id": "os", "name": "O.S.", "dif": "most", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "os_glade", "name": "O.S. Glade", "dif": "most", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "outer_mongolia", "name": "Outer Mongolia Bowl", "dif": "most", "areas": ["Mongolia Bowl"], "sides": ["The Back Bowls"]}, {"id": "ouzo", "name": "Ouzo", "dif": "most", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "ouzo_glade", "name": "Ouzo Glade", "dif": "most", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "over_yonder", "name": "Over Yonder", "dif": "most", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "overeasy", "name": "Overeasy", "dif": "easiest", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "pepis_face", "name": "Pepi's Face", "dif": "most", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "pickeroon_bottom", "name": "Pickeroon (bottom)", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "pickeroon_top", "name": "Pickeroon (top)", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "pika", "name": "Pika", "dif": "easiest", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "pony_express", "name": "Pony Express", "dif": "more", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "poppyfields", "name": "Poppyfields", "dif": "more", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "poppyfields_east", "name": "Poppyfields East", "dif": "more", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "poppyfields_west", "name": "Poppyfields West", "dif": "more", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "porcupine_alley", "name": "Porcupine Alley", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "post_road", "name": "Post Road", "dif": "road_green", "areas": ["Lionshead", "Cascade Village"], "sides": ["The Front Side"]}, {"id": "post_road_upper", "name": "Post Road (upper)", "dif": "road_green", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "powerline_glade", "name": "Powerline Glade", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "practice_parkway", "name": "Practice Parkway", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "pride", "name": "Pride", "dif": "more", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "prima_bottom", "name": "Prima (bottom)", "dif": "more", "areas": ["Vail Village", "Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "prima_cornice", "name": "Prima Cornice", "dif": "extreme", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "prima_top", "name": "Prima (top)", "dif": "extreme", "areas": ["Vail Village", "Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "pronto", "name": "Pronto", "dif": "extreme", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "ptarmigan_ridge", "name": "Ptarmigan Ridge", "dif": "road_black", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "ramshorn", "name": "Ramshorn", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "ranger_racoons_escape", "name": "Ranger Racoon's Escape", "dif": "more", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "rasputins_revenge", "name": "Rasputin's Revenge", "dif": "extreme", "areas": ["Siberia Bowl"], "sides": ["The Back Bowls"]}, {"id": "red_square", "name": "Red Square", "dif": "most", "areas": ["Siberia Bowl"], "sides": ["The Back Bowls"]}, {"id": "red_zinger", "name": "Red Zinger", "dif": "more", "areas": ["Tea Cup Bowl"], "sides": ["The Back Bowls"]}, {"id": "resolution", "name": "Resolution", "dif": "most", "areas": ["Pete's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "rickys_ridge", "name": "Ricky's Ridge", "dif": "most", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "riva_catwalk", "name": "Riva Catwalk", "dif": "road_blue", "areas": ["Vail Village", "Golden Peak"], "sides": ["The Front Side"]}, {"id": "riva_glade", "name": "Riva Glade", "dif": "most", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "riva_ridge_bottom", "name": "Riva Ridge (bottom)", "dif": "more", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "riva_ridge_mid", "name": "Riva Ridge (mid)", "dif": "more", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "riva_ridge_top", "name": "Riva Ridge (top)", "dif": "most", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "rogers_run", "name": "Roger's Run", "dif": "most", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "ruders_run", "name": "Ruder's Run", "dif": "more", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "s_look_ma", "name": "S. Look Ma", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "s_rim", "name": "S. Rim", "dif": "most", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "safari_bottom", "name": "Safari (bottom)", "dif": "most", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "safari_mid", "name": "Safari (mid)", "dif": "more", "areas": ["Lionshead", "Cascade Village"], "sides": ["The Front Side"]}, {"id": "safari_top", "name": "Safari (top)", "dif": "most", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "seldom", "name": "Seldom", "dif": "most", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "shangri_la", "name": "Shangri-La", "dif": "most", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "shangri_la_glade", "name": "Shangri-La Glade", "dif": "most", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "sherwood_forest", "name": "Sherwood Forest", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "showboat", "name": "Showboat", "dif": "more", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "silk_road_mongolia", "name": "Silk Road (Mongolia Bowl)", "dif": "road_blue", "areas": ["Mongolia Bowl"], "sides": ["The Back Bowls"]}, {"id": "silk_road_siberia", "name": "Silk Road (Siberia Bowl)", "dif": "road_blue", "areas": ["China Bowl", "Siberia Bowl"], "sides": ["The Back Bowls"]}, {"id": "simba_bottom", "name": "Simba (bottom)", "dif": "more", "areas": ["Lionshead", "Cascade Village"], "sides": ["The Front Side"]}, {"id": "simba_mid", "name": "Simba (mid)", "dif": "most", "areas": ["Lionshead", "Cascade Village"], "sides": ["The Front Side"]}, {"id": "simba_top", "name": "Simba (top)", "dif": "more", "areas": ["Lionshead", "Cascade Village"], "sides": ["The Front Side"]}, {"id": "skid_road", "name": "Skid Road (bottom)", "dif": "road_green", "areas": ["Vail Village", "Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "skid_road_top", "name": "Skid Road (top)", "dif": "road_blue", "areas": ["Vail Village", "Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "skree_field", "name": "Skree Field", "dif": "most", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "sleepytime_road", "name": "Sleepytime Road", "dif": "road_blue", "areas": ["Sun Up Bowl", "China Bowl", "Tea Cup Bowl"], "sides": ["The Back Bowls"]}, {"id": "slifer_express", "name": "Slifer Express", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "snag_park", "name": "Snag Park", "dif": "more", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "sourdough", "name": "Sourdough", "dif": "easiest", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "spruce_face", "name": "Spruce Face", "dif": "more", "areas": ["Vail Village", "Mid-Vail"], "sides": ["The Front Side"]}, {"id": "steep_and_deep", "name": "Steep & Deep", "dif": "most", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "straight_shot", "name": "Straight Shot", "dif": "most", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "sun_down_catwalk", "name": "Sun Down Catwalk", "dif": "road_black", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "sun_up_catwalk", "name": "Sun Up Catwalk", "dif": "road_blue", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "sun_up_catwalk_upper", "name": "Sun Up Catwalk (upper)", "dif": "road_blue", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "sun_up_headwall_ridge", "name": "Sun Up Bowl (Headwall Ridge)", "dif": "road_black", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "sun_up_high_noon_ridge", "name": "Sun Up Bowl (High Noon Ridge)", "dif": "most", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "sweet_n_sour", "name": "Sweet N Sour", "dif": "most", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "swingsville", "name": "Swingsville", "dif": "easiest", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "swingsville_upper", "name": "Swingsville (upper)", "dif": "easiest", "areas": ["Vail Village", "Mid-Vail", "Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "tea_cup_glades", "name": "Tea Cup Glades", "dif": "most", "areas": ["Tea Cup Bowl"], "sides": ["The Back Bowls"]}, {"id": "the_divide", "name": "The Divide", "dif": "most", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "the_divide_ridge", "name": "The Divide Ridge", "dif": "most", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "the_meadows", "name": "The Meadows", "dif": "easiest", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "the_preserve_bottom", "name": "The Preserve (bottom)", "dif": "most", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "the_preserve_top", "name": "The Preserve (top)", "dif": "more", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "the_pump_house", "name": "The Pump House", "dif": "extreme", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "the_roost", "name": "The Roost", "dif": "easiest", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "the_skipper", "name": "The Skipper", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "the_slot", "name": "The Slot", "dif": "more", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "the_star", "name": "The Star", "dif": "more", "areas": ["Pete's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "the_woods", "name": "The Woods", "dif": "more", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "thirty_eight", "name": "38", "dif": "most", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "thunder_cat_cave", "name": "Thunder Cat Cave", "dif": "easiest", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "timberline_catwalk", "name": "Timberline Catwalk", "dif": "road_green", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "tin_pants", "name": "Tin Pants", "dif": "easiest", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "top_of_10_access_road", "name": "Top of 10 Access Road", "dif": "road_green", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "tourist_trap", "name": "Tourist Trap", "dif": "most", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "trans_montane", "name": "Trans Montane", "dif": "easiest", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "twelve_to_one", "name": "12 to 1 Connector", "dif": "road_green", "areas": ["Vail Village", "Golden Peak"], "sides": ["The Front Side"]}, {"id": "upper_lions_way", "name": "Upper Lion's Way", "dif": "easiest", "areas": ["Vail Village", "Mid-Vail"], "sides": ["The Front Side"]}, {"id": "vail_village_catwalk", "name": "Vail Village Catwalk (bottom)", "dif": "road_green", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "vail_village_catwalk_mid", "name": "Vail Village Catwalk (mid)", "dif": "road_green", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "vail_village_catwalk_top", "name": "Vail Village Catwalk (top)", "dif": "road_green", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "wapiti_run", "name": "Wapiti", "dif": "easiest", "areas": [], "sides": []}, {"id": "wfo", "name": "WFO", "dif": "most", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "whippersnapper", "name": "Whippersnapper", "dif": "more", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "whiskey_jack", "name": "Whiskey Jack", "dif": "more", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "whiskey_jack_top14", "name": "Whiskey Jack (top of 14)", "dif": "more", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "whistle_pig", "name": "Whistle Pig", "dif": "more", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "widges", "name": "Widge's", "dif": "most", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "wild_card", "name": "Wildcard", "dif": "most", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "wild_woods", "name": "Wild Woods", "dif": "easiest", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "windisch_way", "name": "Windisch Way", "dif": "easiest", "areas": ["Vail Village", "Golden Peak"], "sides": ["The Front Side"]}, {"id": "windows", "name": "Windows", "dif": "most", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "windows_road_3717", "name": "Windows Road (top of 3/7/17)", "dif": "road_black", "areas": ["Mid-Vail", "Sun Down Bowl"], "sides": ["The Front Side", "The Back Bowls"]}, {"id": "windows_road_4511", "name": "Windows Road (top of 4/5/11)", "dif": "road_black", "areas": ["Mid-Vail", "Sun Down Bowl"], "sides": ["The Front Side", "The Back Bowls"]}, {"id": "wow", "name": "Wow", "dif": "most", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "yonder", "name": "Yonder", "dif": "most", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "yonder_gully", "name": "Yonder Gully", "dif": "most", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "zot", "name": "Zot", "dif": "most", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}], "lifts": [{"id": "p1", "num": "#1", "name": "GONDOLA ONE", "areas": ["Vail Village"], "sides": ["The Front Side"]}, {"id": "p2", "num": "#2", "name": "AVANTI EXPRESS", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "p3", "num": "#3", "name": "WILDWOOD EXPRESS", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "p4", "num": "#4", "name": "MOUNTAIN TOP EXPRESS", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "p27", "num": "#27", "name": "BLACK FOREST", "areas": ["Mid-Vail"], "sides": ["The Front Side"]}, {"id": "p6", "num": "#6", "name": "RIVA BAHN EXPRESS", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "p12", "num": "#12", "name": "GOPHER HILL", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "p16", "num": "#16", "name": "GOLDEN PEAK", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "p25", "num": "#25", "name": "CARPET LIFT", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "p29", "num": "#29", "name": "CARPET LIFT", "areas": ["Golden Peak"], "sides": ["The Front Side"]}, {"id": "p8", "num": "#8", "name": "BORN FREE EXPRESS", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "p19", "num": "#19", "name": "EAGLE BAHN GONDOLA", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "p26", "num": "#26", "name": "PRIDE EXPRESS", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "p15", "num": "#15", "name": "LITTLE EAGLE", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "p18", "num": "#18", "name": "CARPET LIFT", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "p28", "num": "#28", "name": "CARPET LIFT", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "p35", "num": "#35", "name": "CARPET LIFT", "areas": ["Lionshead"], "sides": ["The Front Side"]}, {"id": "p7", "num": "#7", "name": "GAME CREEK EXPRESS", "areas": ["Game Creek Bowl"], "sides": ["The Front Side"]}, {"id": "p10", "num": "#10", "name": "HIGHLINE EXPRESS", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "p11", "num": "#11", "name": "NORTHWOODS EXPRESS", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "p14", "num": "#14", "name": "SOURDOUGH EXPRESS", "areas": ["Northeast Bowl"], "sides": ["The Front Side"]}, {"id": "p9", "num": "#9", "name": "SUN UP EXPRESS", "areas": ["Sun Up Bowl"], "sides": ["The Back Bowls"]}, {"id": "p5", "num": "#5", "name": "HIGH NOON EXPRESS", "areas": ["Sun Up Bowl", "Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "p17", "num": "#17", "name": "SUN DOWN EXPRESS", "areas": ["Sun Down Bowl"], "sides": ["The Back Bowls"]}, {"id": "p21", "num": "#21", "name": "ORIENT EXPRESS", "areas": ["China Bowl", "Siberia Bowl"], "sides": ["The Back Bowls"]}, {"id": "p24", "num": "#24", "name": "WAPITI", "areas": ["China Bowl"], "sides": ["The Back Bowls"]}, {"id": "p36", "num": "#36", "name": "TEA CUP EXPRESS", "areas": ["China Bowl", "Tea Cup Bowl"], "sides": ["The Back Bowls"]}, {"id": "p22", "num": "#22", "name": "MONGOLIA", "areas": ["Siberia Bowl"], "sides": ["The Back Bowls"]}, {"id": "p37", "num": "#37", "name": "SKYLINE EXPRESS", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "p38", "num": "#38", "name": "EARL'S EXPRESS", "areas": ["Earl's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "p39", "num": "#39", "name": "PETE'S EXPRESS", "areas": ["Pete's Bowl"], "sides": ["Blue Sky Basin"]}, {"id": "p20", "num": "#20", "name": "CASCADE VILLAGE", "areas": ["Cascade Village"], "sides": ["The Front Side"]}], "aliases": {"The Meadows": "Meadows", "Lower Lion's Way": "Lionsway - Lower", "Upper Lion's Way": "Lionsway - Upper", "Tourist Trap": "Riva Ridge - Tourist Trap", "Genghis Khan": "Genghis Kahn", "CJ's Glade": "CJ's Glades", "GS Alley": "Slalom Alley", "Gillett's Dream": "Chopstix", "Avanti Park": "Black Forest", "Grand Junction Catwalk": "Golden Peak Road", "Cloud 9": ["Pete's Bowl Skiway Road", "Cloud 9 - Middle", "Cloud 9 - Lower"], "Poppyfields West": "Poppyfields West", "The Divide": "The Divide", "Poppyfields East": "Poppyfields East", "Cheetah": "Cheetah", "Minnie Ha Ha": ["Minnie's - Middle", "Minnie Haha"], "Ledges (mid)": "Ski School Ledges", "Encore": "Encore", "Minnie's (bottom)": "Minnie's - Lower", "Silk Road (Siberia Bowl)": "Silk Road - West", "Silk Road (Mongolia Bowl)": "Silk Road - East", "Gopher Hill": ["Cheetah Gulley", "Gopher Hill"], "Ranger Racoon's Escape": "Ranger Racoon's Escape", "Swingsville": "Swingsville", "Chair 15 Line": "Chair 15", "Minnie's (top)": "Minnie's - Upper"}, "not_on_osm": ["Bearclaw Glade", "Buckskin Glade", "Wild Woods", "The Roost", "Hideout", "Sherwood Forest", "Thunder Cat Cave", "Magic Forest", "Porcupine Alley", "Coyote's Escape & Den"], "faces": ["The Front Side", "The Back Bowls", "Blue Sky Basin"], "areas": [["The Front Side", ["Vail Village", "Mid-Vail", "Lionshead", "Cascade Village", "Golden Peak", "Game Creek Bowl", "Northeast Bowl"]], ["The Back Bowls", ["Sun Up Bowl", "Sun Down Bowl", "China Bowl", "Tea Cup Bowl", "Siberia Bowl", "Mongolia Bowl"]], ["Blue Sky Basin", ["Earl's Bowl", "Pete's Bowl"]]]};
+const KEY='skope-geo-v1';
+
+/* ── name matching, the same ladder the lengths tool climbs ──────────────
+   exact, then normalised, then his own alias list, then the base name of a
+   parenthetical segment. Never a fuzzy guess: a wrong match is worse than a
+   blank, because a blank is visible and a wrong one is not. */
+function norm(s){
+  return String(s||'').toLowerCase()
+    .replace(/[\u2018\u2019']/g,'').replace(/&/g,' and ')
+    .replace(/[^a-z0-9]+/g,' ').replace(/^the /,'').trim();
+}
+const RUNS=SEED.runs, LIFTS=SEED.lifts;
+const byNorm={}, byBase={};
+RUNS.forEach(function(r){
+  byNorm[norm(r.name)]=r;
+  var b=r.name.replace(/\s*\([^)]*\)\s*$/,'');
+  if(b!==r.name){ (byBase[norm(b)]=byBase[norm(b)]||[]).push(r); }
+});
+const aliasTo={};
+Object.keys(SEED.aliases).forEach(function(his){
+  var v=SEED.aliases[his], list=Array.isArray(v)?v:[v];
+  list.forEach(function(osm){ aliasTo[norm(osm)]=his; });
+});
+const liftNorm={};
+LIFTS.forEach(function(l){ liftNorm[norm(l.name)]=l; });
+
+function matchRun(osmName){
+  var n=norm(osmName);
+  if(byNorm[n]) return {run:byNorm[n],how:'exact'};
+  if(aliasTo[n] && byNorm[norm(aliasTo[n])]) return {run:byNorm[norm(aliasTo[n])],how:'alias'};
+  var cut=n.split(' - ')[0];
+  if(cut!==n && byNorm[cut]) return {run:byNorm[cut],how:'segment'};
+  /* A BASE NAME THAT SPLITS INTO SEGMENTS IS NOT A MATCH. OSM draws one
+     'Avanti'; the graph carries Avanti (top), (mid) and (bottom). Picking one
+     would be a silent wrong answer, and a wrong match hides where a blank
+     shows. So the shape is kept, named by its base, and flagged to be cut. */
+  if(byBase[n]){
+    if(byBase[n].length===1) return {run:byBase[n][0],how:'base'};
+    return {split:byBase[n].map(function(r){ return r.name; }),how:'split'};
+  }
+  return null;
+}
+function matchLift(osmName){
+  var n=norm(osmName);
+  if(liftNorm[n]) return liftNorm[n];
+  for(var k in liftNorm){ if(n && (k.indexOf(n)===0 || n.indexOf(k)===0)) return liftNorm[k]; }
+  return null;
+}
+
+/* ── the fetch. Overpass rate-limits and goes down, so three mirrors and a
+   cache: once it is in this browser he never has to wait again. */
+const MIRRORS=['https://overpass-api.de/api/interpreter',
+               'https://overpass.kumi.systems/api/interpreter',
+               'https://maps.mail.ru/osm/tools/overpass/api/interpreter'];
+const BBOX='39.555,-106.46,39.665,-106.255';
+const Q='[out:json][timeout:120];('+
+  'way["piste:type"="downhill"]('+BBOX+');'+
+  'way["aerialway"]('+BBOX+');'+
+  ');out geom;';
+
+let OUT=null;
+const log=document.getElementById('log');
+function say(h){ log.innerHTML=h; }
+
+async function fetchOSM(){
+  let raw=null;
+  try{ raw=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
+  if(raw){ say('Using the copy already in this browser. <b>Clear cache</b> to pull it again.'); return raw; }
+  for(var i=0;i<MIRRORS.length;i++){
+    say('Asking OpenStreetMap, mirror '+(i+1)+' of '+MIRRORS.length+'…');
+    try{
+      const res=await fetch(MIRRORS[i],{method:'POST',body:'data='+encodeURIComponent(Q),
+        headers:{'Content-Type':'application/x-www-form-urlencoded'}});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const j=await res.json();
+      if(!j.elements||!j.elements.length) throw new Error('came back empty');
+      try{ localStorage.setItem(KEY,JSON.stringify(j)); }catch(e){}
+      return j;
+    }catch(e){ say('Mirror '+(i+1)+' did not answer ('+e.message+'). Trying the next one…'); }
+  }
+  throw new Error('All three mirrors failed. Wait a minute and press it again.');
+}
+
+function build(j){
+  const feats=[], seen={}, extra=[];
+  let nRun=0,nLift=0,nSplit=0;
+  const splitSeen={};
+  j.elements.forEach(function(el){
+    if(!el.geometry||el.geometry.length<2) return;
+    const t=el.tags||{};
+    const coords=el.geometry.map(function(p){ return [p.lon,p.lat]; });
+    const isLift=!!t.aerialway;
+    const nm=t.name||'';
+    let props={kind:isLift?'lift':'run',osm:nm,osm_id:el.id};
+    if(isLift){
+      const L=matchLift(nm);
+      if(L){ props.skope=L.name; props.id=L.id; props.num=L.num;
+             props.areas=L.areas; props.sides=L.sides; props.aerialway=t.aerialway;
+             seen['L:'+L.name]=1; nLift++; }
+      else { props.skope=null; props.aerialway=t.aerialway; extra.push((nm||'(unnamed lift)')+' · lift'); }
+    } else {
+      const m=matchRun(nm);
+      props.osm_difficulty=t['piste:difficulty']||null;
+      if(m && m.run){ props.skope=m.run.name; props.id=m.run.id; props.dif=m.run.dif;
+             props.areas=m.run.areas; props.sides=m.run.sides; props.match=m.how;
+             seen['R:'+m.run.name]=1; nRun++; }
+      else if(m && m.split){ props.skope=null; props.match='split';
+             props.splits_into=m.split; nSplit++;
+             m.split.forEach(function(x){ splitSeen[x]=nm; }); }
+      else { props.skope=null; if(nm) extra.push(nm+' · run'); }
+    }
+    feats.push({type:'Feature',properties:props,geometry:{type:'LineString',coordinates:coords}});
+  });
+
+  const missRuns=RUNS.filter(function(r){ return !seen['R:'+r.name] && !splitSeen[r.name]; })
+    .map(function(r){ return r.name; });
+  const needSplit=Object.keys(splitSeen).sort();
+  const missLifts=LIFTS.filter(function(l){ return !seen['L:'+l.name]; }).map(function(l){ return l.name; });
+  const known={}; SEED.not_on_osm.forEach(function(n){ known[n]=1; });
+
+  OUT={type:'FeatureCollection',
+    skope:{build:SEED.build,when:new Date().toISOString(),
+      source:'OpenStreetMap via Overpass, ODbL. Run names, difficulties, areas and sides are Hayden Swope\u2019s.',
+      bbox:BBOX,shapes:feats.length,runs_matched:nRun,lifts_matched:nLift,
+      runs_without_geometry:missRuns,lifts_without_geometry:missLifts,
+      one_shape_many_segments:needSplit,shapes_to_split:nSplit,
+      known_not_on_osm:SEED.not_on_osm,
+      unnamed_in_graph:Array.from(new Set(extra)).sort()},
+    features:feats};
+
+  document.getElementById('stats').style.display='flex';
+  document.getElementById('s1').textContent=feats.length;
+  document.getElementById('s2').textContent=nRun;
+  document.getElementById('s3').textContent=nLift;
+  document.getElementById('s4').textContent=missRuns.length;
+  document.getElementById('dlcard').style.display='';
+
+  say('<b class="ok">Done.</b> '+feats.length+' shapes. '+nRun+' matched a run in your graph, '+
+      nLift+' matched a lift. '+missRuns.length+' of your runs came back with no shape'+
+      (missLifts.length?', and '+missLifts.length+' lifts did too':'')+'.'+
+      (nSplit?' '+nSplit+' shapes cover '+needSplit.length+' of your segmented runs and are flagged to be cut rather than guessed at.':''));
+
+  if(missRuns.length){
+    document.getElementById('misscard').style.display='';
+    document.getElementById('miss').innerHTML=missRuns.map(function(n){
+      return '<p><b>'+n+'</b>'+(known[n]?' <span class="warn">already on your not-on-OSM list</span>':'')+'</p>';
+    }).join('');
+  }
+  const ex=Array.from(new Set(extra)).sort();
+  if(ex.length){
+    document.getElementById('extracard').style.display='';
+    document.getElementById('extra').innerHTML=ex.map(function(n){ return '<p>'+n+'</p>'; }).join('');
+  }
+}
+
+document.getElementById('fetch').onclick=async function(){
+  this.disabled=true;
+  try{ build(await fetchOSM()); }
+  catch(e){ say('<b class="warn">'+e.message+'</b>'); }
+  this.disabled=false;
+};
+document.getElementById('clear').onclick=function(){
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  say('Cache cleared. Press <b>Fetch from OSM</b> to pull it fresh.');
+};
+document.getElementById('dl').onclick=function(){
+  if(!OUT) return;
+  const blob=new Blob([JSON.stringify(OUT)],{type:'application/geo+json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='skope-geometry-'+new Date().toISOString().slice(0,10)+'.geojson';
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); },1000);
+};
+</script>
+</body></html>
